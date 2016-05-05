@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from django import forms
 from models import Paciente
 
+#formulario para la tabla paciente
 class PacienteForm(forms.Form):
     iniciales = forms.CharField(label="Iniciales",max_length=4)
     no_inclusion = forms.IntegerField(label="No. inclusion")
