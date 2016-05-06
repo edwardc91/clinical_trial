@@ -1,5 +1,5 @@
 from django.forms.extras.widgets import SelectDateWidget
-__author__ = 'root'
+__author__ = 'eduardo'
 
 from django.forms import ModelForm
 from django import forms
@@ -114,3 +114,58 @@ class Interrupciontratamiento(forms.Form):
     eventos_adversos=forms.ChoiceField(label="Eventos adversos",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     aparicion_agravamiento=forms.ChoiceField(label="Agravamiento",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     fallecimento=forms.ChoiceField(label="Fallecimiento",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
+
+class EventoAdversoForm(forms.Form):
+    nombre = forms.CharField(label="Nombre",max_length=50)
+
+class EventosAdversosPacienteForm(forms.Form):
+    fecha_inicio=forms.DateField(label="Fecha Inicio",widget=SelectDateWidget(years=range(2016,2016)))
+    fecha_fin=forms.DateField(label="Fecha Fin",widget=SelectDateWidget(years=range(2016,2016)))
+    duracion_24_horas=forms.TimeField(label="Si duracion menor de 24h",widget=time_widget, help_text='ex: 10:30AM', input_formats=valid_time_formats)
+    grado_intensidad=forms.ChoiceField(label="Grado de Intensidad",choices={(1,"Leve"),(2,"Moderado"),(3,"Severos")},widget=forms.RadioSelect)
+    actitud_farmaco=forms.ChoiceField(label="Actitud ante farmaco",choices={(1,"Sin cambios"),(2,"Interrupcion definitiva")},widget=forms.RadioSelect)
+    resultado=forms.ChoiceField(label="Grado de Intensidad",choices={(1,"Recuperado"),(2,"Mejorado"),(3,"Persiste"),(5,"Muerte")},widget=forms.Select)
+    relacion_causalidad=forms.ChoiceField(label="Relacion casualidad",choices={(0,"No evaluable"),(1,"Recuperado"),(2,"Mejorado"),(3,"Persiste"),(5,"Muerte")},widget=forms.Select)
+    lote_dermofural=forms.CharField(label="Lote del Dermofural",max_length=10)
+
+class ExamenLabClinicoForm(forms.Form):
+    dia=forms.IntegerField(label="Dia",min_value=1,max_value=7)
+    fecha_hematologicos=forms.DateField(label="Fecha Hematologicos",widget=SelectDateWidget(years=range(2016,2016)))
+    hemoglobina=forms.forms.ChoiceField(label="Hemoglobina",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    hemoglobina_valor=forms.DecimalField(label="Valor hemoglobina",max_digits=3,decimal_places=1)
+    ctl=forms.ChoiceField(label="CTL",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    ctl_valor=forms.DecimalField(label="Valor CTL",max_digits=3,decimal_places=1)
+    neutrofilos=forms.ChoiceField(label="Neutrofilos",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    neutrofilos_valor=forms.DecimalField(label="Valor Neutrofilos",max_digits=3,decimal_places=1)
+    linfocitos=forms.ChoiceField(label="Linfocitos",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    linfocitos_valor=forms.DecimalField(label="Valor Linfocitos",max_digits=2,decimal_places=0)
+    monocitos=forms.ChoiceField(label="Monocitos",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    monocitos_valor=forms.DecimalField(label="Valor monocitos",max_digits=2,decimal_places=0)
+    eosinofilos=forms.ChoiceField(label="Eosinofilos",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    eosinofilos_valor=forms.DecimalField(label="Valor Eosinofilos",max_digits=2,decimal_places=0)
+    basofilos=forms.ChoiceField(label="Basofilos",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    basofilos_valor=forms.DecimalField(label="Valor Basofilos",max_digits=2,decimal_places=0)
+    c_plaquetas=forms.ChoiceField(label="C. Plaquetas",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    c_plaquetas_valor=forms.DecimalField(label="Valor C. Plaquetas",max_digits=3,decimal_places=0)
+    eritro=forms.ChoiceField(label="Eritro",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    eritro_valor=forms.DecimalField(label="Valor Eritro",max_digits=3,decimal_places=0)
+    fecha_quimica_sanguinea=forms.DateField(label="Fecha Quimica Sanguinea",widget=SelectDateWidget(years=range(2016,2016)))
+    creatinina=forms.ChoiceField(label="Creatinina",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    creatinina_valor=forms.DecimalField(label="Valor Eritro",max_digits=3,decimal_places=0)
+    tgo=forms.ChoiceField(label="TGO",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    tgo_valor=forms.DecimalField(label="Valor TGO",max_digits=3,decimal_places=0)
+    tgp=forms.ChoiceField(label="TGP",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    tgp_valor=forms.DecimalField(label="Valor TGP",max_digits=3,decimal_places=0)
+    glicemia=forms.ChoiceField(label="Glicemia",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    glicemia_valor=forms.DecimalField(label="Valor Glicemia",max_digits=3,decimal_places=1)
+
+class FallecimientoForm(forms.Form):
+    fecha=forms.DateField(label="Fecha Hematologicos",widget=SelectDateWidget(years=range(2016,2016)))
+    causa_clinica=forms.CharField(label="Causa Clinica",max_length=23)
+    realizo_necrosia=forms.ChoiceField(label="Realizo necrocia",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
+
+class MedicamentoForm(forms.Form):
+    nombre=forms.CharField(label="Nombre",max_length=50)
+
+class UnidadForm(forms.Form):
+    unidad=forms.CharField(label="Nombre",max_length=20)
