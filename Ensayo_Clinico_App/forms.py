@@ -159,7 +159,9 @@ class ExamenLabClinicoForm(forms.Form):
     glicemia=forms.ChoiceField(label="Glicemia",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
     glicemia_valor=forms.DecimalField(label="Valor Glicemia",max_digits=3,decimal_places=1)
 
+#comentario charlie
 #cometario eduardo
+
 class FallecimientoForm(forms.Form):
     fecha=forms.DateField(label="Fecha Hematologicos",widget=SelectDateWidget(years=range(2016,2016)))
     causa_clinica=forms.CharField(label="Causa Clinica",max_length=23)
