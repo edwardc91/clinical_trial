@@ -131,7 +131,7 @@ class EventosAdversosPacienteForm(forms.Form):
 class ExamenLabClinicoForm(forms.Form):
     dia=forms.IntegerField(label="Dia",min_value=1,max_value=7)
     fecha_hematologicos=forms.DateField(label="Fecha Hematologicos",widget=SelectDateWidget(years=range(2016,2016)))
-    hemoglobina=forms.forms.ChoiceField(label="Hemoglobina",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
+    hemoglobina=forms.ChoiceField(label="Hemoglobina",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
     hemoglobina_valor=forms.DecimalField(label="Valor hemoglobina",max_digits=3,decimal_places=1)
     ctl=forms.ChoiceField(label="CTL",choices={(1,"No realizado"),(2,"Normal"),(3,"CS"),(4,"NCS")},widget=forms.RadioSelect)
     ctl_valor=forms.DecimalField(label="Valor CTL",max_digits=3,decimal_places=1)
