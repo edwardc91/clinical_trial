@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+        <form method="post" action={{ paciente_form }}>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" class="button" value="Introducir"/>
+        </form>
+        <form method="post" action={{ unidad_form }}>
+                {% csrf_token %}
+                {{ formM.as_p }}
+                <input type="submit" class="button" value="Introducir"/>
+        </form>
+</body>
+</html>

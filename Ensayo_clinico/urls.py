@@ -10,4 +10,5 @@ urlpatterns = [
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^paciente/', views.view_paciente,name="Paciente"),
+    url(r'^ensayo_clinico/', views.view_index,name="Index"),
 ]

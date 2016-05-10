@@ -1,9 +1,11 @@
+from numpy.core.numeric import require
 from django.forms.extras.widgets import SelectDateWidget
+from Ensayo_Clinico_App.appWidgets import ListTextWidget
 __author__ = 'eduardo'
 
 from django.forms import ModelForm
 from django import forms
-from models import Paciente
+from models import Paciente, Unidad, Frecuencia
 
 #formulario para la tabla paciente
 class PacienteForm(forms.Form):
@@ -64,7 +66,7 @@ class EvaluacionFinalForm(forms.Form):
 
 class EvaluacionMicrobiologicaForm(forms.Form):
     fecha = forms.DateField(label="Fecha",widget=SelectDateWidget(years=range(2016,2016)))
-    resultado=forms.ChoiceField(label="resultado",choices={(1,"Fumador"),(2,"Exfumador"),(3,"No fumador")},widget=forms.RadioSelect)
+    resultado=forms.ChoiceField(label="Resultado",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
 
 class ExamenFisicoForm(forms.Form):
     peso=forms.DecimalField(label="Peso",max_digits=4,decimal_places=1)
@@ -101,12 +103,12 @@ class TratamientoConcomitanteForm(forms.Form):
     fecha_fin=forms.DateField(label="Fecha Fin",widget=SelectDateWidget(years=range(2016,2016)))
     duracion_24_horas=forms.TimeField(label="Si duracion menor de 24h",widget=time_widget, help_text='ex: 10:30AM', input_formats=valid_time_formats)
 
-class NecrociaForms(forms.Form):
+class NecrociaForm(forms.Form):
     hallazgo1=forms.CharField(label="Hallazgo 1",max_length=26)
     hallazgo2=forms.CharField(label="Hallazgo 2",max_length=26)
     hallazgo3=forms.CharField(label="Hallazgo 3",max_length=26)
 
-class Interrupciontratamiento(forms.Form):
+class InterrupcionTratamientoForm(forms.Form):
     fecha=forms.DateField(label="Fecha Inicio",widget=SelectDateWidget(years=range(2016,2016)))
     dosis_recibidas=forms.IntegerField(label="Dosis recibidas",max_value=9)
     abandono_voluntario=forms.ChoiceField(label="Abandono voluntario",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
@@ -168,5 +170,31 @@ class FallecimientoForm(forms.Form):
 class MedicamentoForm(forms.Form):
     nombre=forms.CharField(label="Nombre",max_length=50)
 
+_data_list=[(u.medida) for u in Unidad.objects.using('postgredb1').all()]
 class UnidadForm(forms.Form):
-    unidad=forms.CharField(label="Nombre",max_length=20)
+    medida = forms.CharField(label="Medida",max_length=15, required=True)
+
+    def __init__(self, *args, **kwargs):
+        _medida_list = kwargs.pop('data_list', None)
+        super(UnidadForm, self).__init__(*args, **kwargs)
+
+        # the "name" parameter will allow you to use the same widget more than once in the same
+        # form, not setting this parameter differently will cuse all inputs display the
+        # same list.
+        self.fields['medida'].widget = ListTextWidget(data_list=_data_list, name='medida-list')
+
+_data_list=[(f.tipo) for f in Frecuencia.objects.using('postgredb1').all()]
+class FrecuenciaForm(forms.Form):
+   tipo=forms.CharField(label="Frecuencia", max_length=15, required=True)
+
+   def __init__(self, *args, **kwargs):
+        _frecuency_list = kwargs.pop('data_list', None)
+        super(FrecuenciaForm, self).__init__(*args, **kwargs)
+
+        # the "name" parameter will allow you to use the same widget more than once in the same
+        # form, not setting this parameter differently will cuse all inputs display the
+        # same list.
+        self.fields['tipo'].widget = ListTextWidget(data_list=_data_list, name='frecuency-list')
+
+"""class GermenForm(forms.Form):
+    nombre="""
