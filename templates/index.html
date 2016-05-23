@@ -16,7 +16,6 @@
   </div>
   <div class="navegador">
     <ul class="nav">
-     <li><a href="{% block href_paciente %}{% url "Paciente" %}{% endblock href_paciente %}" class="active">{% block text_link_paciente%}Agregar Paciente{% endblock text_link_paciente%}</a></li>
             {% block nav %}{% endblock nav %}
     </ul>
      <!--<p> The above links demonstrate a basic navigational structure using an unordered list styled with CSS. Use this as a starting point and modify the properties to produce your own unique look. If you require flyout menus, create your own using a Spry menu, a menu widget from Adobe's Exchange or a variety of other javascript or CSS solutions.</p>
@@ -49,6 +48,10 @@
             </div>
       {% endblock content %}
   </div>
+
+    <div>
+        <a href="{% url "Paciente" %}">Agregar paciente</a>
+    </div>
 
   <div class="footer">
     <p>Ensayo clínico Dermofural UPD<br>

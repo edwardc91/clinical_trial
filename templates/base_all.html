@@ -13,8 +13,8 @@
             <li><a href="{% block evaluacion_durante_5 %}{% if not new %}{% url "Evaluacion_durante" inc 5 %}{% endif %}{% endblock evaluacion_durante_5 %}">Evaluación Día 5</a></li>
             <li><a href="{% block evaluacion_durante_6 %}{% if not new %}{% url "Evaluacion_durante" inc 6 %}{% endif %}{% endblock evaluacion_durante_6 %}">Evaluación Día 6</a></li>
             <li><a href="{% block evaluacion_durante_7 %}{% if not new %}{% url "Evaluacion_durante" inc 7 %}{% endif %}{% endblock evaluacion_durante_7 %}">Evaluación Día 7</a></li>
-            <li><a href="{% url "Evaluacion_final" inc %}">Evaluación final</a></li>
-            <li><a href="{% url "Interrupcion_tratamiento" inc %}">Interrupción del tratamiento</a></li>
+            <li><a href="{% if not new %}{% url "Evaluacion_final" inc %}{% endif %}">Evaluación final</a></li>
+            <li><a href="{% if not new %}{% url "Interrupcion_tratamiento" inc %}{% endif %}">Interrupción del tratamiento</a></li>
             <li><a href="chat.html">Eventos adversos</a></li>
             <li><a href="chat.html">Tratamiento concomitante</a></li>
 {% endblock nav %}

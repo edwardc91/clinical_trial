@@ -1,20 +1,4 @@
 {% extends "base_all.html" %}
-{% block href_paciente %}
-    {% if new %}
-        {% url "Paciente" %}
-    {% else %}
-        {% url "Paciente_modificar" inc %}
-    {% endif %}
-{% endblock%}
-
-{% block text_link_paciente %}
-    {% if new %}
-        Agregar Paciente
-    {% else %}
-        Modificar Paciente
-    {% endif %}
-{% endblock%}
-
 
 
 {% block content %}
