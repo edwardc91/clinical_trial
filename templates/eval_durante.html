@@ -1,0 +1,83 @@
+{% extends "base_all.html" %}
+
+
+{% block text_link_paciente %}
+    {% if new %}
+        Agregar Paciente
+    {% else %}
+        Modificar Paciente
+    {% endif %}
+{% endblock%}
+
+{% block content %}
+    <h2 xmlns="http://www.w3.org/1999/html">{{ result }}</h2>
+    <form method="post" action="">
+                {% csrf_token %}
+                 <div class="datos-colega">
+                Fecha:<br>
+                {{ form.fecha.errors }}
+                <div class="datos">{{ form.fecha }}</div>
+                </br>
+                     Previo Diastolica:<br>
+                {{ form.previo_diastolica.errors }}
+                <div class="datos">{{ form.previo_diastolica }}</div>
+                </br>
+                     Previo Sistolica:<br>
+                {{ form.previo_sistolica.errors }}
+                <div class="datos">{{ form.previo_sistolica }}</div>
+                </br>
+                     Previo FC:<br>
+                {{ form.previo_fc.errors }}
+                <div class="datos">{{ form.previo_fc }}</div>
+                </br>
+                      Previo Temperatura:<br>
+                {{ form.previo_temperatura.errors }}
+                <div class="datos">{{ form.previo_temperatura }}</div>
+                </br>
+                      Diastolica despues:<br>
+                {{ form.despues_diastolica.errors }}
+                <div class="datos">{{ form.despues_diastolica }}</div>
+                </br>
+                     Sistolica despues:<br>
+                {{ form.despues_sistolica.errors }}
+                <div class="datos">{{ form.despues_sistolica }}</div>
+                </br>
+                     FC despues:<br>
+                {{ form.despues_fc.errors }}
+                <div class="datos">{{ form.despues_fc }}</div>
+                 </br>
+                     Temperatura despues:<br>
+                {{ form.despues_temperatura.errors }}
+                <div class="datos">{{ form.despues_temperatura }}</div>
+                     </br>
+                     Valor de la Glicemia:<br>
+                {{ form.glicemia_valor.errors }}
+                <div class="datos">{{ form.glicemia_valor }}</div>
+                     </br>
+                     Glicemia:<br>
+                {{ form.glicemia.errors }}
+                <div class="datos">{{ form.glicemia }}</div>
+                     </br>
+                     Fecha de la Glicemia:<br>
+                {{ form.fecha_glicemia.errors }}
+                <div class="datos">{{ form.fecha_glicemia }}</div>
+                     </br>
+                     Manifestaciones clinicas:<br>
+                {{ form.manifestaciones_clinicas.errors }}
+                <div class="datos">{{ form.manifestaciones_clinicas }}</div>
+                     </br>
+                      Tratamiento concomitante:<br>
+                {{ form.tratamiento_concomitante.errors }}
+                <div class="datos">{{ form.tratamiento_concomitante }}</div>
+                     </br>
+                     Eventos Adversos:<br>
+                {{ form.eventos_adversos.errors }}
+                <div class="datos">{{ form.eventos_adversos }}</div>
+                     </br>
+                     Interrumpio Tratamiento:<br>
+                {{ form.interrumpio_tratamiento.errors }}
+                <div class="datos">{{ form.interrumpio_tratamiento }}</div>
+                <input type="submit" class="boton-registrar" value="Guardar">
+            </div>
+    </form>
+{% endblock content %}

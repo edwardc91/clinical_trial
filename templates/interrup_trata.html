@@ -1,0 +1,51 @@
+{% extends "base_all.html" %}
+
+{% block text_link_paciente %}
+    {% if new %}
+        Agregar Paciente
+    {% else %}
+        Modificar Paciente
+    {% endif %}
+{% endblock%}
+
+{% block content %}
+    <h2>{{ result }}</h2>
+    <form method="post" action="">
+                {% csrf_token %}
+                 <div class="datos-colega">
+                Fecha:<br>
+                {{ form.fecha.errors }}
+                <div class="datos">{{ form.fecha }}</div>
+                </br>
+                     Dosis recibidas:<br>
+                {{ form.dosis_recibidas.errors }}
+                <div class="datos">{{ form.dosis_recibidas }}</div>
+                </br>
+                     Abandono voluntario:<br>
+                {{ form.abandono_voluntario.errors }}
+                <div class="datos">{{ form.abandono_voluntario }}</div>
+                </br>
+                     Criterios de exclusion:<br>
+                {{ form.criterios_exclusion.errors }}
+                <div class="datos">{{ form.criterios_exclusion }}</div>
+                </br>
+                     Eventos adversos:<br>
+                {{ form.eventos_adversos.errors }}
+                <div class="datos">{{ form.eventos_adversos }}</div>
+                </br>
+                     Aparicion agravamiento:<br>
+                {{ form.aparicion_agravamiento.errors }}
+                <div class="datos">{{ form.aparicion_agravamiento }}</div>
+                </br>
+                     Fallecimiento:<br>
+                {{ form.fallecimento.errors }}
+                <div class="datos">{{ form.fallecimento }}</div>
+                </br>
+                     Otra causa de interrupcion:<br>
+                {{ form2.nombre.errors }}
+                <div class="datos">{{ form2.nombre }}</div>
+                </br>
+                <input type="submit" class="boton-registrar" value="Guardar">
+            </div>
+    </form>
+{% endblock content %}

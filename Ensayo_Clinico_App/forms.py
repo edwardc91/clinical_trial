@@ -5,23 +5,24 @@ __author__ = 'eduardo'
 
 from django.forms import ModelForm
 from django import forms
-from models import Paciente, Unidad, Frecuencia
+from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras
 
 #formulario para la tabla paciente
 class PacienteForm(forms.Form):
     iniciales = forms.CharField(label="Iniciales",max_length=4)
     no_inclusion = forms.IntegerField(label="No. inclusion")
-    fecha_inclusion = forms.DateField(label="Fecha inclusion",widget=SelectDateWidget(years=range(2016,2016)))
+    fecha_inclusion = forms.DateField(label="Fecha inclusion",widget=SelectDateWidget())
     edad = forms.IntegerField(label="Edad", max_value=150)
     sexo = forms.ChoiceField(label="Sexo",choices={(1,"Masculino"),(2,"Femenino")},widget=forms.RadioSelect)
     raza = forms.ChoiceField(label="Raza",choices={(1,"Blanca"),(2,"Negra"),(3,"Mestiza"),(4,"Amarilla")},widget=forms.RadioSelect)
 
 class EvaluacionInicialForm(forms.Form):
-    fecha = forms.DateField(label="Fecha",widget=SelectDateWidget(years=range(2016,2016)))
+    fecha = forms.DateField(label="Fecha",widget=SelectDateWidget())
     hipertension_arterial=forms.ChoiceField(label="Hipertension Arterial",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     hiperlipidemias = forms.ChoiceField(label="Hiperlipidemias",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     cardiopatia_isquemica=forms.ChoiceField(label="Cardiopatia isquemica",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
-    ulceras_pies=forms.ChoiceField(label="Historia ulceras pies",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
+    historia_ulcera_pies=forms.ChoiceField(label="Historia ulceras pies",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
+    historia_amputacion=forms.ChoiceField(label="Historia de amputacion",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     amputacion_mayor=forms.ChoiceField(label="Amputacion mayor",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     amputacion_menor=forms.ChoiceField(label="Amputacion menor",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     tipo_diabetes=forms.ChoiceField(label="Tipo de Diabetes",choices={(1,"Tipo I"),(2,"Tipo II")},widget=forms.RadioSelect)
@@ -34,8 +35,8 @@ class EvaluacionInicialForm(forms.Form):
     planta=forms.ChoiceField(label="Planta",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     calcaneo=forms.ChoiceField(label="Calcaneo",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     lateral_interno=forms.ChoiceField(label="Lateral interno",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
-    laterla_externo=forms.ChoiceField(label="Lateral externo",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
-    transmetatarsian=forms.ChoiceField(label="Transmetatarsiano",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
+    lateral_externo=forms.ChoiceField(label="Lateral externo",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
+    transmetatarsiano=forms.ChoiceField(label="Transmetatarsiano",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     clasificacion_idsa=forms.ChoiceField(label="Clasificacion IDSA",choices={(1,"No infeccion"),(2,"Leve"),(3,"Moderado"),(4,"Severo")},widget=forms.RadioSelect)
     cultivo_microbiologico=forms.ChoiceField(label="Cultivo microbiologico",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     tratamiento_concomitante=forms.ChoiceField(label="Tratamiento concomitante",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
@@ -198,3 +199,16 @@ class FrecuenciaForm(forms.Form):
 
 """class GermenForm(forms.Form):
     nombre="""
+
+_data_list=[(c.nombre) for c in CausasInterrupcionOtras.objects.using('postgredb1').all()]
+class CausasInterrupcionOtrasForm(forms.Form):
+    nombre = forms.CharField(label="Otra causa de interrupcion", max_length=50)
+
+    def __init__(self, *args, **kwargs):
+        _causas_list = kwargs.pop('data_list', None)
+        super(CausasInterrupcionOtrasForm, self).__init__(*args, **kwargs)
+
+        # the "name" parameter will allow you to use the same widget more than once in the same
+        # form, not setting this parameter differently will cuse all inputs display the
+        # same list.
+        self.fields['nombre'].widget = ListTextWidget(data_list=_data_list, name='cause-list')

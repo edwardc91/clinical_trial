@@ -36,7 +36,7 @@ class EvaluacionDurante(models.Model):
     glicemia = models.SmallIntegerField(blank=True, null=True)
     fecha_glicemia = models.DateField(blank=True, null=True)
     manifestaciones_clinicas = models.SmallIntegerField(blank=True, null=True)
-    tratamineto_concomitante = models.SmallIntegerField(blank=True, null=True)
+    tratamiento_concomitante = models.SmallIntegerField(blank=True, null=True)
     eventos_adversos = models.SmallIntegerField(blank=True, null=True)
     interrumpio_tratamiento = models.SmallIntegerField(blank=True, null=True)
 
