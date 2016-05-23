@@ -5,6 +5,7 @@
 {% endblock %}
 {% block nav %}
     <li><a href="{% url "Index" %}">Listado de pacientes</a></li>
+    <li><a href="{% if not new %}{% url "Paciente_modificar" inc %}{% endif %}">Modificar paciente</a></li>
     <li><a href="{% block evaluacion_inicial %}{% if not new %}{% url "Evaluacion_inicial" inc %}{% endif %}{% endblock evaluacion_inicial %}">Evaluación inicial</a></li>
             <li><a href="{% block evaluacion_durante_1 %}{% if not new %}{% url "Evaluacion_durante" inc 1 %}{% endif %}{% endblock evaluacion_durante_1 %}">Evaluación Día 1</a></li>
             <li><a href="{% block evaluacion_durante_2 %}{% if not new %}{% url "Evaluacion_durante" inc 2 %}{% endif %}{% endblock evaluacion_durante_2 %}">Evaluación Día 2</a></li>
