@@ -1,5 +1,5 @@
 __author__ = 'root'
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.core.exceptions import ObjectDoesNotExist
 
 import models
@@ -389,15 +389,15 @@ def view_interrupcion_tratamiento(request,no_inc):
     result = "Modifique los datos de interrupcion del tratamiento del paciente "+paciente.iniciales
     causas_otras = [(c.nombre) for c in models.CausasInterrupcionOtras.objects.using('postgredb1').all()]
     try:
-        interrup_trata = models.InterrupcionTratamiento.objects.using("postgredb1").get(no_inclusion__no_inclusion=no_inc)
+        interrup_trata = models.InterrupcionTratamiento.objects.using("postgredb1").get(no_inclusion=no_inc)
     except ObjectDoesNotExist:
         exist = False
         result = "Introduzca los datos de interrupcion del tratamiento del paciente "+paciente.iniciales
-        print "Error"
 
     if request.POST:
-        form=forms.EvaluacionFinalForm(request.POST)
+        form=forms.InterrupcionTratamientoForm(request.POST)
         form2=forms.CausasInterrupcionOtrasForm(request.POST)
+        print "Enter post"
         if form.is_valid() and form2.is_valid():
             no_inclusion=paciente
             fecha=form.cleaned_data['fecha']
@@ -406,11 +406,11 @@ def view_interrupcion_tratamiento(request,no_inc):
             criterios_exclusion=form.cleaned_data['criterios_exclusion']
             eventos_adversos=form.cleaned_data['eventos_adversos']
             aparicion_agravamiento=form.cleaned_data['aparicion_agravamiento']
-            fallecimento=form.cleaned_data['fallecimento']
+            fallecimiento=form.cleaned_data['fallecimiento']
 
             nombre=form2.cleaned_data['nombre']
 
-
+            print "Leido formularios"
             if exist:
                 print "updated"
                 interrup_trata.no_inclusion=no_inclusion
@@ -420,37 +420,295 @@ def view_interrupcion_tratamiento(request,no_inc):
                 interrup_trata.criterios_exclusion=criterios_exclusion
                 interrup_trata.eventos_adversos=eventos_adversos
                 interrup_trata.aparicion_agravamiento=aparicion_agravamiento
-                interrup_trata.fallecimento=fallecimento
+                interrup_trata.fallecimiento=fallecimiento
 
 
                 interrup_trata.save()
+                exist_rel = True
+                if nombre:
+                    if nombre not in causas_otras:
+                        otra_causa = models.CausasInterrupcionOtras.objects.using('postgredb1').create(nombre=nombre)
+                        otra_causa.save()
+                        try:
+                            relacion = models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').get(no_inclusion=no_inc)
+                        except ObjectDoesNotExist:
+                            relacion = models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').create(no_inclusion=paciente,
+                                                                                                                nombre=otra_causa
+                                                                                                                )
+                            relacion.save()
+                            exist_rel=False
+
+                        if exist_rel:
+                            relacion.no_inclusion = no_inclusion
+                            relacion.nombre = otra_causa
+                            relacion.save()
+
+
+                    else:
+                        otra_causa = models.CausasInterrupcionOtras.objects.using('postgredb1').get(nombre=nombre)
+                        try:
+                            relacion = models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').get(no_inclusion=no_inc)
+                        except ObjectDoesNotExist:
+                            relacion = models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').create(no_inclusion=paciente,
+                                                                                                                nombre=otra_causa
+                                                                                                                )
+                            relacion.save()
+                            exist_rel=False
+
+                        if exist_rel:
+                            relacion.no_inclusion = no_inclusion
+                            relacion.nombre = otra_causa
+                            relacion.save()
+
+                else:
+                     try:
+                        relacion = models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').get(no_inclusion=no_inc)
+                     except ObjectDoesNotExist:
+                        exist_rel=False
+
+                     if exist_rel:
+                        relacion.delete()
+
+
                 result = "Actualizados datos del paciente "+paciente.iniciales+" exitosamente"
             else:
                 print "created"
-                interrup_trata = models.EvaluacionFinal.objects.using('postgredb1').create(no_inclusion=no_inclusion,
+                interrup_trata = models.InterrupcionTratamiento.objects.using('postgredb1').create(no_inclusion=no_inclusion,
                                                                                  fecha=fecha,
                                                                                  dosis_recibidas=dosis_recibidas,
                                                                                  abandono_voluntario=abandono_voluntario,
                                                                                  criterios_exclusion=criterios_exclusion,
                                                                                  eventos_adversos=eventos_adversos,
                                                                                  aparicion_agravamiento=aparicion_agravamiento,
-                                                                                 fallecimento=fallecimento
+                                                                                 fallecimiento=fallecimiento
                                                                                 )
                 interrup_trata.save()
+
+                if nombre:
+                    print "Enter en create nombre exist"
+                    if nombre not in causas_otras:
+                        otra_causa = models.CausasInterrupcionOtras.objects.using('postgredb1').create(nombre=nombre)
+                        otra_causa.save()
+
+                        relacion = models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').create(no_inclusion=paciente,
+                                                                                                      nombre=otra_causa
+                                                                                                      )
+
+                        relacion.save()
+                    else:
+                        otra_causa = models.CausasInterrupcionOtras.objects.using('postgredb1').get(nombre=nombre)
+                        relacion = models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').create(no_inclusion=paciente,
+                                                                                                      nombre=otra_causa
+                                                                                                      )
+
+                        relacion.save()
+
                 result = "Introducidos los datos del paciente "+paciente.iniciales+" exitosamente"
                 return render(request, "interrup_trata.html", {'form': form,'form2': form2, 'result': result, 'inc': no_inclusion.no_inclusion})
     if exist:
         i_data={'fecha': interrup_trata.fecha,
-                'manifestaciones_clinicas': interrup_trata.manifestaciones_clinicas,
-                'cultivo_microbiologico': interrup_trata.cultivo_microbiologico,
-                'clasificacion_idsa': interrup_trata.clasificacion_idsa,
+                'dosis_recibidas': interrup_trata.dosis_recibidas,
+                'abandono_voluntario': interrup_trata.abandono_voluntario,
+                'criterios_exclusion': interrup_trata.criterios_exclusion,
+                'eventos_adversos': interrup_trata.eventos_adversos,
+                'aparicion_agravamiento': interrup_trata.aparicion_agravamiento,
+                'fallecimiento': interrup_trata.fallecimiento,
         }
-        form = forms.InterrupcionTratamientoFormForm(initial=i_data)
-        form2 = forms.CausasInterrupcionOtrasForm(data_list=causas_otras, prefix="Otra_causa")
+        form = forms.InterrupcionTratamientoForm(initial=i_data)
     else:
         form = forms.InterrupcionTratamientoForm()
-        form2 = forms.CausasInterrupcionOtrasForm(data_list=causas_otras, prefix="Otra_causa")
+
+    relacion=models.RelacionPacCausasInterrupOtras.objects.using('postgredb1').filter(no_inclusion=no_inc)
+    if relacion.exists():
+        form2=forms.CausasInterrupcionOtrasForm(initial={'nombre': relacion[0].nombre.nombre})
+    else:
+        form2=forms.CausasInterrupcionOtrasForm()
 
     return render(request, "interrup_trata.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})
 
+def view_eventos_adversos(request,no_inc):
 
+    eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
+    return render(request,"eventos_adversos.html", {'eventos_adversos': eventos_adversos, 'inc': no_inc})
+
+def view_evento_adverso(request,no_inc):
+    paciente=models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+    result = "Agregue un evento adverso al paciente "+paciente.iniciales
+
+    if request.POST:
+        form=forms.EventosAdversosPacienteForm(request.POST)
+        form2=forms.EventoAdversoForm(request.POST)
+
+        form2.no_inclusion=no_inc
+        print "Enter post"
+        if form.is_valid() and form2.is_valid():
+            no_inclusion=paciente
+            fecha_inicio=form.cleaned_data['fecha_inicio']
+            fecha_fin=form.cleaned_data['fecha_fin']
+            duracion_24_horas=form.cleaned_data['duracion_24_horas']
+            grado_intensidad=form.cleaned_data['grado_intensidad']
+            actitud_farmaco=form.cleaned_data['actitud_farmaco']
+            resultado=form.cleaned_data['resultado']
+            relacion_causalidad=form.cleaned_data['relacion_causalidad']
+            lote_dermofural=form.cleaned_data['lote_dermofural']
+
+            nombre = form2.cleaned_data['nombre']
+
+            nombre_evento = models.EventoAdverso.objects.using('postgredb1').filter(nombre=nombre)
+            if nombre_evento.exists():
+                nombre_evento=nombre_evento[0]
+            else:
+                nombre_evento = models.EventoAdverso.objects.using('postgredb1').create(nombre=nombre)
+                nombre_evento.save()
+
+            print "created"
+            evento_adverso = models.EventosAdversosPaciente.objects.using('postgredb1').create(nombre=nombre_evento,
+                                                                                               no_inclusion=no_inclusion,
+                                                                                               fecha_inicio=fecha_inicio,
+                                                                                               fecha_fin=fecha_fin,
+                                                                                               duracion_24_horas=duracion_24_horas,
+                                                                                               grado_intensidad=grado_intensidad,
+                                                                                               gravedad=0,
+                                                                                               actitud_farmaco=actitud_farmaco,
+                                                                                               resultado=resultado,
+                                                                                               relacion_causalidad=relacion_causalidad,
+                                                                                               lote_dermofural=lote_dermofural
+                                                                                )
+            evento_adverso.save()
+
+            result="Datos agregados satisfactriamente al paciente "+paciente.iniciales
+            #eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
+            return render(request, "evento_adverso.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})
+
+    form = forms.EventosAdversosPacienteForm()
+    form2 = forms.EventoAdversoForm()
+    form2.no_inclusion = no_inc
+
+    return render(request, "evento_adverso.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})
+
+def view_mod_evento_adverso(request,no_inc,evento):
+    paciente=models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+    result = "Modifique el evento adverso "+evento+" del paciente "+paciente.iniciales
+    evento_adverso = models.EventosAdversosPaciente.objects.using('postgredb1').get(no_inclusion=no_inc,nombre=evento)
+
+    if request.POST:
+        form=forms.EventosAdversosPacienteForm(request.POST)
+
+        print "Enter post"
+        if form.is_valid():
+            #no_inclusion=paciente
+            fecha_inicio=form.cleaned_data['fecha_inicio']
+            fecha_fin=form.cleaned_data['fecha_fin']
+            duracion_24_horas=form.cleaned_data['duracion_24_horas']
+            grado_intensidad=form.cleaned_data['grado_intensidad']
+            actitud_farmaco=form.cleaned_data['actitud_farmaco']
+            resultado=form.cleaned_data['resultado']
+            relacion_causalidad=form.cleaned_data['relacion_causalidad']
+            lote_dermofural=form.cleaned_data['lote_dermofural']
+
+            print "created"
+
+            evento_adverso.fecha_inicio=fecha_inicio
+            evento_adverso.fecha_fin=fecha_fin
+            evento_adverso.duracion_24_horas=duracion_24_horas
+            evento_adverso.grado_intensidad=grado_intensidad
+            evento_adverso.actitud_farmaco=actitud_farmaco
+            evento_adverso.resultado=resultado
+            evento_adverso.relacion_causalidad=relacion_causalidad
+            evento_adverso.lote_dermofural=lote_dermofural
+            evento_adverso.save()
+
+            result="Datos agregados satisfactriamente al paciente "+paciente.iniciales
+            #eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
+            return render(request, "mod_evento_adverso.html", {'form': form, 'result': result, 'inc': no_inc})
+
+
+    i_data={'fecha_inicio': evento_adverso.fecha_inicio,
+                'fecha_fin': evento_adverso.fecha_fin,
+                'duracio_24_horas': evento_adverso.duracion_24_horas,
+                'grado_intensidad': evento_adverso.grado_intensidad,
+                'actitud_farmaco': evento_adverso.actitud_farmaco,
+                'resultado': evento_adverso.resultado,
+                'relacion_causalidad': evento_adverso.relacion_causalidad,
+                'evento_adverso': evento_adverso.lote_dermofural,
+                'lote_dermofural': evento_adverso.lote_dermofural,
+        }
+    form = forms.EventosAdversosPacienteForm(initial=i_data)
+
+    return render(request, "mod_evento_adverso.html", {'form': form, 'result': result, 'inc': no_inc})
+
+def view_tratamientos_concomitantes(request,no_inc):
+
+    tratamientos_concomitantes=models.TratamientoConcomitante.objects.using('postgredb1').filter(no_inclusion=no_inc)
+    return render(request,"tratamientos_con.html", {'tratamientos_concomitantes': tratamientos_concomitantes, 'inc': no_inc})
+
+def view_tratamiento_concomitante(request,no_inc):
+    paciente=models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+    result = "Agregue un tratamiento concomitante al paciente "+paciente.iniciales
+
+    if request.POST:
+        form=forms.TratamientoConcomitanteForm(request.POST)
+        form2=forms.MedicamentoForm(request.POST)
+        form3=forms.UnidadForm(request.POST)
+        form4=forms.FrecuenciaForm(request.POST)
+
+        form2.no_inclusion=no_inc
+        print "Enter post"
+        if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid():
+            no_inclusion=paciente
+            fecha_inicio=form.cleaned_data['fecha_inicio']
+            fecha_fin=form.cleaned_data['fecha_fin']
+            duracion_24_horas=form.cleaned_data['duracion_24_horas']
+            tratar_eventos_adversos=form.cleaned_data['tratar_eventos_adversos']
+            dosis=form.cleaned_data['dosis']
+
+            nombre = form2.cleaned_data['nombre']
+            medida=form3.cleaned_data['medida']
+            tipo=form4.cleaned_data['tipo']
+
+            nombre_medicamento = models.Medicamento.objects.using('postgredb1').filter(nombre=nombre)
+            if nombre_medicamento.exists():
+                nombre_medicamento=nombre_medicamento[0]
+            else:
+                nombre_medicamento = models.Medicamento.objects.using('postgredb1').create(nombre=nombre)
+                nombre_medicamento.save()
+
+            unidad_med = models.Unidad.objects.using('postgredb1').filter(medida=medida)
+            if unidad_med.exists():
+                 unidad_med=unidad_med[0]
+            else:
+                 unidad_med = models.Unidad.objects.using('postgredb1').create(medida=medida)
+                 unidad_med.save()
+
+            tipo_frec = models.Frecuencia.objects.using('postgredb1').filter(tipo=tipo)
+            if tipo_frec.exists():
+                tipo_frec=tipo_frec[0]
+            else:
+                tipo_frec = models.Frecuencia.objects.using('postgredb1').create(tipo=tipo)
+                tipo_frec.save()
+
+            print "created"
+            tratamiento_concomitante = models.TratamientoConcomitante.objects.using('postgredb1').create(nombre=nombre_medicamento,
+                                                                                               no_inclusion=no_inclusion,
+                                                                                               fecha_inicio=fecha_inicio,
+                                                                                               fecha_fin=fecha_fin,
+                                                                                               duracion_24_horas=duracion_24_horas,
+                                                                                               dosis=dosis,
+                                                                                               tratar_eventos_adversos=tratar_eventos_adversos,
+                                                                                               medida=unidad_med,
+                                                                                               tipo=tipo_frec
+                                                                                )
+            tratamiento_concomitante.save()
+
+            result="Datos agregados satisfactriamente al paciente "+paciente.iniciales
+            #eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
+            return render(request, "tratamiento_con.html", {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})
+
+    form = forms.TratamientoConcomitanteForm()
+    form2 = forms.MedicamentoForm()
+    form2.no_inclusion = no_inc
+
+    form3=forms.UnidadForm()
+    form4=forms.FrecuenciaForm()
+
+    return render(request, "tratamiento_con.html", {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})

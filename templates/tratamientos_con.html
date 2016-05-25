@@ -1,0 +1,14 @@
+{% extends "base_all.html" %}
+
+{% block content %}
+    <a href="{% url "Tratamiento_concomitante" inc %}">Agregar un nuevo tratamiento concomitante al paciente</a>
+    {% if tratamientos_concomitantes %}
+        <ul>
+            {% for tratamiento in tratamientos_concomitantes %}
+                <li><a href="">{{tratamiento.nombre.nombre}} --- {{tratamiento.fecha_inicio}}</a><input type="button" action=""></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h2>No se han introducidos tratamientos concomitantes para el paciente {{ inc }}</h2>
+    {% endif %}
+{% endblock %}

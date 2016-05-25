@@ -5,7 +5,7 @@ __author__ = 'eduardo'
 
 from django.forms import ModelForm
 from django import forms
-from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras
+from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras, EventosAdversosPaciente, EventoAdverso
 
 #formulario para la tabla paciente
 class PacienteForm(forms.Form):
@@ -102,7 +102,7 @@ class TratamientoConcomitanteForm(forms.Form):
     dosis=forms.IntegerField(label="Dosis",max_value=99)
     fecha_inicio=forms.DateField(label="Fecha Inicio",widget=SelectDateWidget(years=range(2016,2016)))
     fecha_fin=forms.DateField(label="Fecha Fin",widget=SelectDateWidget(years=range(2016,2016)))
-    duracion_24_horas=forms.TimeField(label="Si duracion menor de 24h",widget=time_widget, help_text='ex: 10:30AM', input_formats=valid_time_formats)
+    duracion_24_horas=forms.TimeField(label="Si duracion menor de 24h",widget=time_widget, help_text='ex: 10:30AM', input_formats=valid_time_formats, required=False)
 
 class NecrociaForm(forms.Form):
     hallazgo1=forms.CharField(label="Hallazgo 1",max_length=26)
@@ -116,19 +116,36 @@ class InterrupcionTratamientoForm(forms.Form):
     criterios_exclusion=forms.ChoiceField(label="Criterios de exclusion",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     eventos_adversos=forms.ChoiceField(label="Eventos adversos",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
     aparicion_agravamiento=forms.ChoiceField(label="Agravamiento",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
-    fallecimento=forms.ChoiceField(label="Fallecimiento",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
+    fallecimiento=forms.ChoiceField(label="Fallecimiento",choices={(1,"Si"),(2,"No")},widget=forms.RadioSelect)
 
 class EventoAdversoForm(forms.Form):
-    nombre = forms.CharField(label="Nombre",max_length=50)
+    error_nombre = {
+        'required': 'You must type a name !',
+        'invalid': 'Ya existe ese evento adverso para este paciente.'
+        }
+    nombre = forms.CharField(label="Nombre",max_length=50, error_messages=error_nombre)
+    no_inclusion = None
+
+    def clean(self):
+        cleaned_data = super(EventoAdversoForm, self).clean()
+        nombre = self.cleaned_data.get('nombre')
+
+        if EventosAdversosPaciente.objects.using('postgredb1').filter(nombre__nombre=nombre,no_inclusion__no_inclusion=self.no_inclusion).exists():
+            raise forms.ValidationError("El paciente ya posse datos para ese evento adverso")
+
+        return self.cleaned_data
+
+    class Meta:
+        model = EventoAdverso
 
 class EventosAdversosPacienteForm(forms.Form):
     fecha_inicio=forms.DateField(label="Fecha Inicio",widget=SelectDateWidget(years=range(2016,2016)))
     fecha_fin=forms.DateField(label="Fecha Fin",widget=SelectDateWidget(years=range(2016,2016)))
-    duracion_24_horas=forms.TimeField(label="Si duracion menor de 24h",widget=time_widget, help_text='ex: 10:30AM', input_formats=valid_time_formats)
+    duracion_24_horas=forms.TimeField(label="Si duracion menor de 24h",widget=time_widget, help_text='ex: 10:30AM', input_formats=valid_time_formats, required=False)
     grado_intensidad=forms.ChoiceField(label="Grado de Intensidad",choices={(1,"Leve"),(2,"Moderado"),(3,"Severos")},widget=forms.RadioSelect)
     actitud_farmaco=forms.ChoiceField(label="Actitud ante farmaco",choices={(1,"Sin cambios"),(2,"Interrupcion definitiva")},widget=forms.RadioSelect)
-    resultado=forms.ChoiceField(label="Grado de Intensidad",choices={(1,"Recuperado"),(2,"Mejorado"),(3,"Persiste"),(5,"Muerte")},widget=forms.Select)
-    relacion_causalidad=forms.ChoiceField(label="Relacion casualidad",choices={(0,"No evaluable"),(1,"Recuperado"),(2,"Mejorado"),(3,"Persiste"),(5,"Muerte")},widget=forms.Select)
+    resultado=forms.ChoiceField(label="Grado de Intensidad",choices={(1,"Recuperado"),(2,"Mejorado"),(3,"Persiste"),(4,"Empeoramiento"),(5,"Muerte")},widget=forms.Select)
+    relacion_causalidad=forms.ChoiceField(label="Relacion casualidad",choices={(0,"No evaluable"),(1,"No relacionado"),(2,"Improbable"),(3,"Posible"),(4,"Probable"),(5,"Muy probable")},widget=forms.Select)
     lote_dermofural=forms.CharField(label="Lote del Dermofural",max_length=10)
 
 class ExamenLabClinicoForm(forms.Form):
@@ -171,44 +188,64 @@ class FallecimientoForm(forms.Form):
 class MedicamentoForm(forms.Form):
     nombre=forms.CharField(label="Nombre",max_length=50)
 
-_data_list=[(u.medida) for u in Unidad.objects.using('postgredb1').all()]
+    no_inclusion = None
+
+    def clean(self):
+        cleaned_data = super(MedicamentoForm, self).clean()
+        nombre = self.cleaned_data.get('nombre')
+
+        if EventosAdversosPaciente.objects.using('postgredb1').filter(nombre__nombre=nombre,no_inclusion__no_inclusion=self.no_inclusion).exists():
+            raise forms.ValidationError("El paciente ya posse datos para ese tratamiento")
+
+        return self.cleaned_data
+
+    class Meta:
+        model = EventoAdverso
+
+#_data_list=[(u.medida) for u in Unidad.objects.using('postgredb1').all()]
 class UnidadForm(forms.Form):
     medida = forms.CharField(label="Medida",max_length=15, required=True)
 
-    def __init__(self, *args, **kwargs):
+    """def __init__(self, *args, **kwargs):
         _medida_list = kwargs.pop('data_list', None)
         super(UnidadForm, self).__init__(*args, **kwargs)
 
         # the "name" parameter will allow you to use the same widget more than once in the same
         # form, not setting this parameter differently will cuse all inputs display the
         # same list.
-        self.fields['medida'].widget = ListTextWidget(data_list=_data_list, name='medida-list')
+        self.fields['medida'].widget = ListTextWidget(data_list=_data_list, name='medida-list')"""
 
-_data_list=[(f.tipo) for f in Frecuencia.objects.using('postgredb1').all()]
+#_data_list=[(f.tipo) for f in Frecuencia.objects.using('postgredb1').all()]
 class FrecuenciaForm(forms.Form):
    tipo=forms.CharField(label="Frecuencia", max_length=15, required=True)
 
-   def __init__(self, *args, **kwargs):
+   """def __init__(self, *args, **kwargs):
         _frecuency_list = kwargs.pop('data_list', None)
         super(FrecuenciaForm, self).__init__(*args, **kwargs)
 
         # the "name" parameter will allow you to use the same widget more than once in the same
         # form, not setting this parameter differently will cuse all inputs display the
         # same list.
-        self.fields['tipo'].widget = ListTextWidget(data_list=_data_list, name='frecuency-list')
+        self.fields['tipo'].widget = ListTextWidget(data_list=_data_list, name='frecuency-list')"""
 
 """class GermenForm(forms.Form):
     nombre="""
 
-_data_list=[(c.nombre) for c in CausasInterrupcionOtras.objects.using('postgredb1').all()]
+#_data_list = [(c.nombre) for c in CausasInterrupcionOtras.objects.using('postgredb1').all()]
 class CausasInterrupcionOtrasForm(forms.Form):
-    nombre = forms.CharField(label="Otra causa de interrupcion", max_length=50)
+    nombre = forms.CharField(label="Otra causa de interrupcion", max_length=50, required=False)
 
-    def __init__(self, *args, **kwargs):
+    def clean(self):
+        cleaned_data = super (CausasInterrupcionOtrasForm, self).clean()
+        nombre=self.cleaned_data.get('nombre')
+
+        return self.cleaned_data
+
+    """def __init__(self, *args, **kwargs):
         _causas_list = kwargs.pop('data_list', None)
         super(CausasInterrupcionOtrasForm, self).__init__(*args, **kwargs)
 
         # the "name" parameter will allow you to use the same widget more than once in the same
         # form, not setting this parameter differently will cuse all inputs display the
         # same list.
-        self.fields['nombre'].widget = ListTextWidget(data_list=_data_list, name='cause-list')
+        self.fields['nombre'].widget = ListTextWidget(data_list=_data_list, name='cause-list')"""

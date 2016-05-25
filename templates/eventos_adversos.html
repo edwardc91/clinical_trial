@@ -1,0 +1,14 @@
+{% extends "base_all.html" %}
+
+{% block content %}
+    <a href="{% url "Evento_adverso" inc %}">Agregar un nuevo evento adverso al paciente</a>
+    {% if eventos_adversos %}
+        <ul>
+            {% for evento in eventos_adversos %}
+                <li><a href="{% url "Evento_adverso_mod" inc evento.nombre.nombre %}">{{evento.nombre.nombre}} --- {{evento.fecha_inicio}}</a><input type="button" action=""></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h2>No se han introducidos eventos adversos para el paciente {{ inc }}</h2>
+    {% endif %}
+{% endblock %}

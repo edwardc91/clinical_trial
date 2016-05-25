@@ -1,0 +1,12 @@
+{% extends "base_all.html" %}
+
+
+{% block content %}
+    <h2>{{ result }}</h2>
+    <form method="post" action="">
+                {% csrf_token %}
+        <table>{{ form.as_table }}</table>
+        <input type="submit" class="boton-registrar" value="Guardar">
+
+    </form>
+{% endblock content %}
