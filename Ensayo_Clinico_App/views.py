@@ -30,7 +30,7 @@ def list_pacientes():
     return context
 
 def view_paciente(request):
-    result="Introduzca los datos del paciente"
+    result="Datos del paciente"
     if request.POST:
         form=forms.PacienteForm(request.POST)
         if form.is_valid():
@@ -56,7 +56,7 @@ def view_paciente(request):
 
 def view_mod_paciente(request,no_inc):
     paciente = models.Paciente.objects.using('postgredb1').get(no_inclusion = no_inc)
-    result="Actualice los datos del paciente "+paciente.iniciales
+    result="Modificar datos del paciente "+paciente.iniciales
     if request.POST:
         form=forms.PacienteForm(request.POST)
         if form.is_valid():
@@ -79,7 +79,7 @@ def view_mod_paciente(request,no_inc):
                 paciente_old=Paciente.objects.using("postgredb1").filter(no_inclusion=no_inc)
                 paciente_old.delete()"""
 
-            result="Actualizados los datos del paciente "+paciente.iniciales+" exitosamente"
+            result="Actualizados datos del paciente "+paciente.iniciales+" exitosamente"
             return render(request, 'paciente.html', {'paciente_form' : form, 'new' : False, 'inc' : no_inclusion, 'result': result})
 
     else:
@@ -96,7 +96,7 @@ def view_mod_paciente(request,no_inc):
 def view_evaluacion_inicial(request,no_inc):
     exist=True
     paciente=models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
-    result = "Modifique los datos de la evaluacion inicial del paciente "+paciente.iniciales
+    result = "Evaluacion inicial del paciente "+paciente.iniciales
     try:
         init_eval = models.EvaluacionInicial.objects.using('postgredb1').get(no_inclusion = no_inc)
     except ObjectDoesNotExist:
@@ -225,13 +225,13 @@ def view_evaluacion_inicial(request,no_inc):
 def view_evaluacion_durante(request, no_inc, dia):
     exist=True
     paciente=models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
-    result = "Modifique los datos de la evaluacion durante del dia "+dia+" del paciente "+paciente.iniciales
+    result = "Evaluacion durante del dia "+dia+" del paciente "+paciente.iniciales
 
     try:
         durante_eval = models.EvaluacionDurante.objects.using("postgredb1").get(no_inclusion=no_inc, dia=dia)
     except ObjectDoesNotExist:
         exist = False
-        result = "Introduzca los datos de la evaluacion durante del dia "+dia+" del paciente "+paciente.iniciales
+        result = "Evaluacion durante del dia "+dia+" del paciente "+paciente.iniciales
         print "Error"
 
     if request.POST:
@@ -278,7 +278,6 @@ def view_evaluacion_durante(request, no_inc, dia):
 
 
                 durante_eval.save()
-                result = "Actualizados datos del paciente "+paciente.iniciales+" exitosamente"
             else:
                 print "created"
                 durante_eval = models.EvaluacionDurante.objects.using('postgredb1').create(no_inclusion=no_inclusion,
@@ -301,7 +300,6 @@ def view_evaluacion_durante(request, no_inc, dia):
                                                                                  interrumpio_tratamiento=interrumpio_tratamiento
                 )
                 durante_eval.save()
-                result = "Introducidos los datos del paciente "+paciente.iniciales+" exitosamente"
                 return render(request, "eval_durante.html", {'form': form, 'result': result, 'inc': no_inclusion.no_inclusion})
     if exist:
         i_data={'fecha': durante_eval.fecha,
@@ -533,7 +531,7 @@ def view_eventos_adversos(request,no_inc):
 
 def view_evento_adverso(request,no_inc):
     paciente=models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
-    result = "Agregue un evento adverso al paciente "+paciente.iniciales
+    result = "Nuevo evento adverso"
 
     if request.POST:
         form=forms.EventosAdversosPacienteForm(request.POST)

@@ -124,5 +124,5 @@ MEDIA_URL = 'http://localhost:8000/media/'
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'templates/statics/'),
+    os.path.join(BASE_DIR, 'templates/statics'),
 )

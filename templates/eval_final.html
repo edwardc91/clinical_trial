@@ -4,25 +4,17 @@
 {% block content %}
     <h2>{{ result }}</h2>
     <form method="post" action="">
-                {% csrf_token %}
-                 <div class="datos-colega">
-                Fecha:<br>
-                {{ form.fecha.errors }}
-                <div class="datos">{{ form.fecha }}</div>
-                </br>
-                     Cultivo microbiologico:<br>
-                {{ form.cultivo_microbiologico.errors }}
-                <div class="datos">{{ form.cultivo_microbiologico }}</div>
-                </br>
-                     Manifestaciones clinicas:<br>
-                {{ form.manifestaciones_clinicas.errors }}
-                <div class="datos">{{ form.manifestaciones_clinicas }}</div>
-                </br>
-                     Clasificacion IDSA:<br>
-                {{ form.clasificacion_idsa.errors }}
-                <div class="datos">{{ form.clasificacion_idsa }}</div>
-                </br>
-                <input type="submit" class="boton-registrar" value="Guardar">
-            </div>
+        <table>
+            {{form.as_table}}
+            <tr>
+                <th>
+                </th>
+                <td>
+                    <br>
+                    <input type="submit" class="boton-registrar" value="Guardar">
+                </td>
+            </tr>
+        </table>
+        {% csrf_token %}
     </form>
 {% endblock content %}

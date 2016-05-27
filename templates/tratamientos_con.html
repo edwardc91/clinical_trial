@@ -1,14 +1,31 @@
 {% extends "base_all.html" %}
 
 {% block content %}
-    <a href="{% url "Tratamiento_concomitante" inc %}">Agregar un nuevo tratamiento concomitante al paciente</a>
     {% if tratamientos_concomitantes %}
-        <ul>
-            {% for tratamiento in tratamientos_concomitantes %}
-                <li><a href="">{{tratamiento.nombre.nombre}} --- {{tratamiento.fecha_inicio}}</a><input type="button" action=""></li>
-            {% endfor %}
-        </ul>
+        <h2>Tratamientos concomitantes reportados</h2>
+        <table>
+            <tbody>
+                {% for tratamiento in tratamientos_concomitantes %}
+                  <tr>
+                       <th>
+                          <a href="">{{tratamiento.nombre.nombre}} --- {{tratamiento.fecha_inicio}}</a>
+                      </th>
+                        <td>
+                            <input type="button" action="">
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <th>
+                        <br>
+                        <a href="{% url "Tratamiento_concomitante" inc %}">Agregar tratamiento concomitante</a>
+                    </th>
+                    <td>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     {% else %}
-        <h2>No se han introducidos tratamientos concomitantes para el paciente {{ inc }}</h2>
+        <h2>No se han reportado tratamientos concomitantes</h2>
     {% endif %}
 {% endblock %}

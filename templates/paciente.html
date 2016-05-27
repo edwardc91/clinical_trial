@@ -4,31 +4,17 @@
 {% block content %}
     <h2>{{ result }}</h2>
     <form method="post" action="">
-                {% csrf_token %}
-                 <div class="datos-colega">
-                Numero de inclusion:<br>
-                {{ paciente_form.no_inclusion.errors }}
-                <div class="datos">{{ paciente_form.no_inclusion }}</div>
-                </br>
-                     Iniciales:<br>
-                {{ paciente_form.iniciales.errors }}
-                <div class="datos">{{ paciente_form.iniciales }}</div>
-                </br>
-                     Fecha de Inclusion:<br>
-                {{ paciente_form.fecha_inclusion.errors }}
-                <div class="datos">{{ paciente_form.fecha_inclusion }}</div>
-                </br>
-                     Sexo:<br>
-                {{ paciente_form.sexo.errors }}
-                <div class="datos">{{ paciente_form.sexo }}</div>
-                     Edad:<br>
-                {{ paciente_form.edad.errors }}
-                <div class="datos">{{ paciente_form.edad }}</div>
-                </br>
-                     Raza:<br>
-                {{ paciente_form.raza.errors }}
-                <div class="datos">{{ paciente_form.raza }}</div>
-                <input type="submit" class="boton-registrar" value="Guardar">
-            </div>
+        <table>
+            {{paciente_form.as_table}}
+            <tr>
+                <th>
+                </th>
+                <td>
+                    <br>
+                    <input type="submit" class="boton-registrar" value="Guardar">
+                </td>
+            </tr>
+        </table>
+        {% csrf_token %}
     </form>
 {% endblock content %}

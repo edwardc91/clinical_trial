@@ -4,93 +4,17 @@
 {% block content %}
     <h2>{{ result }}</h2>
     <form method="post" action="">
-                {% csrf_token %}
-                 <div class="datos-colega">
-                Fecha:<br>
-                {{ form.fecha.errors }}
-                <div class="datos">{{ form.fecha }}</div>
-                </br>
-                     Hipertensio Arterial:<br>
-                {{ form.hipertension_arterial.errors }}
-                <div class="datos">{{ form.hipertension_arterial }}</div>
-                </br>
-                     Hiperlipidemias:<br>
-                {{ form.hiperlipidemias.errors }}
-                <div class="datos">{{ form.hiperlipidemias }}</div>
-                </br>
-                     Cardiopatia Isquemica:<br>
-                {{ form.cardiopatia_isquemica.errors }}
-                <div class="datos">{{ form.cardiopatia_isquemica }}</div>
-                </br>
-                      Historia de Ulceras en los pies:<br>
-                {{ form.historia_ulcera_pies.errors }}
-                <div class="datos">{{ form.historia_ulcera_pies }}</div>
-                </br>
-                      Historia de Amputacion:<br>
-                {{ form.historia_amputacion.errors }}
-                <div class="datos">{{ form.historia_amputacion }}</div>
-                </br>
-                     Amputacion Mayor:<br>
-                {{ form.amputacion_mayor.errors }}
-                <div class="datos">{{ form.amputacion_mayor }}</div>
-                </br>
-                     Amputacion Menor:<br>
-                {{ form.amputacion_menor.errors }}
-                <div class="datos">{{ form.amputacion_menor }}</div>
-                     </br>
-                     Tipo de la diabetes:<br>
-                {{ form.tipo_diabetes.errors }}
-                <div class="datos">{{ form.tipo_diabetes }}</div>
-                 </br>
-                     Tiempo de evolucion (Años):<br>
-                {{ form.tiempo_evolucion.errors }}
-                <div class="datos">{{ form.tiempo_evolucion }}</div>
-                     </br>
-                     Habito de fumar:<br>
-                {{ form.habito_fumar.errors }}
-                <div class="datos">{{ form.habito_fumar }}</div>
-                     </br>
-                     Alcoholismo:<br>
-                {{ form.alcoholismo.errors }}
-                <div class="datos">{{ form.alcoholismo }}</div>
-                     </br>
-                     Miembro afectado:<br>
-                {{ form.miembro_afectado.errors }}
-                <div class="datos">{{ form.miembro_afectado }}</div>
-                     </br>
-                     Dedos:<br>
-                {{ form.dedos.errors }}
-                <div class="datos">{{ form.dedos }}</div>
-                     </br>
-                     Dorso del Pie:<br>
-                {{ form.dorso_pie.errors }}
-                <div class="datos">{{ form.dorso_pie }}</div>
-                     </br>
-                     Planta:<br>
-                {{ form.planta.errors }}
-                <div class="datos">{{ form.planta }}</div>
-                          Calcaneo:<br>
-                {{ form.calcaneo.errors }}
-                <div class="datos">{{ form.calcaneo }}</div>
-                          Lateral interno:<br>
-                {{ form.lateral_interno.errors }}
-                <div class="datos">{{ form.lateral_interno }}</div>
-                          Lateral externo:<br>
-                {{ form.lateral_externo.errors }}
-                <div class="datos">{{ form.lateral_externo }}</div>
-                          Transmetatarsiano:<br>
-                {{ form.transmetatarsiano.errors }}
-                <div class="datos">{{ form.transmetatarsiano }}</div>
-                          Clasificacion Idsa:<br>
-                {{ form.clasificacion_idsa.errors }}
-                <div class="datos">{{ form.clasificacion_idsa }}</div>
-                          Cultivo microbiologico:<br>
-                {{ form.cultivo_microbiologico.errors }}
-                <div class="datos">{{ form.cultivo_microbiologico }}</div>
-                          Tratamiento concomitante:<br>
-                {{ form.tratamiento_concomitante.errors }}
-                <div class="datos">{{ form.tratamiento_concomitante }}</div>
-                <input type="submit" class="boton-registrar" value="Guardar">
-            </div>
+        <table>
+            {{form.as_table}}
+            <tr>
+                <th>
+                </th>
+                <td>
+                    <br>
+                    <input type="submit" class="boton-registrar" value="Guardar">
+                </td>
+            </tr>
+        </table>
+        {% csrf_token %}
     </form>
 {% endblock content %}

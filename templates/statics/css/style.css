@@ -1,0 +1,42 @@
+body {
+	padding-top: 80px;	
+}
+section {
+	margin-top: 40px;
+}
+section:first-of-type {
+	margin-top: 0;
+}
+.page-heading {
+	padding: 20px 0 40px;
+	text-align: center;
+}
+
+.divider {
+	border-bottom: 1px solid #ccc;
+}
+#fake-footer {
+	height: 600px;
+	width: 100%;
+	background: #ccc;
+}
+li a {
+	transition-duration: 1s;
+}
+
+/* Helpers for top position on internal page links
+====================================================*/
+#topPos:before,
+h3:before { 
+  display: block; 
+  content: " "; 
+  margin-top: -80px; 
+  height: 80px; 
+  visibility: hidden; 
+}
+/* AFFIX STYLES
+====================================================*/
+.panel-affix {
+	min-width: 225px;
+}
+
