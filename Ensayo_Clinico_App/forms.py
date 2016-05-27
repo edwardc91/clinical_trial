@@ -194,7 +194,7 @@ class MedicamentoForm(forms.Form):
         cleaned_data = super(MedicamentoForm, self).clean()
         nombre = self.cleaned_data.get('nombre')
 
-        if EventosAdversosPaciente.objects.using('postgredb1').filter(nombre__nombre=nombre,no_inclusion__no_inclusion=self.no_inclusion).exists():
+        if TratamientoConcomitanteForm.objects.using('postgredb1').filter(nombre__nombre=nombre,no_inclusion__no_inclusion=self.no_inclusion).exists():
             raise forms.ValidationError("El paciente ya posse datos para ese tratamiento")
 
         return self.cleaned_data

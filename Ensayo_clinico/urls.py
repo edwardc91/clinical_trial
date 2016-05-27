@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^(?P<no_inc>[0-9]{1,2})/(?P<evento>[\w\s]+)evento_adverso_mod/', views.view_mod_evento_adverso,name="Evento_adverso_mod"),
     url(r'^(?P<no_inc>[0-9]{1,2})tratamientos_concomitantes/', views.view_tratamientos_concomitantes,name="Tratamientos_concomitantes"),
     url(r'^(?P<no_inc>[0-9]{1,2})tratamiento_concomitante/', views.view_tratamiento_concomitante,name="Tratamiento_concomitante"),
+    url(r'^(?P<no_inc>[0-9]{1,2})/(?P<trata>[\w\s]+)mod_tratamiento_concomitante/', views.view_mod_tratamiento_concomitante,name="Tratamiento_concomitante_mod"),
     url(r'^ensayo_clinico/', views.view_index,name="Index"),
     url(r'^tests/', views.view_tests,name="Tests"),
 ]

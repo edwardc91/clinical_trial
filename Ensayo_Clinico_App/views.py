@@ -618,7 +618,7 @@ def view_mod_evento_adverso(request,no_inc,evento):
 
             result="Datos agregados satisfactriamente al paciente "+paciente.iniciales
             #eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
-            return render(request, "mod_evento_adverso.html", {'form': form, 'result': result, 'inc': no_inc})
+            return render(request, "evento_adverso_mod.html", {'form': form, 'result': result, 'inc': no_inc})
 
 
     i_data={'fecha_inicio': evento_adverso.fecha_inicio,
@@ -633,7 +633,7 @@ def view_mod_evento_adverso(request,no_inc,evento):
         }
     form = forms.EventosAdversosPacienteForm(initial=i_data)
 
-    return render(request, "mod_evento_adverso.html", {'form': form, 'result': result, 'inc': no_inc})
+    return render(request, "evento_adverso_mod.html", {'form': form, 'result': result, 'inc': no_inc})
 
 def view_tratamientos_concomitantes(request,no_inc):
 
@@ -710,3 +710,69 @@ def view_tratamiento_concomitante(request,no_inc):
     form4=forms.FrecuenciaForm()
 
     return render(request, "tratamiento_con.html", {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})
+
+def view_mod_tratamiento_concomitante(request,no_inc,trata):
+    paciente=models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+    result = "Modifique el tratamiento concomitante "+trata+" del paciente "+paciente.iniciales
+    trata_con = models.TratamientoConcomitante.objects.using('postgredb1').get(no_inclusion=no_inc,nombre=trata)
+
+    if request.POST:
+        form = forms.TratamientoConcomitanteForm(request.POST)
+        form3 = forms.UnidadForm(request.POST)
+        form4 = forms.FrecuenciaForm(request.POST)
+
+        print "Enter post"
+        if form.is_valid() and form3.is_valid() and form4.is_valid():
+            #no_inclusion=paciente
+            fecha_inicio=form.cleaned_data['fecha_inicio']
+            fecha_fin=form.cleaned_data['fecha_fin']
+            duracion_24_horas=form.cleaned_data['duracion_24_horas']
+            tratar_eventos_adversos=form.cleaned_data['tratar_eventos_adversos']
+            dosis=form.cleaned_data['dosis']
+
+            medida=form3.cleaned_data['medida']
+            tipo=form4.cleaned_data['tipo']
+
+            print "created"
+
+            trata_con.fecha_inicio=fecha_inicio
+            trata_con.fecha_fin=fecha_fin
+            trata_con.duracion_24_horas=duracion_24_horas
+            trata_con.tratar_eventos_adversos=tratar_eventos_adversos
+            trata_con.dosis=dosis
+
+            unidad_med = models.Unidad.objects.using('postgredb1').filter(medida=medida)
+            if unidad_med.exists():
+                 unidad_med=unidad_med[0]
+            else:
+                 unidad_med = models.Unidad.objects.using('postgredb1').create(medida=medida)
+                 unidad_med.save()
+
+            tipo_frec = models.Frecuencia.objects.using('postgredb1').filter(tipo=tipo)
+            if tipo_frec.exists():
+                tipo_frec=tipo_frec[0]
+            else:
+                tipo_frec = models.Frecuencia.objects.using('postgredb1').create(tipo=tipo)
+                tipo_frec.save()
+
+            trata_con.medida = unidad_med
+            trata_con.tipo = tipo_frec
+            trata_con.save()
+
+            result="Datos agregados satisfactoriamente al paciente "+paciente.iniciales
+            #eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
+            return render(request, "tratamiento_con_mod.html", {'form': form, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})
+
+
+    i_data={'fecha_inicio': trata_con.fecha_inicio,
+                'fecha_fin': trata_con.fecha_fin,
+                'duracio_24_horas': trata_con.duracion_24_horas,
+                'tratar_eventos_adversos': trata_con.tratar_eventos_adversos,
+                'dosis': trata_con.dosis,
+        }
+    form = forms.TratamientoConcomitanteForm(initial=i_data)
+    #faltan valores iniciales
+    form3 = forms.UnidadForm()
+    form4 = forms.FrecuenciaForm()
+
+    return render(request, "tratamiento_con_mod.html", {'form': form, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})

@@ -8,7 +8,7 @@
                 {% for tratamiento in tratamientos_concomitantes %}
                   <tr>
                        <th>
-                          <a href="">{{tratamiento.nombre.nombre}} --- {{tratamiento.fecha_inicio}}</a>
+                          <a href="{% url "Tratamiento_concomitante_mod" inc tratamiento.nombre.nombre %}">{{tratamiento.nombre.nombre}} --- {{tratamiento.fecha_inicio}}</a>
                       </th>
                         <td>
                             <input type="button" action="">
@@ -26,6 +26,6 @@
             </tbody>
         </table>
     {% else %}
-        <h2>No se han reportado tratamientos concomitantes</h2>
+        <h2>No se han introducidos tratamientos concomitantes para el paciente {{ inc }}</h2>
     {% endif %}
 {% endblock %}
