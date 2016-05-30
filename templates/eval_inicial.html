@@ -2,60 +2,134 @@
 
 
 {% block content %}
-    <h2>{{ result }}</h2>
+    <h3>Evaluacion inicial</h3>
     <form method="post" action="">
-        <table>
-            {{ form.as_table }}
-            <tr>
-                <th><br>
+        <a class="btn btn-primary" href="{% url "Paciente_modificar" inc %}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        </a>
+        <input type="submit" class="btn btn-primary" value="Guardar">
+        <a class="btn btn-primary" href="{% url "Evaluacion_durante" inc 1 %}">
+            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+        </a>
 
-                    <div style="color: #ac2925">Examen Fisico</div>
-                </th>
-            </tr>
-            {{ form2.as_table }}
-            <tr>
-                <th><br>
+        <div class="panel-body">
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                               aria-expanded="true" aria-controls="collapseOne">
+                                Datos generales
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <table class="table">
+                                {{ form.as_table }}
+                            </table>
+                            {% csrf_token %}
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Examen fisico
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+                            <table class="table">
+                                {{ form2.as_table }}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingThree">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Manifestaciones clinica
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingThree">
+                        <div class="panel-body">
+                            <table class="table">
+                                {{ form3.as_table }}
+                            </table>
 
-                    <div style="color: #ac2925">Manifestaciones Clinicas</div>
-                </th>
-            </tr>
-            {{ form3.as_table }}
-            {% if otras_mani %}
-                <tr>
-                    <th><br>
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingOne">
+                                    <h4 class="panel-title">Otras manifestaciones clinicas</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table">
+                                        {% if otras_mani %}
+                                            <tr>
+                                                <th></th>
+                                                <td>
+                                                    <ul>
+                                                        {% for otra in otras_mani %}
+                                                            <li><a>{{ otra.nombre.nombre }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
 
-                        <div style="color: #ac2925">Otras manifestaciones clinicas</div>
-                    </th>
-                </tr>
-                <tr>
-                    <td>
-                        <ul>
-                            {% for otra in otras_mani %}
-                                <li><a>{{ otra.nombre.nombre }}</a></li>
-                            {% endfor %}
-                            <li><a>Agregar otra manifestacion clinica</a></li>
-                        </ul>
-
-                    </td>
-                </tr>
-            {% endif %}
-            <tr>
-                <th><br>
-
-                    <div style="color: #ac2925">Examen Laboratorio Quimico</div>
-                </th>
-            </tr>
-            {{ form5.as_table }}
-            <tr>
-                <th>
-                </th>
-                <td>
-                    <br>
-                    <input type="submit" class="boton-registrar" value="Guardar">
-                </td>
-            </tr>
-        </table>
-        {% csrf_token %}
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </table>
+                                    <a class="btn btn-primary"><span
+                                            class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar otra
+                                        manifestacion clinica</a>
+                                    {% csrf_token %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="heading4">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapse4"
+                               aria-expanded="false" aria-controls="collapseThree">
+                                Evaluacion microbiologica
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">
+                        <div class="panel-body">
+                            asdasdasdas
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="heading5">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapse5"
+                               aria-expanded="false" aria-controls="collapseThree">
+                                Examenes de laboratorio clinico
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading5">
+                        <div class="panel-body">
+                            <table class="table">
+                                {{ form5.as_table }}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
-
 {% endblock content %}

@@ -15,17 +15,10 @@
                         </td>
                     </tr>
                 {% endfor %}
-                <tr>
-                    <th>
-                        <br>
-                        <a href="{% url "Tratamiento_concomitante" inc %}">Agregar tratamiento concomitante</a>
-                    </th>
-                    <td>
-                    </td>
-                </tr>
             </tbody>
         </table>
     {% else %}
         <h2>No se han introducidos tratamientos concomitantes para el paciente {{ inc }}</h2>
     {% endif %}
+    <a href="{% url "Tratamiento_concomitante" inc %}">Agregar tratamiento concomitante</a>
 {% endblock %}

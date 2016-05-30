@@ -6,65 +6,67 @@
     {% load staticfiles %}
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
     <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/navbar-fixed-top.css" %}">
 </head>
 
+
 <body>
-<div class="container">
-    <div class="row">
-        <div class="header">
-            <h1>Ensayo Clínico Dermofural UPD</h1>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <h3>Ensayo Clínico Dermofural UPD</h3>
+        </div>
+        <div class="navbar-right">
+            <a class="btn btn-primary" href="{% url "Index" %}">Listado de pacientes</a>
+            <a class="btn btn-danger" href="#">Logout</a>
         </div>
     </div>
+</nav>
+
+<div class="container">
     <div class="row">
-        <div class="col-md-3" >
-            <div class="navegador">
-                <ul class="nav">
-                    {% block nav %}{% endblock nav %}
-                </ul>
-            </div>
+        <div class="col-md-3">
+            <ul class="nav nav-pills nav-stacked">
+                {% block nav %}{% endblock nav %}
+            </ul>
         </div>
         <div class="col-md-9">
             <div class="content">
-      {% block content %}
-            <div class="lista_pacientes">
-                {% if pacientes %}
-                    <h2>Listado de pacientes</h2>
-                    <table>
-                        <tbody>
-                           {% for paciente in pacientes %}
+                {% block content %}
+                    {% if pacientes %}
+                        <h2>Listado de pacientes</h2>
+                        <table>
+                            <tbody>
+                            {% for paciente in pacientes %}
                                 <tr>
                                     <th style="text-align: left">
-                                       <a href="{% url "Paciente_modificar" paciente.no_inclusion %}">Paciente #: {{paciente.no_inclusion}} - {{paciente.iniciales}}</a>
+                                        <a class="btn-link" href="{% url "Paciente_modificar" paciente.no_inclusion %}">Paciente
+                                            #: {{ paciente.no_inclusion }} - {{ paciente.iniciales }}</a>
                                     </th>
                                     <td>
-                                        <input type="button" action="">
+                                        <button type="button" class="btn btn-primary" aria-label="Left Align">
+                                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                        </button>
                                     </td>
                                 </tr>
                             {% endfor %}
                             <tr>
                                 <th>
                                     <br>
-                                    <a href="{% url "Paciente" %}">Agregar paciente</a>
+                                    <a class="btn btn-primary" href="{% url "Paciente" %}">Agregar paciente</a>
                                 </th>
                                 <td>
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-                {% else %}
-                    <h2>No hay pacientes registrados</h2>
-                {% endif %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <h2>No hay pacientes registrados</h2>
+                    {% endif %}
+                {% endblock content %}
             </div>
-      {% endblock content %}
-  </div>
         </div>
     </div>
-<div class="row">
-  <div class="footer">
-    <p class="text-center">Ensayo clínico Dermofural UPD<br>
-    CBQ-Centro de Bioactivos Químicos</p>
-    </div>
-</div>
 </div>
 
 <script src="{% static "js/jquery.min.js" %}"></script>

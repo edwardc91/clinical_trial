@@ -1,7 +1,6 @@
 {%  extends "index.html" %}
 
 {% block nav %}
-    <li class="listadoPacientes"><a href="{% url "Index" %}">Listado de pacientes</a></li>
     <li><a href="{% if not new %}{% url "Paciente_modificar" inc %}{% endif %}">Modificar paciente</a></li>
     <li><a href="{% block evaluacion_inicial %}{% if not new %}{% url "Evaluacion_inicial" inc %}{% endif %}{% endblock evaluacion_inicial %}">Evaluación inicial</a></li>
     <li><a href="{% block evaluacion_durante_1 %}{% if not new %}{% url "Evaluacion_durante" inc 1 %}{% endif %}{% endblock evaluacion_durante_1 %}">Evaluación Día 1</a></li>

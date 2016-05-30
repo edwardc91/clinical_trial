@@ -572,15 +572,16 @@ def update_examen_lab_clinico(form, lab_clinico, paciente, dia):
 
 
 def view_evaluacion_durante(request, no_inc, dia):
+    print "dia "+str(dia)
     exist = True
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
-    result = "Evaluacion durante del dia " + dia + " del paciente " + paciente.iniciales
+    result = "Evaluacion durante el dia " + dia
 
     try:
         durante_eval = models.EvaluacionDurante.objects.using("postgredb1").get(no_inclusion=no_inc, dia=dia)
     except ObjectDoesNotExist:
         exist = False
-        result = "Evaluacion durante del dia " + dia + " del paciente " + paciente.iniciales
+        result = "Evaluacion durante el dia " + dia
         print "Error"
 
     examen_fisico = models.ExamenFisico.objects.using('postgredb1').filter(no_inclusion=no_inc, dia=dia)
@@ -600,7 +601,7 @@ def view_evaluacion_durante(request, no_inc, dia):
 
             update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=dia)
             return render(request, "eval_durante.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc})
+                          {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc,"dia":dia})
     if exist:
         i_data = {'fecha': durante_eval.fecha,
                   'previo_diastolica': durante_eval.previo_diastolica,
@@ -648,7 +649,7 @@ def view_evaluacion_durante(request, no_inc, dia):
     form3 = forms.ManifestacionesClinicasForm()
 
     return render(request, "eval_durante.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc})
+                  {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc,"dia":dia})
 
 
 def update_datos_generales_evaluacion_durante(form, exist, durante_eval, paciente, dia):
