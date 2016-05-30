@@ -2,19 +2,30 @@
 
 
 {% block content %}
-    <h2>{{ result }}</h2>
+    <h3>{{ result }}</h3>
     <form method="post" action="">
-         <table>
-             {{form.as_table}}
-            <tr>
-                <th>
-                </th>
-                <td>
-                    <br>
-                    <input type="submit" class="boton-registrar" value="Guardar">
-                </td>
-            </tr>
-         </table>
-         {% csrf_token %}
+        <a class="btn btn-primary" href="{% url "Evaluacion_final" inc %}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        </a>
+        <input type="submit" class="btn btn-primary" value="Guardar">
+        <a class="btn btn-primary" href="{% url "Eventos_adversos" inc %}">
+            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+        </a>
+
+        <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                    <h4 class="panel-title">Datos generales</h4>
+                </div>
+                <div class="panel-body">
+                    <form method="post" action="">
+                        <table class="table">
+                            {{form.as_table}}
+                        </table>
+                        {% csrf_token %}
+                    </form>
+                </div>
+            </div>
+        </div>
     </form>
 {% endblock content %}

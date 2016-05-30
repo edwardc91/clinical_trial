@@ -1,5 +1,7 @@
 __author__ = 'root'
 from django.shortcuts import render, render_to_response
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
 import models
@@ -53,8 +55,7 @@ def view_paciente(request):
                                                                           raza=raza)
             paciente.save()
             result = "Introducidos los datos del paciente " + paciente.iniciales + " exitosamente"
-            return render(request, 'paciente.html',{'paciente_form': form, 'inc': no_inclusion, 'result': result})
-            
+            return HttpResponseRedirect(reverse('Paciente_modificar', args=(no_inclusion,)))
     else:
         form = forms.PacienteForm()
     return render(request, 'paciente.html', {'paciente_form': form, 'result': result})
@@ -99,7 +100,7 @@ def view_mod_paciente(request, no_inc):
                   'iniciales': paciente.iniciales}
         form = forms.PacienteForm(initial=p_data)
     return render(request, 'paciente_mod.html',
-                  {'paciente_form': form, 'new': False, 'inc': paciente.no_inclusion, 'result': result})
+                  {'paciente_form': form, 'inc': paciente.no_inclusion, 'result': result})
 
 
 def view_evaluacion_inicial(request, no_inc):
@@ -118,6 +119,7 @@ def view_evaluacion_inicial(request, no_inc):
                                                                                     dia=0
                                                                                     )
     lab_clinico = models.ExamenLabClinico.objects.using('postgredb1').filter(no_inclusion=no_inc, dia=0)
+
 
     mani_clinicas = models.ManifestacionesClinicas.objects.using('postgredb1').filter(no_inclusion=no_inc,
                                                                                       dia=0)
@@ -200,16 +202,16 @@ def view_evaluacion_inicial(request, no_inc):
         form2 = forms.ExamenFisicoForm()
 
     if mani_clinicas.exists():
-        mani_clinicas = mani_clinicas[0]
-
-        i_data = {'induracion': mani_clinicas.induracion,
-                  'edema_local': mani_clinicas.edema_local,
-                  'eritema_diametro': mani_clinicas.eritema_diametro,
-                  'sensibilidad': mani_clinicas.sensibilidad,
-                  'dolor_local': mani_clinicas.dolor_local,
-                  'calor_local': mani_clinicas.calor_local,
-                  'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
-                  'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
+        mani_clinicas=mani_clinicas[0]
+        
+        i_data={'induracion': mani_clinicas.induracion,
+                'edema_local': mani_clinicas.edema_local,
+                'eritema_diametro': mani_clinicas.eritema_diametro,
+                'sensibilidad': mani_clinicas.sensibilidad,
+                'dolor_local': mani_clinicas.dolor_local,
+                'calor_local': mani_clinicas.calor_local,
+                'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
+                'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
 
         form3 = forms.ManifestacionesClinicasForm(initial=i_data)
     else:
@@ -416,8 +418,6 @@ def update_manifestaciones_clinicas(form, mani_clinicas, paciente, dia):
     secrecion_purulenta = form.cleaned_data['secrecion_purulenta']
     secrecion_no_purulenta = form.cleaned_data['secrecion_no_purulenta']
 
-    print "entre mani"
-
     if mani_clinicas.exists():
         print "updated manifestaciones clinicas--dia-" + str(dia) + "--paciente--" + paciente.iniciales
         mani_clinicas = mani_clinicas[0]
@@ -581,7 +581,7 @@ def view_evaluacion_durante(request, no_inc, dia):
     except ObjectDoesNotExist:
         exist = False
         result = "Evaluacion durante del dia " + dia + " del paciente " + paciente.iniciales
-        # print "Error"
+        print "Error"
 
     examen_fisico = models.ExamenFisico.objects.using('postgredb1').filter(no_inclusion=no_inc, dia=dia)
 
@@ -603,7 +603,7 @@ def view_evaluacion_durante(request, no_inc, dia):
 
             update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=dia)
             return render(request, "eval_durante.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc})
+                          {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc,"dia":dia})
     if exist:
         i_data = {'fecha': durante_eval.fecha,
                   'previo_diastolica': durante_eval.previo_diastolica,
@@ -665,7 +665,7 @@ def view_evaluacion_durante(request, no_inc, dia):
         form3 = forms.ManifestacionesClinicasForm()
 
     return render(request, "eval_durante.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc})
+                  {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc,"dia":dia})
 
 
 def update_datos_generales_evaluacion_durante(form, exist, durante_eval, paciente, dia):
@@ -770,7 +770,6 @@ def view_evaluacion_final(request, no_inc):
             update_datos_generales_evaluacion_final(form=form, exist=exist, final_eval=final_eval, paciente=paciente)
             update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=8)
 
-            update_manifestaciones_clinicas(form=form3, mani_clinicas=mani_clinicas, paciente=paciente, dia=8)
             update_evaluacion_microbiologica(form=form4, eval_micro=eval_micro, paciente=paciente, dia=8)
             update_examen_lab_clinico(form=form5, lab_clinico=lab_clinico, paciente=paciente, dia=8)
 
