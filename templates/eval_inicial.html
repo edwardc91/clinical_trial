@@ -4,6 +4,7 @@
 {% block content %}
     <h3>Evaluacion inicial</h3>
     <form method="post" action="">
+        {% csrf_token %}
         <a class="btn btn-primary" href="{% url "Paciente_modificar" inc %}">
             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
         </a>
@@ -53,7 +54,7 @@
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
                                href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                Manifestaciones clinica
+                                Manifestaciones clinicas
                             </a>
                         </h4>
                     </div>
@@ -89,7 +90,6 @@
                                     <a class="btn btn-primary"><span
                                             class="glyphicon glyphicon-plus" aria-hidden="true"></span> Agregar otra
                                         manifestacion clinica</a>
-                                    {% csrf_token %}
                                 </div>
                             </div>
                         </div>
@@ -107,7 +107,7 @@
                     </div>
                     <div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">
                         <div class="panel-body">
-                            asdasdasdas
+                            {{ form4.as_table }}
                         </div>
                     </div>
                 </div>
@@ -132,4 +132,5 @@
             </div>
         </div>
     </form>
+
 {% endblock content %}

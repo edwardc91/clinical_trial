@@ -1,10 +1,13 @@
-{% extends "index.html" %}
+{% extends "base_all.html" %}
 
 
 {% block content %}
     <h3>Modificar datos</h3>
     <form method="post" action="">
         <input type="submit" class="btn btn-primary" value="Guardar">
+        <a class="btn btn-primary" href="{% url "Evaluacion_inicial" inc %}">
+            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+        </a>
 
         <div class="panel-body">
             <div class="panel panel-default">
@@ -12,11 +15,10 @@
                     <h4 class="panel-title">Datos generales</h4>
                 </div>
                 <div class="panel-body">
-                        {% csrf_token %}
                         <table class="table">
                             {{ paciente_form.as_table }}
                         </table>
-                        
+                        {% csrf_token %}
                 </div>
             </div>
         </div>

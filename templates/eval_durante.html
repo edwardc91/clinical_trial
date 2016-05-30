@@ -3,6 +3,7 @@
 {% block content %}
     <h3>{{ result }}</h3>
     <form method="post" action="">
+        {% csrf_token %}
         <a class="btn btn-primary" href="{% ifnotequal dia "1"  %}{% url "Evaluacion_durante" inc dia|add:"-1" %}{% else %}{% url "Evaluacion_inicial" inc %}{% endifnotequal %}">
             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
         </a>
@@ -20,7 +21,7 @@
                         <table class="table">
                             {{ form.as_table }}
                         </table>
-                        {% csrf_token %}
+
                 </div>
             </div>
         </div>
