@@ -2,17 +2,17 @@
 
 {% block nav %}
     <li class="listadoPacientes"><a href="{% url "Index" %}">Listado de pacientes</a></li>
-    <li><a href="{% if not new %}{% url "Paciente_modificar" inc %}{% endif %}">Modificar paciente</a></li>
-    <li><a href="{% block evaluacion_inicial %}{% if not new %}{% url "Evaluacion_inicial" inc %}{% endif %}{% endblock evaluacion_inicial %}">Evaluación inicial</a></li>
-    <li><a href="{% block evaluacion_durante_1 %}{% if not new %}{% url "Evaluacion_durante" inc 1 %}{% endif %}{% endblock evaluacion_durante_1 %}">Evaluación Día 1</a></li>
-    <li><a href="{% block evaluacion_durante_2 %}{% if not new %}{% url "Evaluacion_durante" inc 2 %}{% endif %}{% endblock evaluacion_durante_2 %}">Evaluación Día 2</a></li>
-    <li><a href="{% block evaluacion_durante_3 %}{% if not new %}{% url "Evaluacion_durante" inc 3 %}{% endif %}{% endblock evaluacion_durante_3 %}">Evaluación Día 3</a></li>
-    <li><a href="{% block evaluacion_durante_4 %}{% if not new %}{% url "Evaluacion_durante" inc 4 %}{% endif %}{% endblock evaluacion_durante_4 %}">Evaluación Día 4</a></li>
-    <li><a href="{% block evaluacion_durante_5 %}{% if not new %}{% url "Evaluacion_durante" inc 5 %}{% endif %}{% endblock evaluacion_durante_5 %}">Evaluación Día 5</a></li>
-    <li><a href="{% block evaluacion_durante_6 %}{% if not new %}{% url "Evaluacion_durante" inc 6 %}{% endif %}{% endblock evaluacion_durante_6 %}">Evaluación Día 6</a></li>
-    <li><a href="{% block evaluacion_durante_7 %}{% if not new %}{% url "Evaluacion_durante" inc 7 %}{% endif %}{% endblock evaluacion_durante_7 %}">Evaluación Día 7</a></li>
-    <li><a href="{% if not new %}{% url "Evaluacion_final" inc %}{% endif %}">Evaluación final</a></li>
-    <li><a href="{% if not new %}{% url "Interrupcion_tratamiento" inc %}{% endif %}">Interrupción del tratamiento</a></li>
-    <li><a href="{% if not new %}{% url "Eventos_adversos" inc %}{% endif %}">Eventos adversos</a></li>
-    <li><a href="{% if not new %}{% url "Tratamientos_concomitantes" inc %}{% endif %}">Tratamiento concomitante</a></li>
+    <li><a href="{% url "Paciente_modificar" inc %}">Modificar paciente</a></li>
+    <li><a href="{% block evaluacion_inicial %}{% url "Evaluacion_inicial" inc %}{% endblock evaluacion_inicial %}">Evaluación inicial</a></li>
+    <li><a href="{% block evaluacion_durante_1 %}{% url "Evaluacion_durante" inc 1 %}{% endblock evaluacion_durante_1 %}">Evaluación Día 1</a></li>
+    <li><a href="{% block evaluacion_durante_2 %}{% url "Evaluacion_durante" inc 2 %}{% endblock evaluacion_durante_2 %}">Evaluación Día 2</a></li>
+    <li><a href="{% block evaluacion_durante_3 %}{% url "Evaluacion_durante" inc 3 %}{% endblock evaluacion_durante_3 %}">Evaluación Día 3</a></li>
+    <li><a href="{% block evaluacion_durante_4 %}{% url "Evaluacion_durante" inc 4 %}{% endblock evaluacion_durante_4 %}">Evaluación Día 4</a></li>
+    <li><a href="{% block evaluacion_durante_5 %}{% url "Evaluacion_durante" inc 5 %}{% endblock evaluacion_durante_5 %}">Evaluación Día 5</a></li>
+    <li><a href="{% block evaluacion_durante_6 %}{% url "Evaluacion_durante" inc 6 %}{% endblock evaluacion_durante_6 %}">Evaluación Día 6</a></li>
+    <li><a href="{% block evaluacion_durante_7 %}{% url "Evaluacion_durante" inc 7 %}{% endblock evaluacion_durante_7 %}">Evaluación Día 7</a></li>
+    <li><a href="{% url "Evaluacion_final" inc %}">Evaluación final</a></li>
+    <li><a href="{% url "Interrupcion_tratamiento" inc %}">Interrupción del tratamiento</a></li>
+    <li><a href="{% url "Eventos_adversos" inc %}">Eventos adversos</a></li>
+    <li><a href="{% url "Tratamientos_concomitantes" inc %}">Tratamiento concomitante</a></li>
 {% endblock nav %}

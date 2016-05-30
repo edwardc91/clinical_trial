@@ -104,7 +104,7 @@ class EvaluacionFinalForm(forms.Form):
 class EvaluacionMicrobiologicaForm(forms.Form):
     fecha = forms.DateField(label="Fecha", widget=SelectDateWidget(years=range(2016, 2016)))
     resultado = forms.ChoiceField(label="Resultado",
-                                  choices={(1, "Con crecimiento"), (2, "Sin crecimiento", (3, "No util"))},
+                                  choices={(1, "Con crecimiento"), (2, "Sin crecimiento"), (3, "No util")},
                                   widget=forms.RadioSelect)
 
 

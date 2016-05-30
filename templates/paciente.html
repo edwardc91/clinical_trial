@@ -1,9 +1,10 @@
-{% extends "base_all.html" %}
+{% extends "index.html" %}
 
 
 {% block content %}
     <h2>{{ result }}</h2>
     <form method="post" action="">
+        {% csrf_token %}
         <table>
             {{paciente_form.as_table}}
             <tr>
@@ -15,6 +16,5 @@
                 </td>
             </tr>
         </table>
-        {% csrf_token %}
     </form>
 {% endblock content %}
