@@ -5,7 +5,47 @@
     <h2>{{ result }}</h2>
     <form method="post" action="">
         <table>
-            {{form.as_table}}
+            {{ form.as_table }}
+            <tr>
+                <th><br>
+
+                    <div style="color: #ac2925">Examen Fisico</div>
+                </th>
+            </tr>
+            {{ form2.as_table }}
+            <tr>
+                <th><br>
+
+                    <div style="color: #ac2925">Manifestaciones Clinicas</div>
+                </th>
+            </tr>
+            {{ form3.as_table }}
+            {% if otras_mani %}
+                <tr>
+                    <th><br>
+
+                        <div style="color: #ac2925">Otras manifestaciones clinicas</div>
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul>
+                            {% for otra in otras_mani %}
+                                <li><a>{{ otra.nombre.nombre }}</a></li>
+                            {% endfor %}
+                            <li><a>Agregar otra manifestacion clinica</a></li>
+                        </ul>
+
+                    </td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th><br>
+
+                    <div style="color: #ac2925">Examen Laboratorio Quimico</div>
+                </th>
+            </tr>
+            {{ form5.as_table }}
             <tr>
                 <th>
                 </th>
@@ -17,4 +57,5 @@
         </table>
         {% csrf_token %}
     </form>
+
 {% endblock content %}
