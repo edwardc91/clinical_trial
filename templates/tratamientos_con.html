@@ -1,24 +1,70 @@
 {% extends "base_all.html" %}
 
 {% block content %}
-    {% if tratamientos_concomitantes %}
-        <h2>Tratamientos concomitantes reportados</h2>
-        <table>
-            <tbody>
-                {% for tratamiento in tratamientos_concomitantes %}
-                  <tr>
-                       <th>
-                          <a href="{% url "Tratamiento_concomitante_mod" inc tratamiento.nombre.nombre %}">{{tratamiento.nombre.nombre}} --- {{tratamiento.fecha_inicio}}</a>
-                      </th>
-                        <td>
-                            <input type="button" action="">
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <h2>No se han introducidos tratamientos concomitantes para el paciente {{ inc }}</h2>
-    {% endif %}
-    <a href="{% url "Tratamiento_concomitante" inc %}">Agregar tratamiento concomitante</a>
+
+    <h3>Tratamientos concomitantes</h3>
+    <form method="post" action="">
+        <a class="btn btn-primary" href="{% url "Eventos_adversos" inc %}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        </a>
+        <input type="submit" class="btn btn-primary" value="Guardar">
+
+        <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                    <h4 class="panel-title">Tratamientos concomitantes reportados</h4>
+                </div>
+                <div class="panel-body">
+                    {% if tratamientos_concomitantes %}
+                        <h2>Tratamientos concomitantes reportados</h2>
+                        <table class="table">
+                            <tbody>
+                            {% for tratamiento in tratamientos_concomitantes %}
+                                <tr>
+                                    <th>
+                                        <a href="{% url "Tratamiento_concomitante_mod" inc tratamiento.nombre.nombre %}">{{ tratamiento.nombre.nombre }}</a>
+                                    </th>
+                                    <td>
+                                        <button type="button" class="btn btn-primary" aria-label="Left Align">
+                                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No se reportaron tratamientos concomitantes</p>
+                    {% endif %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingTwo">
+                            <a class="btn btn-primary" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><span
+                                    class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                Agregar tratamiento concomitante
+                            </a>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="headingTwo">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <form method="post" action="">
+                                        {% csrf_token %}
+                                        <table>
+                                            {{ form2.as_table }}
+                                            {{ form.as_table }}
+                                            {{ form3.as_table }}
+                                            {{ form4.as_table }}
+                                        </table>
+                                    </form>
+                                    <input type="submit" class="btn btn-primary" value="Agregar">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}

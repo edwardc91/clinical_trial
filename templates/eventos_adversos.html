@@ -27,7 +27,9 @@
                                         <a href="{% url "Evento_adverso_mod" inc evento.nombre.nombre %}">{{ evento.nombre.nombre }}</a>
                                     </th>
                                     <td>
-                                        <input id="{{ evento.nombre.nombre }}" type="button" action="">
+                                        <button type="button" class="btn btn-primary" aria-label="Left Align">
+                                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                        </button>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -36,25 +38,30 @@
                     {% else %}
                         <p>No se reportaron eventos adversos</p>
                     {% endif %}
-                    <a class="btn btn-primary" href="{% url "Evento_adverso" inc %}">Agregar evento adverso</a>
-
                     <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="headingTwo">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
-                               href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        <div class="panel-heading" role="tab" id="headingTwo">
+                            <a class="btn btn-primary" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><span
+                                    class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                                 Agregar evento adverso
                             </a>
-                        </h4>
-                    </div>
-                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-                        <div class="panel-body">
-                            <table class="table">
-                                sadasdasd
-                            </table>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="headingTwo">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <form method="post" action="">
+                                        {% csrf_token %}
+                                        <table>
+                                            {{ form2.as_table }}
+                                            {{ form.as_table }}
+                                        </table>
+                                    </form>
+                                    <input type="submit" class="btn btn-primary" value="Agregar">
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
 
 
                     {% csrf_token %}

@@ -15,21 +15,19 @@
         <div class="panel-body">
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                 <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="headingOne">
+                    <div class="panel-heading" role="tab" id="headingTwo">
                         <h4 class="panel-title">
-                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
-                               aria-expanded="true" aria-controls="collapseOne">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                                 Datos generales
                             </a>
                         </h4>
                     </div>
-                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
-                         aria-labelledby="headingOne">
+                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                         <div class="panel-body">
                             <table class="table">
                                 {{ form.as_table }}
                             </table>
-                            {% csrf_token %}
                         </div>
                     </div>
                 </div>
@@ -65,7 +63,6 @@
                             <table class="table">
                                 {{ form3.as_table }}
                             </table>
-
                             <div class="panel panel-default">
                                 <div class="panel-heading" role="tab" id="headingOne">
                                     <h4 class="panel-title">Otras manifestaciones clinicas</h4>
@@ -73,17 +70,20 @@
                                 <div class="panel-body">
                                     <table class="table">
                                         {% if otras_mani %}
-                                            <tr>
-                                                <th></th>
-                                                <td>
-                                                    <ul>
-                                                        {% for otra in otras_mani %}
-                                                            <li><a>{{ otra.nombre.nombre }}</a></li>
-                                                        {% endfor %}
-                                                    </ul>
-
-                                                </td>
-                                            </tr>
+                                            {% for otra in otras_mani %}
+                                                <tr>
+                                                    <th>
+                                                        <a href="">{{ otra.nombre.nombre }}</a>
+                                                    </th>
+                                                    <td>
+                                                        <button type="button" class="btn btn-primary"
+                                                                aria-label="Left Align">
+                                                            <span class="glyphicon glyphicon-remove"
+                                                                  aria-hidden="true"></span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
                                         {% endif %}
                                     </table>
                                     <a class="btn btn-primary"><span

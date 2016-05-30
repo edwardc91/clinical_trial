@@ -135,8 +135,8 @@ class ExamenFisicoForm(forms.Form):
 
 
 class ManifestacionesClinicasForm(forms.Form):
-    induracion = forms.ChoiceField(label="Induracion", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
     edema_local = forms.ChoiceField(label="Edema Local", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
+    induracion = forms.ChoiceField(label="Induracion", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
     eritema_diametro = forms.DecimalField(label="Diametro del eritema", max_digits=2, decimal_places=1)
     sensibilidad = forms.ChoiceField(label="Sensibilidad", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
     dolor_local = forms.ChoiceField(label="Dolor local", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
