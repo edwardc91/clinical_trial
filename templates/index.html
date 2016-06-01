@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Ensayo clinico Dermofural en UPD</title>
+
     {% load staticfiles %}
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
     <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}">
-    <link rel="stylesheet" href="{% static "css/bootstrap-responsive.min.css" %}">
     <link rel="stylesheet" href="{% static "css/navbar-fixed-top.css" %}">
+    {% load staticfiles %}
     <script src="{% static "js/jquery.min.js" %}"></script>
-    <script src="{% static "js/jquery.form.min.js" %}"></script>
-    <script src="{% static "js/bootstrap.min.js" %}"></script>
+    <script src="{% static "js/bootstrap-3.3.6.min.js" %}"></script>
 
     {% block head %}{% endblock %}
 
@@ -23,9 +23,9 @@
         <div class="navbar-header">
             <h3>Ensayo Clínico Dermofural UPD</h3>
         </div>
-        <div class="navbar-right">
-            <a class="btn btn-primary" href="{% url "Index" %}">Listado de pacientes</a>
-            <a class="btn btn-danger" href="#">Logout</a>
+        <div class="navbar-right ">
+            <a class="btn btn-info" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span> Listado de pacientes</a>
+            <a class="btn btn-danger" href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
         </div>
     </div>
 </nav>
