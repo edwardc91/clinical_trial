@@ -1,11 +1,25 @@
 __author__ = 'root'
 from django.shortcuts import render, render_to_response
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 import models
 import forms
+
+@csrf_exempt
+def view_evento_delete_ajax(request, no_inc, nombre):
+    evento_adverso = models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc, nombre=nombre)
+
+    if evento_adverso.exists():
+        evento_adverso = evento_adverso[0]
+        evento_adverso.delete()
+
+    return HttpResponse(json.dump(nombre), content_type="application/json")
+
 
 
 def view_index(request):

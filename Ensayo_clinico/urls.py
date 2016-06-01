@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^(?P<no_inc>[0-9]{1,2})evaluacion_final/', views.view_evaluacion_final,name="Evaluacion_final"),
     url(r'^(?P<no_inc>[0-9]{1,2})interrupcion_tratamiento/', views.view_interrupcion_tratamiento,name="Interrupcion_tratamiento"),
     url(r'^(?P<no_inc>[0-9]{1,2})eventos_adversos/', views.view_eventos_adversos,name="Eventos_adversos"),
+    url(r'^(?P<no_inc>[0-9]{1,2})/(?P<evento>[\w\s]+)evento_delete_ajax/', views.view_evento_delete_ajax, name="Evento_delete_ajax"),
     url(r'^(?P<no_inc>[0-9]{1,2})evento_adverso/', views.view_evento_adverso,name="Evento_adverso"),
     url(r'^(?P<no_inc>[0-9]{1,2})/(?P<evento>[\w\s]+)evento_adverso_mod/', views.view_mod_evento_adverso,name="Evento_adverso_mod"),
     url(r'^(?P<no_inc>[0-9]{1,2})tratamientos_concomitantes/', views.view_tratamientos_concomitantes,name="Tratamientos_concomitantes"),
