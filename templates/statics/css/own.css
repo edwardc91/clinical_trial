@@ -1,0 +1,13 @@
+#eventosModal.modal::before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  margin-right: 28%;
+  vertical-align: middle;
+}
+#eventosModal .modal-dialog {
+     display: inline-block;
+     text-align: left;
+     vertical-align: middle;
+   
+}
