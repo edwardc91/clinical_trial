@@ -1,30 +1,40 @@
-/**
- * Created by root on 30/05/16.
- */
+var nombre_tabla = "#tabla_eventos"; // id
+var nombre_boton_eliminar = ".delete"; // Clase
+var nombre_formulario_modal = "#form_del_evento"; //id
+var nombre_ventana_modal = "#eventosModal"; // id
+// Fin de configuraciones
 
-function delete_evento_adverso(nombre, url) {
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: {nombre: nombre},
-        dataType: 'json',
-        success: evento_delete_confirm,
-        error: function () {
-            alert('AJAX error.');
-        }
+
+    $(document).on('ready',function(){
+        console.log( "document ready" );
+        $(nombre_boton_eliminar).on('click',function(e){
+            e.preventDefault();
+            var name = $(this).data('name');
+            $('#modal_evento_nombre').val(name);
+            $('#modal_name').text(name);
+        });
+
+        var options = {
+                success:function(response)
+                {
+                    console.log( "success" );
+                    if(response.status=="True"){
+                        alert("Eliminado!");
+                        var nombre=response.nombre;
+                        var elementos= $(nombre_tabla+' >tbody >tr').length;
+                        if(elementos==1){
+                                location.reload();
+                        }else{
+                            $('#tr_evento_'+nombre).remove();
+                            $(nombre_ventana_modal).modal('hide');
+                        }
+                        
+                    }else{
+                        alert("Hubo un error al eliminar!");
+                        $(nombre_ventana_modal).modal('hide');
+                    }
+                }
+            };
+
+        $(nombre_formulario_modal).ajaxForm(options);
     });
-}
-
-function evento_delete_confirm(response) {
-    evento_nombre = JSON.parse(response);
-    // This line is in the function that receives the AJAX response when
-    //the request was successful. This line allows deserializing the JSON
-    //response returned by Django views.
-    if (evento_nombre>0) {
-        $('#evento_'+ evento_nombre).remove();
-        //This line will delete the <tr> tag containing the task we have just removed
-    }
-    else {
-        alert('Error');
-    }
-}

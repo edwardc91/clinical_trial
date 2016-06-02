@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.views.decorators.csrf import csrf_exempt
-import json
+import json, simplejson
 
 import models
 import forms
@@ -18,7 +18,9 @@ def view_evento_delete_ajax(request, no_inc, nombre):
         evento_adverso = evento_adverso[0]
         evento_adverso.delete()
 
-    return HttpResponse(json.dump(nombre), content_type="application/json")
+        return HttpResponse(json.dump(nombre), content_type="application/json")
+
+
 
 
 
@@ -1072,7 +1074,71 @@ def view_interrupcion_tratamiento(request, no_inc):
 
 def view_eventos_adversos(request, no_inc):
     eventos_adversos = models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
-    return render(request, "eventos_adversos.html", {'eventos_adversos': eventos_adversos, 'inc': no_inc})
+
+    if request.POST:
+        if "nombre_evento" in request.POST:
+            nombre=request.POST['nombre_evento']
+            evento=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc,nombre=nombre)
+            if evento.exists():
+                evento=evento[0]
+                evento.delete()
+                context = {"status": "True", "nombre": nombre}
+                return HttpResponse(simplejson.dumps(context), content_type='application/json')
+            else:
+                context = {'status': "False"}
+                return HttpResponse(simplejson.dumps(context), content_type='application/json')
+
+        if "add_evento" in request.POST:
+            paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+            form = forms.EventosAdversosPacienteForm(request.POST)
+            form2 = forms.EventoAdversoForm(request.POST)
+
+            form2.no_inclusion = no_inc
+            print "Enter post"
+            if form.is_valid() and form2.is_valid():
+                no_inclusion = paciente
+                fecha_inicio = form.cleaned_data['fecha_inicio']
+                fecha_fin = form.cleaned_data['fecha_fin']
+                duracion_24_horas = form.cleaned_data['duracion_24_horas']
+                grado_intensidad = form.cleaned_data['grado_intensidad']
+                actitud_farmaco = form.cleaned_data['actitud_farmaco']
+                resultado = form.cleaned_data['resultado']
+                relacion_causalidad = form.cleaned_data['relacion_causalidad']
+                lote_dermofural = form.cleaned_data['lote_dermofural']
+
+                nombre = form2.cleaned_data['nombre']
+
+                nombre_evento = models.EventoAdverso.objects.using('postgredb1').filter(nombre=nombre)
+                if nombre_evento.exists():
+                    nombre_evento = nombre_evento[0]
+                else:
+                    nombre_evento = models.EventoAdverso.objects.using('postgredb1').create(nombre=nombre)
+                    nombre_evento.save()
+
+                print "created"
+                evento_adverso = models.EventosAdversosPaciente.objects.using('postgredb1').create(nombre=nombre_evento,
+                                                                                               no_inclusion=no_inclusion,
+                                                                                               fecha_inicio=fecha_inicio,
+                                                                                               fecha_fin=fecha_fin,
+                                                                                               duracion_24_horas=duracion_24_horas,
+                                                                                               grado_intensidad=grado_intensidad,
+                                                                                               gravedad=0,
+                                                                                               actitud_farmaco=actitud_farmaco,
+                                                                                               resultado=resultado,
+                                                                                               relacion_causalidad=relacion_causalidad,
+                                                                                               lote_dermofural=lote_dermofural
+                                                                                               )
+                evento_adverso.save()
+
+                result = "Datos agregados satisfactriamente al paciente " + paciente.iniciales
+                return HttpResponseRedirect(reverse("Eventos_adversos",args=(no_inc,)))
+
+            # eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
+
+    form = forms.EventosAdversosPacienteForm()
+    form2 = forms.EventoAdversoForm()
+
+    return render(request, "eventos_adversos.html", {'eventos_adversos': eventos_adversos, 'inc': no_inc,'form': form, 'form2': form2})
 
 
 def view_evento_adverso(request, no_inc):
