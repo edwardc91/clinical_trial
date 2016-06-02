@@ -46,7 +46,7 @@ def view_tests(request):
 
 
 def list_pacientes():
-    pacientes = models.Paciente.objects.using("postgredb1").all().order_by('iniciales')
+    pacientes = models.Paciente.objects.using("postgredb1").all().order_by('no_inclusion')
     context = {'pacientes': pacientes}
     return context
 
@@ -1141,7 +1141,7 @@ def view_eventos_adversos(request, no_inc):
     return render(request, "eventos_adversos.html", {'eventos_adversos': eventos_adversos, 'inc': no_inc,'form': form, 'form2': form2})
 
 
-def view_evento_adverso(request, no_inc):
+"""def view_evento_adverso(request, no_inc):
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
     result = "Nuevo evento adverso"
 
@@ -1195,7 +1195,7 @@ def view_evento_adverso(request, no_inc):
     form2 = forms.EventoAdversoForm()
     form2.no_inclusion = no_inc
 
-    return render(request, "evento_adverso.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})
+    return render(request, "evento_adverso.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})"""
 
 
 def view_mod_evento_adverso(request, no_inc, evento):
@@ -1251,11 +1251,89 @@ def view_mod_evento_adverso(request, no_inc, evento):
 
 def view_tratamientos_concomitantes(request, no_inc):
     tratamientos_concomitantes = models.TratamientoConcomitante.objects.using('postgredb1').filter(no_inclusion=no_inc)
+
+    if request.POST:
+        if "nombre_trata" in request.POST:
+            nombre=request.POST['nombre_trata']
+            trata=models.TratamientoConcomitante.objects.using('postgredb1').filter(no_inclusion=no_inc,nombre=nombre)
+            if trata.exists():
+                trata=trata[0]
+                trata.delete()
+                context = {"status": "True", "nombre": nombre}
+                return HttpResponse(simplejson.dumps(context), content_type='application/json')
+            else:
+                context = {'status': "False"}
+                return HttpResponse(simplejson.dumps(context), content_type='application/json')
+
+        if "add_trata" in request.POST:
+            paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+            form = forms.TratamientoConcomitanteForm(request.POST)
+            form2 = forms.MedicamentoForm(request.POST)
+            form3 = forms.UnidadForm(request.POST)
+            form4 = forms.FrecuenciaForm(request.POST)
+
+            form2.no_inclusion = no_inc
+            print "Enter post"
+            if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid():
+                no_inclusion = paciente
+                fecha_inicio = form.cleaned_data['fecha_inicio']
+                fecha_fin = form.cleaned_data['fecha_fin']
+                duracion_24_horas = form.cleaned_data['duracion_24_horas']
+                tratar_eventos_adversos = form.cleaned_data['tratar_eventos_adversos']
+                dosis = form.cleaned_data['dosis']
+
+                nombre = form2.cleaned_data['nombre']
+                medida = form3.cleaned_data['medida']
+                tipo = form4.cleaned_data['tipo']
+
+                nombre_medicamento = models.Medicamento.objects.using('postgredb1').filter(nombre=nombre)
+                if nombre_medicamento.exists():
+                    nombre_medicamento = nombre_medicamento[0]
+                else:
+                    nombre_medicamento = models.Medicamento.objects.using('postgredb1').create(nombre=nombre)
+                    nombre_medicamento.save()
+
+                unidad_med = models.Unidad.objects.using('postgredb1').filter(medida=medida)
+                if unidad_med.exists():
+                    unidad_med = unidad_med[0]
+                else:
+                    unidad_med = models.Unidad.objects.using('postgredb1').create(medida=medida)
+                    unidad_med.save()
+
+                tipo_frec = models.Frecuencia.objects.using('postgredb1').filter(tipo=tipo)
+                if tipo_frec.exists():
+                    tipo_frec = tipo_frec[0]
+                else:
+                    tipo_frec = models.Frecuencia.objects.using('postgredb1').create(tipo=tipo)
+                    tipo_frec.save()
+
+                print "created"
+                tratamiento_concomitante = models.TratamientoConcomitante.objects.using('postgredb1').create(
+                    nombre=nombre_medicamento,
+                    no_inclusion=no_inclusion,
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
+                    duracion_24_horas=duracion_24_horas,
+                    dosis=dosis,
+                    tratar_eventos_adversos=tratar_eventos_adversos,
+                    medida=unidad_med,
+                    tipo=tipo_frec
+                )
+                tratamiento_concomitante.save()
+
+                return HttpResponseRedirect(reverse("Tratamientos_concomitantes",args=(no_inc,)))
+
+    form = forms.TratamientoConcomitanteForm()
+    form2 = forms.MedicamentoForm()
+    form3 = forms.UnidadForm()
+    form4 = forms.FrecuenciaForm()
+
     return render(request, "tratamientos_con.html",
-                  {'tratamientos_concomitantes': tratamientos_concomitantes, 'inc': no_inc})
+                  {'tratamientos_concomitantes': tratamientos_concomitantes,
+                   'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'inc': no_inc})
 
 
-def view_tratamiento_concomitante(request, no_inc):
+"""def view_tratamiento_concomitante(request, no_inc):
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
     result = "Agregue un tratamiento concomitante al paciente " + paciente.iniciales
 
@@ -1328,7 +1406,7 @@ def view_tratamiento_concomitante(request, no_inc):
     form4 = forms.FrecuenciaForm()
 
     return render(request, "tratamiento_con.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})
+                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})"""
 
 
 def view_mod_tratamiento_concomitante(request, no_inc, trata):

@@ -13,6 +13,7 @@
     <script src="{% static "js/jquery.min.js" %}"></script>
     <script src="{% static "js/jquery.form.min.js" %}"></script>
     <script src="{% static "js/evento_adverso.js" %}"></script>
+    <script src="{% static "js/trata_con.js" %}"></script>
     <script src="{% static "js/bootstrap-3.3.6.min.js" %}"></script>
 
     {% block head %}{% endblock %}
@@ -51,13 +52,21 @@
                     {% if pacientes %}
                         <h3>Listado de pacientes</h3>
                         <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>No inclusion</th>
+                                    <th>Iniciales</th>
+                                </tr>
+                            </thead>
                             <tbody>
                             {% for paciente in pacientes %}
                                 <tr>
-                                    <th style="text-align: left">
-                                        <a class="btn" href="{% url "Paciente_modificar" paciente.no_inclusion %}">Paciente
-                                            #: {{ paciente.no_inclusion }} - {{ paciente.iniciales }}</a>
-                                    </th>
+                                    <td style="text-align: left">
+                                        <a class="btn" href="{% url "Paciente_modificar" paciente.no_inclusion %}">{{ paciente.no_inclusion }}</a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url "Paciente_modificar" paciente.no_inclusion %}">{{ paciente.iniciales }}</a>
+                                    </td>
                                     <td>
                                         <button type="button" class="btn btn-danger" aria-label="Left Align">
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Eliminar
