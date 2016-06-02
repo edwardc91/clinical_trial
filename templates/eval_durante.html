@@ -1,27 +1,44 @@
 {% extends "base_all.html" %}
 
 {% block content %}
-    <h3>{{ result }}</h3>
     <form method="post" action="">
         {% csrf_token %}
-        <a class="btn btn-primary" href="{% ifnotequal dia "1"  %}{% url "Evaluacion_durante" inc dia|add:"-1" %}{% else %}{% url "Evaluacion_inicial" inc %}{% endifnotequal %}">
-            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-        </a>
-        <input type="submit" class="btn btn-primary" value="Guardar">
-        <a class="btn btn-primary" href="{% ifnotequal dia "7"  %}{% url "Evaluacion_durante" inc dia|add:"1" %}{% else %}{% url "Evaluacion_final" inc %}{% endifnotequal %}">
-            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-        </a>
 
-        <div class="panel-body">
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="headingOne">
-                    <h4 class="panel-title">Datos generales</h4>
+        <div class="row" style="margin-top: -13px">
+            <div class="col-md-8" style="position: fixed">
+                <div class="navbar navbar-default">
+                    <h3 style="margin-left: 10px">{{ result }}</h3>
+
+                    <div style="margin-left: 15px; margin-bottom: 15px">
+                        <a class="btn btn-primary" href="
+                                {% ifnotequal dia "1" %}{% url "Evaluacion_durante" inc dia|add:"-1" %}{% else %}{% url "Evaluacion_inicial" inc %}{% endifnotequal %}">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                        </a>
+                        <button type="submit" class="btn btn-primary" aria-label="Left Align">
+                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
+                        </button>
+                        <a class="btn btn-primary" href="
+                                {% ifnotequal dia "7" %}{% url "Evaluacion_durante" inc dia|add:"1" %}{% else %}{% url "Evaluacion_final" inc %}{% endifnotequal %}">
+                            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                        </a>
+                    </div>
                 </div>
-                <div class="panel-body">
+            </div>
+        </div>
+
+        <div style="margin-top: 105px">
+
+            <div class="panel-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">Datos generales</h4>
+                    </div>
+                    <div class="panel-body">
                         <table class="table">
                             {{ form.as_table }}
                         </table>
 
+                    </div>
                 </div>
             </div>
         </div>

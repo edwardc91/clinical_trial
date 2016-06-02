@@ -23,8 +23,9 @@
         <div class="navbar-header">
             <h3>Ensayo Clínico Dermofural UPD</h3>
         </div>
-        <div class="navbar-right ">
-            <a class="btn btn-info" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span> Listado de pacientes</a>
+        <div class="navbar-right " style="margin-top: 11px">
+            <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span> Listado de
+                pacientes</a>
             <a class="btn btn-danger" href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
         </div>
     </div>
@@ -41,35 +42,29 @@
             <div class="content">
                 {% block content %}
                     {% if pacientes %}
-                        <h2>Listado de pacientes</h2>
-                        <table class="table">
+                        <h3>Listado de pacientes</h3>
+                        <table class="table table-striped table-hover">
                             <tbody>
                             {% for paciente in pacientes %}
                                 <tr>
                                     <th style="text-align: left">
-                                        <a class="btn-link" href="{% url "Paciente_modificar" paciente.no_inclusion %}">Paciente
+                                        <a class="btn" href="{% url "Paciente_modificar" paciente.no_inclusion %}">Paciente
                                             #: {{ paciente.no_inclusion }} - {{ paciente.iniciales }}</a>
                                     </th>
                                     <td>
-                                        <button type="button" class="btn btn-primary" aria-label="Left Align">
-                                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                        <button type="button" class="btn btn-danger" aria-label="Left Align">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Eliminar
                                         </button>
                                     </td>
                                 </tr>
                             {% endfor %}
-                            <tr>
-                                <th>
-                                    <br>
-                                    <a class="btn btn-primary" href="{% url "Paciente" %}">Agregar paciente</a>
-                                </th>
-                                <td>
-                                </td>
-                            </tr>
                             </tbody>
                         </table>
                     {% else %}
                         <h2>No hay pacientes registrados</h2>
                     {% endif %}
+                    <a class="btn btn-primary" href="{% url "Paciente" %}"><span
+                            class="glyphicon glyphicon-user" aria-hidden="true"></span> Agregar paciente</a>
                 {% endblock content %}
             </div>
         </div>

@@ -1,38 +1,54 @@
 {% extends "base_all.html" %}
 
 {% block content %}
-        <div class="modal fade" id="eventosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h3 class="modal-title" id="myModalLabel">Eliminar evento adverso</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p>¿Realmente deseas eliminar el evento adverso <span id="modal_name"></span>?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" id="modal_nombre" name="nombre">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                            <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> Eliminar</button>
-                        </form>
+    <div class="modal fade" id="eventosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h3 class="modal-title" id="myModalLabel">Eliminar evento adverso</h3>
+                </div>
+                <div class="modal-body">
+                    <p>¿Realmente deseas eliminar el evento adverso <span id="modal_name"></span>?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="modal_nombre" name="nombre">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span>
+                            Eliminar
+                        </button>
+                    </form>
 
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-    <h3>Eventos adversos</h3>
-        <a class="btn btn-primary" href="{% url "Interrupcion_tratamiento" inc %}">
-            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-        </a>
-        <input type="submit" class="btn btn-primary" value="Guardar">
-        <a class="btn btn-primary" href="{% url "Tratamientos_concomitantes" inc %}">
-            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-        </a>
+    <div class="row" style="margin-top: -13px">
+        <div class="col-md-8" style="position: fixed">
+            <div class="navbar navbar-default">
+                <h3 style="margin-left: 10px">Eventos adversos</h3>
 
+                <div style="margin-left: 15px; margin-bottom: 15px">
+                    <a class="btn btn-primary" href="{% url "Interrupcion_tratamiento" inc %}">
+                        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                    </a>
+                    <button type="submit" class="btn btn-primary" aria-label="Left Align">
+                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
+                    </button>
+                    <a class="btn btn-primary" href="{% url "Tratamientos_concomitantes" inc %}">
+                        <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 105px">
         <div class="panel-body">
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="headingOne">
@@ -49,7 +65,9 @@
                                         <a href="{% url "Evento_adverso_mod" inc evento.nombre.nombre %}">{{ evento.nombre.nombre }}</a>
                                     </th>
                                     <td>
-                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#eventosModal" id="{{ evento.nombre.nombre }}"  data-name="{{ evento.nombre.nombre }}">
+                                        <button type="button" class="btn btn-danger" data-toggle="modal"
+                                                data-target="#eventosModal" id="{{ evento.nombre.nombre }}"
+                                                data-name="{{ evento.nombre.nombre }}">
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Eliminar
                                         </button>
                                     </td>
@@ -87,4 +105,5 @@
                 </div>
             </div>
         </div>
+    </div>
 {% endblock %}
