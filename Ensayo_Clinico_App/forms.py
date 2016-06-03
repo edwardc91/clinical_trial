@@ -207,12 +207,31 @@ class InterrupcionTratamientoForm(forms.Form):
     fallecimiento = forms.ChoiceField(label="Fallecimiento", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
 
 
+data_list = [(e.nombre) for e in EventoAdverso.objects.using('postgredb1').all()]
+
+def generate_string_list_items(data_list):
+    result="['"+data_list[0]+"'"
+
+    count = 1
+    while count < len(data_list):
+        result+=",'"+data_list[count]+"'"
+        count+=1
+
+    result+="]"
+
+    return result
+
 class EventoAdversoForm(forms.Form):
     error_nombre = {
         'required': 'You must type a name !',
         'invalid': 'Ya existe ese evento adverso para este paciente.'
     }
-    nombre = forms.CharField(label="Nombre", max_length=50, error_messages=error_nombre)
+    lista_items=generate_string_list_items(data_list)
+    nombre = forms.CharField(label="Nombre", max_length=50, error_messages=error_nombre,
+                             widget=forms.TextInput(attrs={'class': 'span3', 'data-provide': "typeahead",
+                                                           'data-items': str(len(data_list)),
+                                                           'data-source': lista_items
+                                                           }))
     no_inclusion = None
 
     def clean(self):

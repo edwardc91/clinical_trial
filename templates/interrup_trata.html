@@ -1,6 +1,8 @@
 {% extends "base_all.html" %}
 
-
+{% block button_paciente %}
+    <a class="btn btn-warning" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span> Paciente: {{ paciente.iniciales }}</a>
+{% endblock %}
 {% block content %}
     <form method="post" action="">
         <div class="row" style="margin-top: -13px">

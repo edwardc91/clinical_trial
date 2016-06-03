@@ -10,9 +10,11 @@ import json, simplejson
 import models
 import forms
 
+
 @csrf_exempt
 def view_evento_delete_ajax(request, no_inc, nombre):
-    evento_adverso = models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc, nombre=nombre)
+    evento_adverso = models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc,
+                                                                                       nombre=nombre)
 
     if evento_adverso.exists():
         evento_adverso = evento_adverso[0]
@@ -21,10 +23,19 @@ def view_evento_delete_ajax(request, no_inc, nombre):
         return HttpResponse(json.dump(nombre), content_type="application/json")
 
 
-
-
-
 def view_index(request):
+    if request.POST:
+        if 'inc_pac' in request.POST:
+            no_inc = request.POST['inc_pac']
+            try:
+                paciente = models.Paciente.objects.using('postgredb1').get(no_inclusion=no_inc)
+                paciente.delete()
+                context = {'status': 'True', 'no_inc': no_inc}
+                return HttpResponse(simplejson.dumps(context),content_type="application/json")
+            except:
+                context = {'status': 'False'}
+                return HttpResponse(simplejson.dumps(context),content_type="application/json")
+
     return render(request, 'index.html', list_pacientes())
 
 
@@ -104,7 +115,7 @@ def view_mod_paciente(request, no_inc):
 
             result = "Actualizados datos del paciente " + paciente.iniciales + " exitosamente"
             return render(request, 'paciente_mod.html',
-                          {'paciente_form': form, 'inc': no_inclusion, 'result': result})
+                          {'paciente_form': form, 'inc': no_inclusion, 'result': result, 'paciente': paciente})
 
     else:
         paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
@@ -116,7 +127,7 @@ def view_mod_paciente(request, no_inc):
                   'iniciales': paciente.iniciales}
         form = forms.PacienteForm(initial=p_data)
     return render(request, 'paciente_mod.html',
-                  {'paciente_form': form, 'inc': paciente.no_inclusion, 'result': result})
+                  {'paciente_form': form, 'inc': paciente.no_inclusion, 'result': result, 'paciente': paciente})
 
 
 def view_evaluacion_inicial(request, no_inc):
@@ -135,7 +146,6 @@ def view_evaluacion_inicial(request, no_inc):
                                                                                     dia=0
                                                                                     )
     lab_clinico = models.ExamenLabClinico.objects.using('postgredb1').filter(no_inclusion=no_inc, dia=0)
-
 
     mani_clinicas = models.ManifestacionesClinicas.objects.using('postgredb1').filter(no_inclusion=no_inc,
                                                                                       dia=0)
@@ -165,7 +175,7 @@ def view_evaluacion_inicial(request, no_inc):
             result = "Modificados los datos de la evaluacion inicial de paciente " + paciente.iniciales + " satisfactoriamente"
             return render(request, "eval_inicial.html",
                           {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
-                           'result': result, 'inc': no_inc})
+                           'result': result, 'inc': no_inc, 'paciente': paciente})
     if exist:
         i_data = {'fecha': init_eval.fecha,
                   'hipertension_arterial': init_eval.hipertension_arterial,
@@ -218,16 +228,16 @@ def view_evaluacion_inicial(request, no_inc):
         form2 = forms.ExamenFisicoForm()
 
     if mani_clinicas.exists():
-        mani_clinicas=mani_clinicas[0]
-        
-        i_data={'induracion': mani_clinicas.induracion,
-                'edema_local': mani_clinicas.edema_local,
-                'eritema_diametro': mani_clinicas.eritema_diametro,
-                'sensibilidad': mani_clinicas.sensibilidad,
-                'dolor_local': mani_clinicas.dolor_local,
-                'calor_local': mani_clinicas.calor_local,
-                'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
-                'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
+        mani_clinicas = mani_clinicas[0]
+
+        i_data = {'induracion': mani_clinicas.induracion,
+                  'edema_local': mani_clinicas.edema_local,
+                  'eritema_diametro': mani_clinicas.eritema_diametro,
+                  'sensibilidad': mani_clinicas.sensibilidad,
+                  'dolor_local': mani_clinicas.dolor_local,
+                  'calor_local': mani_clinicas.calor_local,
+                  'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
+                  'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
 
         form3 = forms.ManifestacionesClinicasForm(initial=i_data)
     else:
@@ -282,7 +292,7 @@ def view_evaluacion_inicial(request, no_inc):
 
     return render(request, "eval_inicial.html",
                   {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'result': result,
-                   'inc': no_inc})
+                   'inc': no_inc, 'paciente': paciente})
 
 
 def update_datos_generales_evaluacion_inicial(form, exist, init_eval, paciente):
@@ -619,7 +629,8 @@ def view_evaluacion_durante(request, no_inc, dia):
 
             update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=dia)
             return render(request, "eval_durante.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc,"dia":dia})
+                          {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc, "dia": dia,
+                           'paciente': paciente})
     if exist:
         i_data = {'fecha': durante_eval.fecha,
                   'previo_diastolica': durante_eval.previo_diastolica,
@@ -681,7 +692,8 @@ def view_evaluacion_durante(request, no_inc, dia):
         form3 = forms.ManifestacionesClinicasForm()
 
     return render(request, "eval_durante.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc,"dia":dia})
+                  {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc, "dia": dia,
+                   'paciente': paciente})
 
 
 def update_datos_generales_evaluacion_durante(form, exist, durante_eval, paciente, dia):
@@ -792,7 +804,7 @@ def view_evaluacion_final(request, no_inc):
             result = "Introducidos los datos del paciente " + paciente.iniciales + " exitosamente"
             return render(request, "eval_final.html",
                           {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
-                           'result': result, 'inc': no_inc})
+                           'result': result, 'inc': no_inc, 'paciente': paciente})
     if exist:
         i_data = {'fecha': final_eval.fecha,
                   'manifestaciones_clinicas': final_eval.manifestaciones_clinicas,
@@ -890,7 +902,7 @@ def view_evaluacion_final(request, no_inc):
 
     return render(request, "eval_final.html",
                   {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'result': result,
-                   'otras_mani': otras_manifestaciones, 'inc': no_inc})
+                   'otras_mani': otras_manifestaciones, 'inc': no_inc, 'paciente': paciente})
 
 
 def update_datos_generales_evaluacion_final(form, exist, final_eval, paciente):
@@ -1049,7 +1061,8 @@ def view_interrupcion_tratamiento(request, no_inc):
 
                 result = "Introducidos los datos del paciente " + paciente.iniciales + " exitosamente"
                 return render(request, "interrup_trata.html",
-                              {'form': form, 'form2': form2, 'result': result, 'inc': no_inclusion.no_inclusion})
+                              {'form': form, 'form2': form2, 'result': result, 'inc': no_inclusion.no_inclusion,
+                               'paciente': paciente})
     if exist:
         i_data = {'fecha': interrup_trata.fecha,
                   'dosis_recibidas': interrup_trata.dosis_recibidas,
@@ -1069,18 +1082,20 @@ def view_interrupcion_tratamiento(request, no_inc):
     else:
         form2 = forms.CausasInterrupcionOtrasForm()
 
-    return render(request, "interrup_trata.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})
+    return render(request, "interrup_trata.html",
+                  {'form': form, 'form2': form2, 'result': result, 'inc': no_inc, 'paciente': paciente})
 
 
 def view_eventos_adversos(request, no_inc):
     eventos_adversos = models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
-
+    paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
     if request.POST:
         if "nombre_evento" in request.POST:
-            nombre=request.POST['nombre_evento']
-            evento=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc,nombre=nombre)
+            nombre = request.POST['nombre_evento']
+            evento = models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc,
+                                                                                       nombre=nombre)
             if evento.exists():
-                evento=evento[0]
+                evento = evento[0]
                 evento.delete()
                 context = {"status": "True", "nombre": nombre}
                 return HttpResponse(simplejson.dumps(context), content_type='application/json')
@@ -1089,7 +1104,7 @@ def view_eventos_adversos(request, no_inc):
                 return HttpResponse(simplejson.dumps(context), content_type='application/json')
 
         if "add_evento" in request.POST:
-            paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+            #paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
             form = forms.EventosAdversosPacienteForm(request.POST)
             form2 = forms.EventoAdversoForm(request.POST)
 
@@ -1117,28 +1132,30 @@ def view_eventos_adversos(request, no_inc):
 
                 print "created"
                 evento_adverso = models.EventosAdversosPaciente.objects.using('postgredb1').create(nombre=nombre_evento,
-                                                                                               no_inclusion=no_inclusion,
-                                                                                               fecha_inicio=fecha_inicio,
-                                                                                               fecha_fin=fecha_fin,
-                                                                                               duracion_24_horas=duracion_24_horas,
-                                                                                               grado_intensidad=grado_intensidad,
-                                                                                               gravedad=0,
-                                                                                               actitud_farmaco=actitud_farmaco,
-                                                                                               resultado=resultado,
-                                                                                               relacion_causalidad=relacion_causalidad,
-                                                                                               lote_dermofural=lote_dermofural
-                                                                                               )
+                                                                                                   no_inclusion=no_inclusion,
+                                                                                                   fecha_inicio=fecha_inicio,
+                                                                                                   fecha_fin=fecha_fin,
+                                                                                                   duracion_24_horas=duracion_24_horas,
+                                                                                                   grado_intensidad=grado_intensidad,
+                                                                                                   gravedad=0,
+                                                                                                   actitud_farmaco=actitud_farmaco,
+                                                                                                   resultado=resultado,
+                                                                                                   relacion_causalidad=relacion_causalidad,
+                                                                                                   lote_dermofural=lote_dermofural
+                                                                                                   )
                 evento_adverso.save()
 
                 result = "Datos agregados satisfactriamente al paciente " + paciente.iniciales
-                return HttpResponseRedirect(reverse("Eventos_adversos",args=(no_inc,)))
+                return HttpResponseRedirect(reverse("Eventos_adversos", args=(no_inc,)))
 
-            # eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
+                # eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
 
     form = forms.EventosAdversosPacienteForm()
     form2 = forms.EventoAdversoForm()
 
-    return render(request, "eventos_adversos.html", {'eventos_adversos': eventos_adversos, 'inc': no_inc,'form': form, 'form2': form2})
+    return render(request, "eventos_adversos.html",
+                  {'eventos_adversos': eventos_adversos, 'inc': no_inc, 'form': form, 'form2': form2,
+                   'paciente': paciente})
 
 
 """def view_evento_adverso(request, no_inc):
@@ -1232,7 +1249,7 @@ def view_mod_evento_adverso(request, no_inc, evento):
 
             result = "Datos agregados satisfactriamente al paciente " + paciente.iniciales
             # eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
-            return render(request, "evento_adverso_mod.html", {'form': form, 'result': result, 'inc': no_inc})
+            return HttpResponseRedirect(reverse("Eventos_adversos",args=(no_inc,)))
 
     i_data = {'fecha_inicio': evento_adverso.fecha_inicio,
               'fecha_fin': evento_adverso.fecha_fin,
@@ -1246,18 +1263,20 @@ def view_mod_evento_adverso(request, no_inc, evento):
               }
     form = forms.EventosAdversosPacienteForm(initial=i_data)
 
-    return render(request, "evento_adverso_mod.html", {'form': form, 'result': result, 'inc': no_inc})
+    return render(request, "evento_adverso_mod.html", {'form': form, 'result': result, 'inc': no_inc,'paciente': paciente})
 
 
 def view_tratamientos_concomitantes(request, no_inc):
+    paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
     tratamientos_concomitantes = models.TratamientoConcomitante.objects.using('postgredb1').filter(no_inclusion=no_inc)
 
     if request.POST:
         if "nombre_trata" in request.POST:
-            nombre=request.POST['nombre_trata']
-            trata=models.TratamientoConcomitante.objects.using('postgredb1').filter(no_inclusion=no_inc,nombre=nombre)
+            nombre = request.POST['nombre_trata']
+            trata = models.TratamientoConcomitante.objects.using('postgredb1').filter(no_inclusion=no_inc,
+                                                                                      nombre=nombre)
             if trata.exists():
-                trata=trata[0]
+                trata = trata[0]
                 trata.delete()
                 context = {"status": "True", "nombre": nombre}
                 return HttpResponse(simplejson.dumps(context), content_type='application/json')
@@ -1266,7 +1285,7 @@ def view_tratamientos_concomitantes(request, no_inc):
                 return HttpResponse(simplejson.dumps(context), content_type='application/json')
 
         if "add_trata" in request.POST:
-            paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
+            #paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
             form = forms.TratamientoConcomitanteForm(request.POST)
             form2 = forms.MedicamentoForm(request.POST)
             form3 = forms.UnidadForm(request.POST)
@@ -1321,7 +1340,7 @@ def view_tratamientos_concomitantes(request, no_inc):
                 )
                 tratamiento_concomitante.save()
 
-                return HttpResponseRedirect(reverse("Tratamientos_concomitantes",args=(no_inc,)))
+                return HttpResponseRedirect(reverse("Tratamientos_concomitantes", args=(no_inc,)))
 
     form = forms.TratamientoConcomitanteForm()
     form2 = forms.MedicamentoForm()
@@ -1330,7 +1349,7 @@ def view_tratamientos_concomitantes(request, no_inc):
 
     return render(request, "tratamientos_con.html",
                   {'tratamientos_concomitantes': tratamientos_concomitantes,
-                   'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'inc': no_inc})
+                   'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'inc': no_inc,'paciente': paciente})
 
 
 """def view_tratamiento_concomitante(request, no_inc):
@@ -1459,8 +1478,7 @@ def view_mod_tratamiento_concomitante(request, no_inc, trata):
 
             result = "Datos agregados satisfactoriamente al paciente " + paciente.iniciales
             # eventos_adversos=models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
-            return render(request, "tratamiento_con_mod.html",
-                          {'form': form, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})
+            return HttpResponseRedirect(reverse("Tratamientos_concomitantes",args=(no_inc,)))
 
     i_data = {'fecha_inicio': trata_con.fecha_inicio,
               'fecha_fin': trata_con.fecha_fin,
@@ -1474,4 +1492,4 @@ def view_mod_tratamiento_concomitante(request, no_inc, trata):
     form4 = forms.FrecuenciaForm(initial={'tipo': trata_con.tipo.tipo})
 
     return render(request, "tratamiento_con_mod.html",
-                  {'form': form, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})
+                  {'form': form, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc,'paciente': paciente})

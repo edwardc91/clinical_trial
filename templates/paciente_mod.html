@@ -1,6 +1,8 @@
 {% extends "base_all.html" %}
 
-
+{% block button_paciente %}
+    <a class="btn btn-warning" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span> Paciente: {{ paciente.iniciales }}</a>
+{% endblock %}
 {% block content %}
 
     <div class="row" style="margin-top: -13px">
@@ -27,7 +29,7 @@
                     <h4 class="panel-title">Datos generales</h4>
                 </div>
                 <div class="panel-body">
-                    <table class="table">
+                    <table class="table table-hover table-striped">
                         {{ paciente_form.as_table }}
                     </table>
                     {% csrf_token %}

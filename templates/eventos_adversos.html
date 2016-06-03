@@ -1,6 +1,10 @@
 {% extends "base_all.html" %}
 
+{% block button_paciente %}
+    <a class="btn btn-warning" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span> Paciente: {{ paciente.iniciales }}</a>
+{% endblock %}
 {% block content %}
+        <!-- Modal Eventos -->
         <div class="modal fade" id="eventosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
