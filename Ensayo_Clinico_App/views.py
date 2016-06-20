@@ -1,8 +1,10 @@
 __author__ = 'root'
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.csrf import csrf_exempt
 import json, simplejson
@@ -22,7 +24,32 @@ def view_evento_delete_ajax(request, no_inc, nombre):
 
         return HttpResponse(json.dump(nombre), content_type="application/json")
 
+def view_login(request):
 
+    if request.POST:
+        form = forms.LoginForm(request.POST)
+
+        if form.is_valid():
+            usuario = form.cleaned_data['usuario']
+            password = form.cleaned_data['password']
+
+            user = authenticate(username=usuario, password=password)
+
+            if user:
+                login(request,user)
+                return HttpResponseRedirect(reverse('Index'))
+            else:
+                return render(request,"login.html",{'form': form})
+
+    form = forms.LoginForm()
+    context = {'form': form}
+    return render(request,"login.html", context)
+
+def view_logout(request):
+    logout(request)
+    return render(request, 'logout.html')
+
+@login_required
 def view_index(request):
     if request.POST:
         if 'inc_pac' in request.POST:
@@ -61,7 +88,7 @@ def list_pacientes():
     context = {'pacientes': pacientes}
     return context
 
-
+@login_required
 def view_paciente(request):
     result = "Datos del paciente"
     if request.POST:
@@ -87,7 +114,7 @@ def view_paciente(request):
         form = forms.PacienteForm()
     return render(request, 'paciente.html', {'paciente_form': form, 'result': result})
 
-
+@login_required
 def view_mod_paciente(request, no_inc):
     paciente = models.Paciente.objects.using('postgredb1').get(no_inclusion=no_inc)
     result = "Modificar datos del paciente " + paciente.iniciales
@@ -129,7 +156,7 @@ def view_mod_paciente(request, no_inc):
     return render(request, 'paciente_mod.html',
                   {'paciente_form': form, 'inc': paciente.no_inclusion, 'result': result, 'paciente': paciente})
 
-
+@login_required
 def view_evaluacion_inicial(request, no_inc):
     exist = True
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
@@ -596,7 +623,7 @@ def update_examen_lab_clinico(form, lab_clinico, paciente, dia):
                                                                                  glicemia_valor=glicemia_valor)
         lab_clinico.save()
 
-
+@login_required
 def view_evaluacion_durante(request, no_inc, dia):
     exist = True
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
@@ -760,7 +787,7 @@ def update_datos_generales_evaluacion_durante(form, exist, durante_eval, pacient
                                                                                    )
         durante_eval.save()
 
-
+@login_required
 def view_evaluacion_final(request, no_inc):
     exist = True
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
@@ -932,7 +959,7 @@ def update_datos_generales_evaluacion_final(form, exist, final_eval, paciente):
                                                                                )
         final_eval.save()
 
-
+@login_required
 def view_interrupcion_tratamiento(request, no_inc):
     exist = True
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
@@ -1085,7 +1112,7 @@ def view_interrupcion_tratamiento(request, no_inc):
     return render(request, "interrup_trata.html",
                   {'form': form, 'form2': form2, 'result': result, 'inc': no_inc, 'paciente': paciente})
 
-
+@login_required
 def view_eventos_adversos(request, no_inc):
     eventos_adversos = models.EventosAdversosPaciente.objects.using('postgredb1').filter(no_inclusion=no_inc)
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
@@ -1214,7 +1241,7 @@ def view_eventos_adversos(request, no_inc):
 
     return render(request, "evento_adverso.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})"""
 
-
+@login_required
 def view_mod_evento_adverso(request, no_inc, evento):
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
     result = "Modifique el evento adverso " + evento + " del paciente " + paciente.iniciales
@@ -1265,7 +1292,7 @@ def view_mod_evento_adverso(request, no_inc, evento):
 
     return render(request, "evento_adverso_mod.html", {'form': form, 'result': result, 'inc': no_inc,'paciente': paciente})
 
-
+@login_required
 def view_tratamientos_concomitantes(request, no_inc):
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
     tratamientos_concomitantes = models.TratamientoConcomitante.objects.using('postgredb1').filter(no_inclusion=no_inc)
@@ -1427,7 +1454,7 @@ def view_tratamientos_concomitantes(request, no_inc):
     return render(request, "tratamiento_con.html",
                   {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})"""
 
-
+@login_required
 def view_mod_tratamiento_concomitante(request, no_inc, trata):
     paciente = models.Paciente.objects.using("postgredb1").get(no_inclusion=no_inc)
     result = "Modifique el tratamiento concomitante " + trata + " del paciente " + paciente.iniciales

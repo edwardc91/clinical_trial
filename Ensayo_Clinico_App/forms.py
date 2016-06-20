@@ -10,6 +10,21 @@ from django import forms
 from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras, EventosAdversosPaciente, EventoAdverso, \
     TratamientoConcomitante, RelacionPacManiClinOtras
 
+from django.contrib.auth import authenticate
+
+class LoginForm(forms.Form):
+    usuario=forms.CharField(label="Usuario", max_length=20)
+    password=forms.CharField(label="Password",widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super(LoginForm, self).clean()
+        usuario = self.cleaned_data.get('usuario')
+        password = self.cleaned_data.get('password')
+
+        if not authenticate(username=usuario, password=password):
+            raise forms.ValidationError("Usuario o password incorrecto")
+
+        return self.cleaned_data
 
 # formulario para la tabla paciente
 class PacienteForm(forms.Form):

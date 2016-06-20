@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 
 from Ensayo_Clinico_App import views
 
@@ -9,6 +10,8 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^login/', views.view_login,name="Login"),
+    url(r'^logout/', views.view_logout,name="Logout"),
     url(r'^paciente/', views.view_paciente,name="Paciente"),
     url(r'^(?P<no_inc>[0-9]{1,2})paciente/', views.view_mod_paciente,name="Paciente_modificar"),
     url(r'^(?P<no_inc>[0-9]{1,2})evaluacion_inicial/', views.view_evaluacion_inicial,name="Evaluacion_inicial"),
@@ -22,6 +25,6 @@ urlpatterns = [
     url(r'^(?P<no_inc>[0-9]{1,2})tratamientos_concomitantes/', views.view_tratamientos_concomitantes,name="Tratamientos_concomitantes"),
     #url(r'^(?P<no_inc>[0-9]{1,2})tratamiento_concomitante/', views.view_tratamiento_concomitante,name="Tratamiento_concomitante"),
     url(r'^(?P<no_inc>[0-9]{1,2})/(?P<trata>[\w\s]+)mod_tratamiento_concomitante/', views.view_mod_tratamiento_concomitante,name="Tratamiento_concomitante_mod"),
-    url(r'^ensayo_clinico/', views.view_index,name="Index"),
+    url(r'^ensayo_clinico/', login_required(views.view_index),name="Index"),
     url(r'^tests/', views.view_tests,name="Tests"),
 ]

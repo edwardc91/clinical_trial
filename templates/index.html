@@ -38,7 +38,7 @@
                 <a class="btn btn-info" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span> Listado
                     de
                     pacientes</a>
-                <a class="btn btn-danger" href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+                <a class="btn btn-danger" href="{% url "Logout" %}"><span class="glyphicon glyphicon-log-out"></span> Logout: {{ user.username }}</a>
             </div>
         </div>
     </div>
@@ -55,7 +55,7 @@
         <div class="col-md-9">
             <div class="content">
                 {% block content %}
-                    <!-- Modal Eventos -->
+                    <!-- Modal Pacientes -->
                     <div class="modal fade" id="pacModal" tabindex="-1" role="dialog"
                          aria-labelledby="myModalLabel1" aria-hidden="true">
                         <div class="modal-dialog" role="document">
