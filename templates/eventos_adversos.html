@@ -1,7 +1,7 @@
 {% extends "base_all.html" %}
 
 {% block button_paciente %}
-    <a class="btn btn-warning" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span> Paciente: {{ paciente.iniciales }}</a>
+   <a class="btn btn-info" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span> Paciente # {{ paciente.no_inclusion }}: {{ paciente.iniciales }}</a>
 {% endblock %}
 {% block content %}
         <!-- Modal Eventos -->
@@ -95,7 +95,7 @@
                                             {{ form.as_table }}
                                         </table>
                                         <input type="hidden" id="agregar_evento" name="add_evento">
-                                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span> Agregar</button>
+                                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Agregar</button>
                                     </form>
                                 </table>
                             </div>

@@ -1,108 +1,119 @@
 {% extends "base_all.html" %}
 
 {% block button_paciente %}
-    <a class="btn btn-warning" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span> Paciente: {{ paciente.iniciales }}</a>
+    <a class="btn btn-info" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span>
+        Paciente # {{ paciente.no_inclusion }}: {{ paciente.iniciales }}</a>
 {% endblock %}
 {% block content %}
-        <div class="modal fade" id="trataModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h3 class="modal-title" id="myModalLabel">Eliminar tratamiento adverso</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p>¿Realmente deseas eliminar el tratamiento <span id="modal_name_trata" style="color: #ff0712"></span>?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <form method="post" id="form_del_trata">
-                            {% csrf_token %}
-                            <input type="hidden" id="modal_trata_nombre" name="nombre_trata">
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-trash"></span> Eliminar</button>
-                        </form>
-
-                    </div>
+    <div class="modal fade" id="trataModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h3 class="modal-title" id="myModalLabel">Eliminar tratamiento adverso</h3>
                 </div>
-            </div>
-        </div>
-
-        <div class="row" style="margin-top: -13px">
-            <div class="col-md-8" style="position: fixed">
-                <div class="navbar navbar-default">
-                    <h3 style="margin-left: 10px">Tratamientos concomitantes</h3>
-
-                    <div style="margin-left: 15px; margin-bottom: 15px">
-                        <a class="btn btn-primary" href="{% url "Eventos_adversos" inc %}">
-                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                        </a>
-                        <button type="submit" class="btn btn-primary" aria-label="Left Align">
-                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
+                <div class="modal-body">
+                    <p>¿Realmente deseas eliminar el tratamiento <span id="modal_name_trata"
+                                                                       style="color: #ff0712"></span>?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" id="form_del_trata">
+                        {% csrf_token %}
+                        <input type="hidden" id="modal_trata_nombre" name="nombre_trata">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-trash"></span>
+                            Eliminar
                         </button>
-                    </div>
+                    </form>
+
                 </div>
             </div>
         </div>
+    </div>
 
-        <div style="margin-top: 105px">
-            <div class="panel-body">
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="headingOne">
-                        <h4 class="panel-title">Tratamientos concomitantes reportados</h4>
-                    </div>
-                    <div class="panel-body">
-                        {% if tratamientos_concomitantes %}
-                            <h2>Tratamientos concomitantes reportados</h2>
-                            <table id="tabla_trata" class="table table-hover table-striped">
-                                <tbody>
-                                {% for tratamiento in tratamientos_concomitantes %}
-                                    <tr id="tr_trata_{{ tratamiento.nombre.nombre }}">
-                                        <th>
-                                            <a href="{% url "Tratamiento_concomitante_mod" inc tratamiento.nombre.nombre %}">{{ tratamiento.nombre.nombre }}</a>
-                                        </th>
-                                        <td>
-                                            <button type="button" class="btn btn-danger delete_tra" aria-label="Left Align" data-toggle="modal" data-target="#trataModal" id="{{ tratamiento.nombre.nombre }}" data-name="{{ tratamiento.nombre.nombre }}">
-                                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                                Eliminar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        {% else %}
-                            <p>No se reportaron tratamientos concomitantes</p>
-                        {% endif %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="headingTwo">
-                                <a class="btn btn-primary" role="button" data-toggle="collapse" data-parent="#accordion"
-                                   href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><span
-                                        class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                    Agregar tratamiento concomitante
-                                </a>
-                            </div>
-                            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel"
-                                 aria-labelledby="headingTwo">
-                                <div class="panel-body">
-                                    <table class="table">
-                                        <form method="post" action="">
-                                            {% csrf_token %}
-                                            <table class="table table-hover table-striped">
-                                                {{ form2.as_table }}
-                                                {{ form.as_table }}
-                                                {{ form3.as_table }}
-                                                {{ form4.as_table }}
-                                            </table>
-                                            <input type="hidden" id="agregar_trata" name="add_trata">
-                                            <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span> Agregar </button>
-                                        </form>
+    <div class="row" style="margin-top: -13px">
+        <div class="col-md-8" style="position: fixed">
+            <div class="navbar navbar-default">
+                <h3 style="margin-left: 10px">Tratamientos concomitantes</h3>
 
-                                    </table>
-                                </div>
+                <div style="margin-left: 15px; margin-bottom: 15px">
+                    <a class="btn btn-primary" href="{% url "Eventos_adversos" inc %}">
+                        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                    </a>
+                    <button type="submit" class="btn btn-primary" aria-label="Left Align">
+                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 105px">
+        <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                    <h4 class="panel-title">Tratamientos concomitantes reportados</h4>
+                </div>
+                <div class="panel-body">
+                    {% if tratamientos_concomitantes %}
+                        <h2>Tratamientos concomitantes reportados</h2>
+                        <table id="tabla_trata" class="table table-hover table-striped">
+                            <tbody>
+                            {% for tratamiento in tratamientos_concomitantes %}
+                                <tr id="tr_trata_{{ tratamiento.nombre.nombre }}">
+                                    <th>
+                                        <a href="{% url "Tratamiento_concomitante_mod" inc tratamiento.nombre.nombre %}">{{ tratamiento.nombre.nombre }}</a>
+                                    </th>
+                                    <td>
+                                        <button type="button" class="btn btn-danger delete_tra" aria-label="Left Align"
+                                                data-toggle="modal" data-target="#trataModal"
+                                                id="{{ tratamiento.nombre.nombre }}"
+                                                data-name="{{ tratamiento.nombre.nombre }}">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                            Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No se reportaron tratamientos concomitantes</p>
+                    {% endif %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingTwo">
+                            <a class="btn btn-primary" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><span
+                                    class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                Agregar tratamiento concomitante
+                            </a>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="headingTwo">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <form method="post" action="">
+                                        {% csrf_token %}
+                                        <table class="table table-hover table-striped">
+                                            {{ form2.as_table }}
+                                            {{ form.as_table }}
+                                            {{ form3.as_table }}
+                                            {{ form4.as_table }}
+                                        </table>
+                                        <input type="hidden" id="agregar_trata" name="add_trata">
+                                        <button type="submit" class="btn btn-primary"><span
+                                                class="glyphicon glyphicon-plus"></span> Agregar
+                                        </button>
+                                    </form>
+
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 {% endblock %}

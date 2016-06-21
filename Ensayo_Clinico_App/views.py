@@ -24,6 +24,27 @@ def view_evento_delete_ajax(request, no_inc, nombre):
 
         return HttpResponse(json.dump(nombre), content_type="application/json")
 
+def view_home(request):
+
+    if request.POST:
+        form = forms.LoginForm(request.POST)
+
+        if form.is_valid():
+            usuario = form.cleaned_data['usuario']
+            password = form.cleaned_data['password']
+
+            user = authenticate(username=usuario, password=password)
+
+            if user:
+                login(request,user)
+                return HttpResponseRedirect(reverse('Index'))
+            else:
+                return render(request,"home.html",{'form': form})
+
+    form = forms.LoginForm()
+    context = {'form': form}
+    return render(request,"home.html", context)
+
 def view_login(request):
 
     if request.POST:

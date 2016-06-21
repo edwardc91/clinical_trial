@@ -35,7 +35,7 @@
         <div class="navbar-right " style="margin-top: 13px">
             <div class="btn-group">
                 {% block button_paciente %}{% endblock %}
-                <a class="btn btn-info" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span> Listado
+                <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span> Listado
                     de
                     pacientes</a>
                 <a class="btn btn-danger" href="{% url "Logout" %}"><span class="glyphicon glyphicon-log-out"></span> Logout: {{ user.username }}</a>

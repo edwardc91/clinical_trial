@@ -12,9 +12,10 @@ from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras, Evento
 
 from django.contrib.auth import authenticate
 
+
 class LoginForm(forms.Form):
-    usuario=forms.CharField(label="Usuario", max_length=20)
-    password=forms.CharField(label="Password",widget=forms.PasswordInput)
+    usuario = forms.CharField(label="Usuario", max_length=20,widget=forms.TextInput(attrs={'class': 'form-control','placeholder':'Usuario'}))
+    password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control','placeholder':'Password'}))
 
     def clean(self):
         cleaned_data = super(LoginForm, self).clean()
@@ -25,6 +26,7 @@ class LoginForm(forms.Form):
             raise forms.ValidationError("Usuario o password incorrecto")
 
         return self.cleaned_data
+
 
 # formulario para la tabla paciente
 class PacienteForm(forms.Form):
@@ -224,24 +226,26 @@ class InterrupcionTratamientoForm(forms.Form):
 
 data_list = [(e.nombre) for e in EventoAdverso.objects.using('postgredb1').all()]
 
+
 def generate_string_list_items(data_list):
-    result="['"+data_list[0]+"'"
+    result = "['" + data_list[0] + "'"
 
     count = 1
     while count < len(data_list):
-        result+=",'"+data_list[count]+"'"
-        count+=1
+        result += ",'" + data_list[count] + "'"
+        count += 1
 
-    result+="]"
+    result += "]"
 
     return result
+
 
 class EventoAdversoForm(forms.Form):
     error_nombre = {
         'required': 'You must type a name !',
         'invalid': 'Ya existe ese evento adverso para este paciente.'
     }
-    lista_items=generate_string_list_items(data_list)
+    lista_items = generate_string_list_items(data_list)
     nombre = forms.CharField(label="Nombre", max_length=50, error_messages=error_nombre,
                              widget=forms.TextInput(attrs={'class': 'span3', 'data-provide': "typeahead",
                                                            'data-items': str(len(data_list)),
