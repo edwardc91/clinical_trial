@@ -71,7 +71,8 @@ def view_login(request):
 
 def view_logout(request):
     logout(request)
-    return render(request, 'logout.html')
+    form = forms.LoginForm()
+    return HttpResponseRedirect(reverse('Login'))
 
 
 @login_required

@@ -6,10 +6,10 @@
     <div class="row-2">
         <div class="col-lg-9">
             <h1>Usted ha cerrado sesion</h1>
-
-            <h4>Si desea ir al home haga click <a href="{% url "Home" %}">aqui</a></h4>
-            <h4>Si desea iniciar sesion de nuevo haga click <a href="{% url "Login" %}">aqui</a></h4>
-            Ensayo Clínico Dermofural UPD
+            <a class="cen btn btn-primary" href="{% url "Home" %}"><span class="glyphicon glyphicon-home"></span>
+                Home</a>
+            <a class="btn btn-primary" href="{% url "Login" %}"><span class="glyphicon glyphicon-log-in"></span>
+                Login</a>
         </div>
     </div>
 {% endblock %}

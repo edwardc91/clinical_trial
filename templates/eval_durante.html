@@ -1,11 +1,11 @@
 {% extends "base_all.html" %}
 
 {% block button_paciente %}
-    <a class="btn btn-info" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span>
+    <a class="btn btn-default" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span>
         Paciente # {{ paciente.no_inclusion }}: {{ paciente.iniciales }}</a>
 {% endblock %}
 {% block list_pacientes %}
-    <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
+    <a class="btn btn-default" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
         Listado
         de
         pacientes</a>

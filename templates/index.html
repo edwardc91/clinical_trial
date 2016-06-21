@@ -36,12 +36,12 @@
             <div class="btn-group">
                 {% if user.username %}
                     {% block home %}
-                        <a class="btn btn-warning" href="{% url "Home" %}"><span class="glyphicon glyphicon-home"></span>
+                        <a class="btn btn-primary" href="{% url "Home" %}"><span class="glyphicon glyphicon-home"></span>
                             Home</a>
                     {% endblock %}
                     {% block button_paciente %}{% endblock %}
                     {% block list_pacientes %}{% endblock %}
-                    <a class="btn btn-success" href=""><span class="glyphicon glyphicon-file"></span> Informe</a>
+                    <a class="btn btn-default" href=""><span class="glyphicon glyphicon-file"></span> Informe</a>
                     <a class="btn btn-danger" href="{% url "Logout" %}"><span class="glyphicon glyphicon-log-out"></span>
                         Logout: {{ user.username }}</a>
                 {% else %}
