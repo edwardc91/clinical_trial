@@ -1,20 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    {% load staticfiles %}
-    <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
-    <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}">
-    <script src="{% static "js/jquery.min.js" %}"></script>
-    <script src="{% static "js/bootstrap-3.3.6.min.js" %}"></script>
-</head>
-<body>
-<div class="login">
-    <h1>Usted ha cerrado sesion</h1>
+{% extends "index.html" %}
 
-    <h3>Si desea iniciar sesion de nuevo haga click <a href="{% url "Login" %}">aqui</a></h3>
-    Ensayo Clínico Dermofural UPD
-</div>
-</body>
-</html>
+{% block button_editar %}{% endblock %}
+
+{% block container %}
+    <div class="row-2">
+        <div class="col-lg-9">
+            <h1>Usted ha cerrado sesion</h1>
+
+            <h4>Si desea ir al home haga click <a href="{% url "Home" %}">aqui</a></h4>
+            <h4>Si desea iniciar sesion de nuevo haga click <a href="{% url "Login" %}">aqui</a></h4>
+            Ensayo Clínico Dermofural UPD
+        </div>
+    </div>
+{% endblock %}
