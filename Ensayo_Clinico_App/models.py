@@ -16,7 +16,6 @@ class CausasInterrupcionOtras(models.Model):
     nombre = models.CharField(primary_key=True, max_length=50)
 
     class Meta:
-        
         db_table = 'Causas_interrupcion_otras'
 
 
@@ -41,7 +40,6 @@ class EvaluacionDurante(models.Model):
     interrumpio_tratamiento = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Evaluacion_durante'
         unique_together = (('no_inclusion', 'dia'),)
 
@@ -54,7 +52,6 @@ class EvaluacionFinal(models.Model):
     clasificacion_idsa = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Evaluacion_final'
 
 
@@ -85,7 +82,6 @@ class EvaluacionInicial(models.Model):
     tratamiento_concomitante = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Evaluacion_inicial'
 
 
@@ -96,7 +92,6 @@ class EvaluacionMicrobiologica(models.Model):
     resultado = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Evaluacion_microbiologica'
         unique_together = (('no_inclusion', 'dia'),)
 
@@ -105,7 +100,6 @@ class EventoAdverso(models.Model):
     nombre = models.CharField(primary_key=True, max_length=50)
 
     class Meta:
-        
         db_table = 'Evento_adverso'
 
 
@@ -123,7 +117,6 @@ class EventosAdversosPaciente(models.Model):
     lote_dermofural = models.CharField(max_length=10, blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Eventos_adversos_paciente'
         unique_together = (('no_inclusion', 'nombre'),)
 
@@ -146,7 +139,6 @@ class ExamenFisico(models.Model):
     neurologico_desc = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Examen_fisico'
         unique_together = (('dia', 'no_inclusion'),)
 
@@ -184,7 +176,6 @@ class ExamenLabClinico(models.Model):
     glicemia = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Examen_lab_clinico'
         unique_together = (('no_inclusion', 'dia'),)
 
@@ -196,7 +187,6 @@ class Fallecimiento(models.Model):
     realizo_necrosia = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Fallecimiento'
 
 
@@ -204,7 +194,6 @@ class Frecuencia(models.Model):
     tipo = models.CharField(primary_key=True, max_length=20)
 
     class Meta:
-        
         db_table = 'Frecuencia'
 
 
@@ -213,7 +202,6 @@ class Germen(models.Model):
     nombre = models.CharField(max_length=30)
 
     class Meta:
-        
         db_table = 'Germen'
         unique_together = (('dia', 'nombre'),)
 
@@ -229,7 +217,6 @@ class InterrupcionTratamiento(models.Model):
     fallecimiento = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Interrupcion_tratamiento'
 
 
@@ -246,7 +233,6 @@ class ManifestacionesClinicas(models.Model):
     secrecion_no_purulenta = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Manifestaciones_clinicas'
         unique_together = (('dia', 'no_inclusion'),)
 
@@ -256,7 +242,6 @@ class ManifestacionesClinicasOtras(models.Model):
     nombre = models.CharField(max_length=50)
 
     class Meta:
-        
         db_table = 'Manifestaciones_clinicas_otras'
         unique_together = (('dia', 'nombre'),)
 
@@ -265,7 +250,6 @@ class Medicamento(models.Model):
     nombre = models.CharField(primary_key=True, max_length=50)
 
     class Meta:
-        
         db_table = 'Medicamento'
 
 
@@ -276,7 +260,6 @@ class Necrosia(models.Model):
     hallazgo3 = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Necrosia'
 
 
@@ -289,7 +272,6 @@ class Paciente(models.Model):
     iniciales = models.CharField(max_length=4, blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Paciente'
 
 
@@ -298,7 +280,6 @@ class RelacionPacCausasInterrupOtras(models.Model):
     nombre = models.ForeignKey(CausasInterrupcionOtras, db_column='nombre')
 
     class Meta:
-        
         db_table = 'Relacion_pac_causas_interrup_otras'
         unique_together = (('no_inclusion', 'nombre'),)
 
@@ -309,7 +290,6 @@ class RelacionPacManiClinOtras(models.Model):
     nombre = models.CharField(max_length=50)
 
     class Meta:
-        
         db_table = 'Relacion_pac_mani_clin_otras'
         unique_together = (('no_inclusion', 'dia', 'nombre'),)
 
@@ -320,7 +300,6 @@ class RelacionPacienteGermen(models.Model):
     nombre = models.CharField(max_length=30)
 
     class Meta:
-        
         db_table = 'Relacion_paciente_germen'
         unique_together = (('no_inclusion', 'dia', 'nombre'),)
 
@@ -337,7 +316,6 @@ class TratamientoConcomitante(models.Model):
     duracion_24_horas = models.TimeField(blank=True, null=True)
 
     class Meta:
-        
         db_table = 'Tratamiento_concomitante'
         unique_together = (('no_inclusion', 'nombre'),)
 
@@ -346,5 +324,4 @@ class Unidad(models.Model):
     medida = models.CharField(primary_key=True, max_length=20)
 
     class Meta:
-        
         db_table = 'Unidad'
