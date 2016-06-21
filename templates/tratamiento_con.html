@@ -1,23 +1,29 @@
 {% extends "base_all.html" %}
 
+{% block list_pacientes %}
+    <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
+        Listado
+        de
+        pacientes</a>
+{% endblock %}
 
 {% block content %}
     <h2>{{ result }}</h2>
     <form method="post" action="">
-                {% csrf_token %}
+        {% csrf_token %}
         <table>
             {{ form2.as_table }}
             {{ form.as_table }}
             {{ form3.as_table }}
             {{ form4.as_table }}
-             <tr>
-                     <th>
-                     </th>
-                     <td>
-                         <br>
-                         <input type="submit" class="boton-registrar" value="Guardar">
-                     </td>
-                 </tr>
+            <tr>
+                <th>
+                </th>
+                <td>
+                    <br>
+                    <input type="submit" class="boton-registrar" value="Guardar">
+                </td>
+            </tr>
         </table>
     </form>
 {% endblock content %}

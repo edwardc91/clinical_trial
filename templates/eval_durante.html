@@ -1,8 +1,16 @@
 {% extends "base_all.html" %}
 
 {% block button_paciente %}
-    <a class="btn btn-info" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span> Paciente # {{ paciente.no_inclusion }}: {{ paciente.iniciales }}</a>
+    <a class="btn btn-info" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span>
+        Paciente # {{ paciente.no_inclusion }}: {{ paciente.iniciales }}</a>
 {% endblock %}
+{% block list_pacientes %}
+    <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
+        Listado
+        de
+        pacientes</a>
+{% endblock %}
+
 {% block content %}
     <form method="post" action="">
         {% csrf_token %}
@@ -14,6 +22,7 @@
 
                     <div style="margin-left: 15px; margin-bottom: 15px">
                         <a class="btn btn-primary" href="
+
                                 {% ifnotequal dia "1" %}{% url "Evaluacion_durante" inc dia|add:"-1" %}{% else %}{% url "Evaluacion_inicial" inc %}{% endifnotequal %}">
                             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                         </a>
@@ -21,6 +30,7 @@
                             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
                         </button>
                         <a class="btn btn-primary" href="
+
                                 {% ifnotequal dia "7" %}{% url "Evaluacion_durante" inc dia|add:"1" %}{% else %}{% url "Evaluacion_final" inc %}{% endifnotequal %}">
                             <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
                         </a>
@@ -37,7 +47,7 @@
                         <h4 class="panel-title">Datos generales</h4>
                     </div>
                     <div class="panel-body">
-                       <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover">
                             {{ form.as_table }}
                         </table>
 

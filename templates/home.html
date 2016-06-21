@@ -1,238 +1,245 @@
 {% extends "index.html" %}
 
+{% block home %}{% endblock %}
+{% block list_pacientes %}
+    <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
+        Listado
+        de
+        pacientes</a>
+{% endblock %}
 
 {% block container %}
     {% load staticfiles %}
-        <div class="container">
-            <!-- Carousel
-        ================================================== -->
-            <div id="myCarousel" class="carousel slide" data-ride="carousel">
-                <!-- Indicators -->
-                <ol class="carousel-indicators">
-                    <li data-target="#myCarousel" data-slide-to="0" class=""></li>
-                    <li class="" data-target="#myCarousel" data-slide-to="1"></li>
-                    <li class="active" data-target="#myCarousel" data-slide-to="2"></li>
-                </ol>
-                <div class="carousel-inner" role="listbox">
-                    <div class="item">
-                        <img class="first-slide"
-                             src="{% static "images/1.jpg" %}"
-                             alt="First slide">
-                    </div>
-                    <div class="item">
-                        <img class="second-slide"
-                             src="{% static "images/2.jpg" %}"
-                             alt="Second slide">
-                    </div>
-                    <div class="item active">
-                        <img class="third-slide"
-                             src="{% static "images/3.jpg" %}"
-                             alt="Third slide">
-                    </div>
+    <div class="container">
+        <!-- Carousel
+    ================================================== -->
+        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class=""></li>
+                <li class="" data-target="#myCarousel" data-slide-to="1"></li>
+                <li class="active" data-target="#myCarousel" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner" role="listbox">
+                <div class="item">
+                    <img class="first-slide"
+                         src="{% static "images/1.jpg" %}"
+                         alt="First slide">
                 </div>
-                <div>
-                    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
+                <div class="item">
+                    <img class="second-slide"
+                         src="{% static "images/2.jpg" %}"
+                         alt="Second slide">
+                </div>
+                <div class="item active">
+                    <img class="third-slide"
+                         src="{% static "images/3.jpg" %}"
+                         alt="Third slide">
                 </div>
             </div>
-            <!-- /.carousel -->
+            <div>
+                <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+        <!-- /.carousel -->
 
 
-            <!-- Marketing messaging and featurettes
-            ================================================== -->
-            <!-- Wrap the rest of the page in another container to center all the content. -->
+        <!-- Marketing messaging and featurettes
+        ================================================== -->
+        <!-- Wrap the rest of the page in another container to center all the content. -->
+
+        <hr class="featurette-divider">
+
+        <div class="container marketing" style="margin-top: 20px">
+
+            <!-- Three columns of text below the carousel -->
+            <div class="row">
+                <div class="col-lg-4 text-center">
+                    <img class="img-circle"
+                         src="{% static "images/Ulcera.jpg" %}"
+                         alt="Generic placeholder image" height="140" width="140"
+                         style="box-shadow: 4px 4px 20px #999">
+
+                    <h2 class="text-center">Pie Diabético</h2>
+
+                    <p class="text-justify">La Diabetes Mellitus (DM) es una enfermedad de etiología múltiple
+                        caracterizada
+                        por hiperglucemia crónica con trastornos del metabolismo de los carbohidratos, las grasas y
+                        las
+                        proteínas a causa de una deficiencia en la secreción de insulina por la destrucción de las
+                        células β
+                        de los islotes del páncreas y la consecuente ausencia de la hormona, o de su acción por el
+                        aumento
+                        de la resistencia periférica a la insulina debido a una variedad de causas o ambas. Existen
+                        diferentes tipos de DM que se clasifican en: tipo I (Autoinmune, Idiopática), tipo II,
+                        diabetes
+                        gestacional y otros tipos específicos; cada una con diferentes causas y con distinta
+                        incidencia.
+                        </br>
+                        Entre sus complicaciones evolutivas figuran como las más importantes, junto con la
+                        nefropatía y
+                        la retinopatía diabética, la ulceración o infección del pie, o ambas.
+                        </br>
+                        La Organización Mundial de la Salud (OMS) define al pie diabético como la infección,
+                        ulceración
+                        y
+                        destrucción de tejidos profundos de la extremidad inferior, asociadas con alteraciones
+                        neurológicas
+                        y diversos grados de enfermedad vascular periférica. Es una complicación crónica de la DM
+                        que
+                        puede
+                        mutilar al paciente, ocasionarle la muerte, incapacidad temporal o definitiva, y que por su
+                        evolución prolongada representa un alto costo en su tratamiento.
+                    </p>
+
+                    <p><a class="btn btn-default" href="https://es.wikipedia.org/wiki/Pie_diab%C3%A9tico"
+                          role="button">Leer
+                        más »</a></p>
+                </div>
+                <!-- /.col-lg-4 -->
+                <div class="col-lg-4 text-center">
+                    <img class="img-circle"
+                         src="{% static "images/Dermofural.jpg" %}"
+                         alt="Generic placeholder image" height="140" width="140"
+                         style="box-shadow: 4px 4px 20px #999">
+
+                    <h2 class="text-center">Dermofural y Furvina</h2>
+
+                    <p class="text-justify">El Centro de Bioactivos Químicos (CBQ) de la Universidad Central “Marta
+                        Abreu”
+                        de Las Villas (UCLV) y el Centro de Investigaciones y Desarrollo de Medicamentos (CIDEM) del
+                        Ministe¬rio de Salud Pública (MINSAP) desarrollaron el Dermofural® 0,15%, ungüento
+                        dermatológico
+                        indicado para el tratamiento de las enfermedades fungosas de la piel y uñas, registrado
+                        nacionalmente en el 2007 e incluido en el Cuadro Básico de Medicamentos en el 2008. Dicho
+                        formulado contiene como ingrediente farmacéutico activo (IFA) al
+                        2-bromo-5-(2-bromo-2-nitrovinil)-furano, denominado Furvina, el cual constituye un producto
+                        sintetizado a partir del furfural, materia prima derivada del bagazo de la caña de azúcar.
+                        </br>
+                        La Furvina no existe en el mercado internacional, posee una doble acción antifúngica y
+                        antibacteriana de amplio espectro y un mecanismo de acción que difiere de los bactericidas
+                        actuales.
+                        Cuenta con un amplio estudio químico que comprende el proceso estandarizado de obtención,
+                        la caracterización físico-química y estructural, el desarrollo de los métodos de control
+                        químico
+                        y
+                        microbiológico, el desarrollo y validación de técnicas analíticas, estudios de estabilidad
+                        acelerada
+                        y de estante, la obtención del material de referencia, el marcaje isotópico con 14C entre
+                        otros.
+                    </p>
+
+                    <p><a class="btn btn-default" href="#" role="button">Leer más »</a></p>
+                </div>
+                <!-- /.col-lg-4 -->
+                <div class="col-lg-4 text-center">
+                    <img class="img-circle"
+                         src="{% static "images/Tratamiento.jpg" %}"
+                         alt="Generic placeholder image" height="140" width="140"
+                         style="box-shadow: 4px 4px 20px #999">
+
+                    <h2 class="text-center">Ensayo clínico</h2>
+
+                    <p class="text-justify">El presente protocolo de investigación “Efecto y seguridad del
+                        Dermofural®
+                        0.15
+                        % ungüento en el tratamiento antibacteriano de pacientes con infección leve en úlceras del
+                        pie
+                        diabético” se trata de un ensayo clínico Fase II, abierto, monocéntrico y no controlado que
+                        se
+                        efectuará en el servicio de Angiología del Hospital Universitario “Arnaldo Milián Castro”
+                        (Villa
+                        Clara), con el fin de evaluar el efecto y seguridad terapéutica de la aplicación tópica del
+                        producto
+                        en investigación en el tratamiento de la infección leve asociada a las úlceras del pie
+                        diabético.
+                        </br>
+                        Los pacientes recibirán 7 aplicaciones del Dermofural® ungüento, 0.15%(una diaria),
+                        posterior a
+                        la
+                        cura de las lesiones y permanecerán ingresados en el servicio antes mencionado durante el
+                        período
+                        que dura el estudio.
+                        </br>
+                        La variable principal de respuesta será la respuesta clínica transcurridas 24 horas de la
+                        última
+                        aplicación del tratamiento, teniendo en cuenta la severidad de la
+                        infección.
+                        Se realizarán evaluaciones clínicas diarias durante el tratamiento. Los exámenes
+                        microbiológicos
+                        y
+                        las determinaciones sanguíneas de laboratorio se efectuarán antes de iniciar el tratamiento
+                        y un
+                        día
+                        después de finalizado el mismo. Los eventos adversos locales se valorarán sistemáticamente y
+                        los
+                        eventos sistémicos, cuando se sospeche de los mismos.
+
+                    </p>
+
+                    <p><a class="btn btn-default" href="#" role="button">Leer más »</a></p>
+                </div>
+                <!-- /.col-lg-4 -->
+            </div>
+            <!-- /.row -->
+
+
+            <!-- START THE FEATURETTES -->
 
             <hr class="featurette-divider">
 
-            <div class="container marketing" style="margin-top: 20px">
-
-                <!-- Three columns of text below the carousel -->
-                <div class="row">
-                    <div class="col-lg-4 text-center">
-                        <img class="img-circle"
-                             src="{% static "images/Ulcera.jpg" %}"
-                             alt="Generic placeholder image" height="140" width="140"
-                             style="box-shadow: 4px 4px 20px #999">
-
-                        <h2 class="text-center">Pie Diabético</h2>
-
-                        <p class="text-justify">La Diabetes Mellitus (DM) es una enfermedad de etiología múltiple
-                            caracterizada
-                            por hiperglucemia crónica con trastornos del metabolismo de los carbohidratos, las grasas y
-                            las
-                            proteínas a causa de una deficiencia en la secreción de insulina por la destrucción de las
-                            células β
-                            de los islotes del páncreas y la consecuente ausencia de la hormona, o de su acción por el
-                            aumento
-                            de la resistencia periférica a la insulina debido a una variedad de causas o ambas. Existen
-                            diferentes tipos de DM que se clasifican en: tipo I (Autoinmune, Idiopática), tipo II,
-                            diabetes
-                            gestacional y otros tipos específicos; cada una con diferentes causas y con distinta
-                            incidencia.
-                            </br>
-                            Entre sus complicaciones evolutivas figuran como las más importantes, junto con la
-                            nefropatía y
-                            la retinopatía diabética, la ulceración o infección del pie, o ambas.
-                            </br>
-                            La Organización Mundial de la Salud (OMS) define al pie diabético como la infección,
-                            ulceración
-                            y
-                            destrucción de tejidos profundos de la extremidad inferior, asociadas con alteraciones
-                            neurológicas
-                            y diversos grados de enfermedad vascular periférica. Es una complicación crónica de la DM
-                            que
-                            puede
-                            mutilar al paciente, ocasionarle la muerte, incapacidad temporal o definitiva, y que por su
-                            evolución prolongada representa un alto costo en su tratamiento.
-                        </p>
-
-                        <p><a class="btn btn-default" href="https://es.wikipedia.org/wiki/Pie_diab%C3%A9tico"
-                              role="button">Leer
-                            más »</a></p>
-                    </div>
-                    <!-- /.col-lg-4 -->
-                    <div class="col-lg-4 text-center">
-                        <img class="img-circle"
-                             src="{% static "images/Dermofural.jpg" %}"
-                             alt="Generic placeholder image" height="140" width="140"
-                             style="box-shadow: 4px 4px 20px #999">
-
-                        <h2 class="text-center">Dermofural y Furvina</h2>
-
-                        <p class="text-justify">El Centro de Bioactivos Químicos (CBQ) de la Universidad Central “Marta
-                            Abreu”
-                            de Las Villas (UCLV) y el Centro de Investigaciones y Desarrollo de Medicamentos (CIDEM) del
-                            Ministe¬rio de Salud Pública (MINSAP) desarrollaron el Dermofural® 0,15%, ungüento
-                            dermatológico
-                            indicado para el tratamiento de las enfermedades fungosas de la piel y uñas, registrado
-                            nacionalmente en el 2007 e incluido en el Cuadro Básico de Medicamentos en el 2008. Dicho
-                            formulado contiene como ingrediente farmacéutico activo (IFA) al
-                            2-bromo-5-(2-bromo-2-nitrovinil)-furano, denominado Furvina, el cual constituye un producto
-                            sintetizado a partir del furfural, materia prima derivada del bagazo de la caña de azúcar.
-                            </br>
-                            La Furvina no existe en el mercado internacional, posee una doble acción antifúngica y
-                            antibacteriana de amplio espectro y un mecanismo de acción que difiere de los bactericidas
-                            actuales.
-                            Cuenta con un amplio estudio químico que comprende el proceso estandarizado de obtención,
-                            la caracterización físico-química y estructural, el desarrollo de los métodos de control
-                            químico
-                            y
-                            microbiológico, el desarrollo y validación de técnicas analíticas, estudios de estabilidad
-                            acelerada
-                            y de estante, la obtención del material de referencia, el marcaje isotópico con 14C entre
-                            otros.
-                        </p>
-
-                        <p><a class="btn btn-default" href="#" role="button">Leer más »</a></p>
-                    </div>
-                    <!-- /.col-lg-4 -->
-                    <div class="col-lg-4 text-center">
-                        <img class="img-circle"
-                             src="{% static "images/Tratamiento.jpg" %}"
-                             alt="Generic placeholder image" height="140" width="140"
-                             style="box-shadow: 4px 4px 20px #999">
-
-                        <h2 class="text-center">Ensayo clínico</h2>
-
-                        <p class="text-justify">El presente protocolo de investigación “Efecto y seguridad del
-                            Dermofural®
-                            0.15
-                            % ungüento en el tratamiento antibacteriano de pacientes con infección leve en úlceras del
-                            pie
-                            diabético” se trata de un ensayo clínico Fase II, abierto, monocéntrico y no controlado que
-                            se
-                            efectuará en el servicio de Angiología del Hospital Universitario “Arnaldo Milián Castro”
-                            (Villa
-                            Clara), con el fin de evaluar el efecto y seguridad terapéutica de la aplicación tópica del
-                            producto
-                            en investigación en el tratamiento de la infección leve asociada a las úlceras del pie
-                            diabético.
-                            </br>
-                            Los pacientes recibirán 7 aplicaciones del Dermofural® ungüento, 0.15%(una diaria),
-                            posterior a
-                            la
-                            cura de las lesiones y permanecerán ingresados en el servicio antes mencionado durante el
-                            período
-                            que dura el estudio.
-                            </br>
-                            La variable principal de respuesta será la respuesta clínica transcurridas 24 horas de la
-                            última
-                            aplicación del tratamiento, teniendo en cuenta la severidad de la
-                            infección.
-                            Se realizarán evaluaciones clínicas diarias durante el tratamiento. Los exámenes
-                            microbiológicos
-                            y
-                            las determinaciones sanguíneas de laboratorio se efectuarán antes de iniciar el tratamiento
-                            y un
-                            día
-                            después de finalizado el mismo. Los eventos adversos locales se valorarán sistemáticamente y
-                            los
-                            eventos sistémicos, cuando se sospeche de los mismos.
-
-                        </p>
-
-                        <p><a class="btn btn-default" href="#" role="button">Leer más »</a></p>
-                    </div>
-                    <!-- /.col-lg-4 -->
-                </div>
-                <!-- /.row -->
-
-
-                <!-- START THE FEATURETTES -->
-
-                <hr class="featurette-divider">
-
-                <div class="container">
-                    <h2>Centro de Bioactivos Químicos</h2>
-                    asdkas has had akdja dasi udasiu dasj asdas as asd as
-                </div>
-
-                <hr class="featurette-divider">
-
-
-                <!-- /END THE FEATURETTES -->
-
-
-                <!-- FOOTER -->
-                <footer>
-                    <p class="pull-right"><a href="#">Regresar al inicio</a></p>
-                    <a href="http://www.cbq.uclv.edu.cu/index.php?option=com_content&task=view&id=12&Itemid=36">© 2016
-                        Centro de
-                        Bioactivos Químicos</a>
-                </footer>
-
+            <div class="container">
+                <h2>Centro de Bioactivos Químicos</h2>
+                asdkas has had akdja dasi udasiu dasj asdas as asd as
             </div>
-            <!-- /.container -->
+
+            <hr class="featurette-divider">
 
 
-            <!-- Bootstrap core JavaScript
-            ================================================== -->
-            <!-- Placed at the end of the document so the pages load faster -->
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-            <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-            <script src="../../dist/js/bootstrap.min.js"></script>
-            <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-            <script src="../../assets/js/vendor/holder.min.js"></script>
-            <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-            <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+            <!-- /END THE FEATURETTES -->
 
 
-            <svg style="display: none; visibility: hidden; position: absolute; top: -100%; left: -100%;"
-                 preserveAspectRatio="none"
-                 viewBox="0 0 500 500" height="500" width="500">
-                <defs>
-                    <style type="text/css"></style>
-                </defs>
-                <text style="font-weight:bold;font-size:25pt;font-family:Arial, Helvetica, Open Sans, sans-serif" y="25"
-                      x="0">
-                    500x500
-                </text>
-            </svg>
+            <!-- FOOTER -->
+            <footer>
+                <p class="pull-right"><a href="#">Regresar al inicio</a></p>
+                <a href="http://www.cbq.uclv.edu.cu/index.php?option=com_content&task=view&id=12&Itemid=36">© 2016
+                    Centro de
+                    Bioactivos Químicos</a>
+            </footer>
+
         </div>
+        <!-- /.container -->
+
+
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+        <script src="../../dist/js/bootstrap.min.js"></script>
+        <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+        <script src="../../assets/js/vendor/holder.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+
+
+        <svg style="display: none; visibility: hidden; position: absolute; top: -100%; left: -100%;"
+             preserveAspectRatio="none"
+             viewBox="0 0 500 500" height="500" width="500">
+            <defs>
+                <style type="text/css"></style>
+            </defs>
+            <text style="font-weight:bold;font-size:25pt;font-family:Arial, Helvetica, Open Sans, sans-serif" y="25"
+                  x="0">
+                500x500
+            </text>
+        </svg>
+    </div>
 {% endblock %}

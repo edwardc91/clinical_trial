@@ -4,6 +4,13 @@
     <a class="btn btn-info" href="{% url "Paciente_modificar" inc %}"><span class="glyphicon glyphicon-user"></span>
         Paciente # {{ paciente.no_inclusion }}: {{ paciente.iniciales }}</a>
 {% endblock %}
+{% block list_pacientes %}
+    <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
+        Listado
+        de
+        pacientes</a>
+{% endblock %}
+
 {% block content %}
     <form method="post" action="">
         {% csrf_token %}

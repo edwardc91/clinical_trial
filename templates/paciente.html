@@ -1,5 +1,11 @@
 {% extends "index.html" %}
 
+{% block list_pacientes %}
+    <a class="btn btn-primary" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
+        Listado
+        de
+        pacientes</a>
+{% endblock %}
 
 {% block content %}
     <h3>Agregar paciente</h3>
