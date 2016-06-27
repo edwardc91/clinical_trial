@@ -12,6 +12,7 @@
      vertical-align: middle;
 
 }
+
 #eventosModal.modal::before, #trataModal.modal::before {
   content: "";
   display: inline-block;
@@ -25,5 +26,35 @@
      text-align: left;
      vertical-align: middle;
    
+}
+
+#maniOtrasModal.modal::before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  margin-right: 28%;
+  vertical-align: middle;
+}
+
+#maniOtrasModal .modal-dialog {
+     display: inline-block;
+     text-align: left;
+     vertical-align: middle;
+
+}
+
+#germenesModal.modal::before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  margin-right: 28%;
+  vertical-align: middle;
+}
+
+#germenesModal .modal-dialog {
+     display: inline-block;
+     text-align: left;
+     vertical-align: middle;
+
 }
 

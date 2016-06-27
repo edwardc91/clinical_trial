@@ -8,7 +8,7 @@ __author__ = 'eduardo'
 from django.forms import ModelForm
 from django import forms
 from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras, EventosAdversosPaciente, EventoAdverso, \
-    TratamientoConcomitante, RelacionPacManiClinOtras
+    TratamientoConcomitante, RelacionPacManiClinOtras, RelacionPacienteGermen
 
 from django.contrib.auth import authenticate
 from Users_App.models import UserInfo
@@ -127,6 +127,41 @@ class EvaluacionMicrobiologicaForm(forms.Form):
                                   widget=forms.RadioSelect)
 
 
+class GermenForm(forms.Form):
+    nombre = forms.CharField(label="Nombre", max_length=30, required=False)
+
+    no_inc = None
+    dia = 0
+    user = None
+
+    def clean(self):
+        cleaned_data = super(GermenForm, self).clean()
+        nombre = self.cleaned_data.get('nombre')
+
+        usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=self.user).database
+
+        cant_germen = RelacionPacienteGermen.objects.using(usuario_database).filter(no_inclusion=self.no_inc,
+                                                                                    dia=self.dia).count()
+        if nombre:
+            germen = RelacionPacienteGermen.objects.using(usuario_database).filter(
+                no_inclusion=self.no_inc,
+                dia=self.dia,
+                nombre__nombre=nombre)
+
+            if germen.exists():
+                raise forms.ValidationError(
+                    "El paciente ya tiene un germen en el dia " + str(self.dia) + " llamado " + nombre)
+
+            if cant_germen + 1 > 6:
+                raise forms.ValidationError(
+                    "Se sobrepasa los 6 germenes que puede tener el paciente")
+
+            if cant_germen == 6:
+                raise forms.ValidationError("El paciente ya tiene 6 germenes")
+
+        return self.cleaned_data
+
+
 class ExamenFisicoForm(forms.Form):
     peso = forms.DecimalField(label="Peso", max_digits=4, decimal_places=1)
     cv = forms.ChoiceField(label="CV", choices={(1, "No examinado"), (2, "Normal"), (3, "CS"), (4, "NCS")},
@@ -190,7 +225,7 @@ class ManifestacionesClinicasOtrasForm(forms.Form):
 
         cant_otras_manifestaciones = RelacionPacManiClinOtras.objects.using(usuario_database).filter(
             no_inclusion=self.no_inc, dia=self.dia).count()
-        if cant_otras_manifestaciones == 3:
+        if cant_otras_manifestaciones == 3 and cant_form > 0:
             raise forms.ValidationError("El paciente ya tiene otras tres manifestaciones clinicas")
 
         if cant_otras_manifestaciones + cant_form > 3:
