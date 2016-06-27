@@ -238,12 +238,12 @@ class ManifestacionesClinicas(models.Model):
 
 
 class ManifestacionesClinicasOtras(models.Model):
-    dia = models.SmallIntegerField()
-    nombre = models.CharField(max_length=50)
+    #
+    nombre = models.CharField(max_length=50, primary_key=True)
 
     class Meta:
         db_table = 'Manifestaciones_clinicas_otras'
-        unique_together = (('dia', 'nombre'),)
+        # unique_together = (('dia', 'nombre'),)
 
 
 class Medicamento(models.Model):
@@ -279,6 +279,7 @@ class RelacionPacCausasInterrupOtras(models.Model):
     no_inclusion = models.ForeignKey(Paciente, db_column='no_inclusion')
     nombre = models.ForeignKey(CausasInterrupcionOtras, db_column='nombre')
 
+
     class Meta:
         db_table = 'Relacion_pac_causas_interrup_otras'
         unique_together = (('no_inclusion', 'nombre'),)
@@ -286,8 +287,8 @@ class RelacionPacCausasInterrupOtras(models.Model):
 
 class RelacionPacManiClinOtras(models.Model):
     no_inclusion = models.ForeignKey(Paciente, db_column='no_inclusion')
-    dia = models.ForeignKey(ManifestacionesClinicasOtras, db_column='dia')
-    nombre = models.CharField(max_length=50)
+    dia = models.SmallIntegerField()
+    nombre = models.ForeignKey(ManifestacionesClinicasOtras, db_column='nombre')
 
     class Meta:
         db_table = 'Relacion_pac_mani_clin_otras'

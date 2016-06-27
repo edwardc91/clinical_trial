@@ -27,7 +27,7 @@ var nombre_ventana_modal_pac = "#pacModal"; // id
             $('#modal_name').text(name);
         });
         $(nombre_boton_eliminar_trata).on('click',function(e){
-            console.log("Estoy aqui trata")
+            //console.log("Estoy aqui trata")
             e.preventDefault();
             var name = $(this).data('name');
             $('#modal_trata_nombre').val(name);

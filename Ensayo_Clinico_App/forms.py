@@ -11,11 +11,13 @@ from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras, Evento
     TratamientoConcomitante, RelacionPacManiClinOtras
 
 from django.contrib.auth import authenticate
+from Users_App.models import UserInfo
 
 
 class LoginForm(forms.Form):
-    usuario = forms.CharField(label="Usuario", max_length=20,widget=forms.TextInput(attrs={'class': 'form-control','placeholder':'Usuario'}))
-    password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control','placeholder':'Password'}))
+    usuario = forms.CharField(max_length=20,
+                              widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
 
     def clean(self):
         cleaned_data = super(LoginForm, self).clean()
@@ -165,29 +167,73 @@ class ManifestacionesClinicasForm(forms.Form):
 
 
 class ManifestacionesClinicasOtrasForm(forms.Form):
-    otra1 = forms.CharField(label="Otra", max_length=50)
-    otra2 = forms.CharField(label="Otra", max_length=50)
-    otra3 = forms.CharField(label="Otra", max_length=50)
+    otra1 = forms.CharField(required=False, label="Otra 1", max_length=50)
+    otra2 = forms.CharField(required=False, label="Otra 2", max_length=50)
+    otra3 = forms.CharField(required=False, label="Otra 3", max_length=50)
 
-    # dia=0
-    # no_inclusion=None
+    no_inc = None
+    dia = 0
+    user = None
 
-    """def clean(self):
+    def clean(self):
         cleaned_data = super(ManifestacionesClinicasOtrasForm, self).clean()
         otra1 = self.cleaned_data.get('otra1')
         otra2 = self.cleaned_data.get('otra2')
         otra3 = self.cleaned_data.get('otra3')
 
-        man_cli=RelacionPacManiClinOtras.objects.using('postgredb1').filter(Q(nombre__nombre__ixact=otra1) |
-                                                                        Q(nombre__nombre__ixact=otra2) |
-                                                                        Q(nombre__nombre__ixact=otra3),
-                                                                        dia = self.dia,
-                                                                        no_inclusion__no_inclusion=self.no_inclusion)
-        if man_cli.exists():
-            raise forms.ValidationError("El paciente ya posse datos para ese evento adverso")
+        usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=self.user).database
+        cant_form = 0
 
-        return self.cleaned_data"""
+        cant_form = check_manifestaciones_clinicas(otra1, cant_form, self.dia, self.no_inc, usuario_database)
+        cant_form = check_manifestaciones_clinicas(otra2, cant_form, self.dia, self.no_inc, usuario_database)
+        cant_form = check_manifestaciones_clinicas(otra3, cant_form, self.dia, self.no_inc, usuario_database)
 
+        cant_otras_manifestaciones = RelacionPacManiClinOtras.objects.using(usuario_database).filter(
+            no_inclusion=self.no_inc, dia=self.dia).count()
+        if cant_otras_manifestaciones == 3:
+            raise forms.ValidationError("El paciente ya tiene otras tres manifestaciones clinicas")
+
+        if cant_otras_manifestaciones + cant_form > 3:
+            raise forms.ValidationError(
+                "Se sobrepasa de las otras tres manifestaciones clinicas que puede tener el paciente")
+
+        return self.cleaned_data
+
+
+def check_manifestaciones_clinicas(otra, cant, dia, no_inc, usuario_database):
+    cant_form = cant
+
+    if otra:
+        cant_form += 1
+        otras_manifestaciones = RelacionPacManiClinOtras.objects.using(usuario_database).filter(
+            no_inclusion=no_inc,
+            dia=dia,
+            nombre__nombre=otra)
+        if otras_manifestaciones.exists():
+            raise forms.ValidationError(
+                "El paciente ya tiene una manifestacion clinica en el dia " + str(dia) + " llamada " + otra)
+
+    return cant_form
+
+    # dia=0
+    # no_inclusion=None
+
+
+"""def clean(self):
+    cleaned_data = super(ManifestacionesClinicasOtrasForm, self).clean()
+    otra1 = self.cleaned_data.get('otra1')
+    otra2 = self.cleaned_data.get('otra2')
+    otra3 = self.cleaned_data.get('otra3')
+
+    man_cli=RelacionPacManiClinOtras.objects.using('postgredb1').filter(Q(nombre__nombre__ixact=otra1) |
+                                                                    Q(nombre__nombre__ixact=otra2) |
+                                                                    Q(nombre__nombre__ixact=otra3),
+                                                                    dia = self.dia,
+                                                                    no_inclusion__no_inclusion=self.no_inclusion)
+    if man_cli.exists():
+        raise forms.ValidationError("El paciente ya posse datos para ese evento adverso")
+
+    return self.cleaned_data"""
 
 time_widget = forms.widgets.TimeInput(attrs={'class': 'time-pick'})
 valid_time_formats = ['%P', '%H:%M%A', '%H:%M %A', '%H:%M%a', '%H:%M %a']
@@ -242,7 +288,7 @@ def generate_string_list_items(data_list):
 
 class EventoAdversoForm(forms.Form):
     error_nombre = {
-        'required': 'You must type a name !',
+        'required': 'Debes escribir un nombre !',
         'invalid': 'Ya existe ese evento adverso para este paciente.'
     }
     lista_items = generate_string_list_items(data_list)
@@ -252,14 +298,16 @@ class EventoAdversoForm(forms.Form):
                                                            'data-source': lista_items
                                                            }))
     no_inclusion = None
+    user = None
 
     def clean(self):
         cleaned_data = super(EventoAdversoForm, self).clean()
         nombre = self.cleaned_data.get('nombre')
 
-        if EventosAdversosPaciente.objects.using('postgredb1').filter(nombre__nombre=nombre,
-                                                                      no_inclusion__no_inclusion=self.no_inclusion).exists():
-            raise forms.ValidationError("El paciente ya posse datos para ese evento adverso")
+        usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=self.user).database
+        if EventosAdversosPaciente.objects.using(usuario_database).filter(nombre__nombre=nombre,
+                                                                          no_inclusion__no_inclusion=self.no_inclusion).exists():
+            raise forms.ValidationError("El paciente ya posse datos para el evento adverso " + nombre)
 
         return self.cleaned_data
 
@@ -354,14 +402,16 @@ class MedicamentoForm(forms.Form):
     nombre = forms.CharField(label="Nombre", max_length=50)
 
     no_inclusion = None
+    user = None
 
     def clean(self):
         cleaned_data = super(MedicamentoForm, self).clean()
         nombre = self.cleaned_data.get('nombre')
 
-        if TratamientoConcomitante.objects.using('postgredb1').filter(nombre__nombre=nombre,
-                                                                      no_inclusion__no_inclusion=self.no_inclusion).exists():
-            raise forms.ValidationError("El paciente ya posse datos para ese tratamiento")
+        usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=self.user).database
+        if TratamientoConcomitante.objects.using(usuario_database).filter(nombre__nombre=nombre,
+                                                                          no_inclusion__no_inclusion=self.no_inclusion).exists():
+            raise forms.ValidationError("El paciente ya posse datos para el tratamiento con " + nombre)
 
         return self.cleaned_data
 

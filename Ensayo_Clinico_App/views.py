@@ -13,6 +13,7 @@ from Users_App.models import UserInfo
 
 import models
 import forms
+import csv
 
 
 @csrf_exempt
@@ -63,15 +64,16 @@ def view_login(request):
                 return HttpResponseRedirect(reverse('Index'))
             else:
                 return render(request, "login.html", {'form': form})
+    else:
+        form = forms.LoginForm()
 
-    form = forms.LoginForm()
     context = {'form': form}
     return render(request, "login.html", context)
 
 
 def view_logout(request):
     logout(request)
-    form = forms.LoginForm()
+    # form = forms.LoginForm()
     return HttpResponseRedirect(reverse('Login'))
 
 
@@ -220,25 +222,30 @@ def view_evaluacion_inicial(request, no_inc):
     mani_clinicas = models.ManifestacionesClinicas.objects.using(usuario_database).filter(no_inclusion=no_inc,
                                                                                           dia=0)
 
-    """otras_manifestaciones = models.RelacionPacManiClinOtras.objects.using(usuario_database).filter(
-        no_inclusion__no_inclusion=no_inc,
+    otras_manifestaciones = models.RelacionPacManiClinOtras.objects.using(usuario_database).filter(
+        no_inclusion=no_inc,
         dia=0
-    )"""
+    )
 
     if request.POST:
+
         form = forms.EvaluacionInicialForm(request.POST)
         form2 = forms.ExamenFisicoForm(request.POST)
         form3 = forms.ManifestacionesClinicasForm(request.POST)
         form4 = forms.EvaluacionMicrobiologicaForm(request.POST)
         form5 = forms.ExamenLabClinicoForm(request.POST)
+        form6 = forms.ManifestacionesClinicasOtrasForm(request.POST)
 
-        if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid():
+        form6.no_inc = no_inc
+        form6.dia = 0
+        form6.user = user
+
+        if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid() and form6.is_valid():
             update_datos_generales_evaluacion_inicial(form=form, exist=exist, init_eval=init_eval,
                                                       paciente=paciente, usuario_database=usuario_database)
             update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=0,
                                  usuario_database=usuario_database)
 
-            print "right here"
             update_manifestaciones_clinicas(form=form3, mani_clinicas=mani_clinicas, paciente=paciente, dia=0,
                                             usuario_database=usuario_database)
             update_evaluacion_microbiologica(form=form4, eval_micro=eval_micro, paciente=paciente, dia=0,
@@ -246,127 +253,185 @@ def view_evaluacion_inicial(request, no_inc):
             update_examen_lab_clinico(form=form5, lab_clinico=lab_clinico, paciente=paciente, dia=0,
                                       usuario_database=usuario_database)
 
-            result = "Modificados los datos de la evaluacion inicial de paciente " + paciente.iniciales + " satisfactoriamente"
+            update_otras_manifestaciones_clinicas(form=form6,paciente=paciente,dia=0,usuario_database=usuario_database)
+            # result = "Modificados los datos de la evaluacion inicial de paciente " + paciente.iniciales + " satisfactoriamente"
+
             return render(request, "eval_inicial.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
-                           'result': result, 'inc': no_inc, 'paciente': paciente})
-    if exist:
-        i_data = {'fecha': init_eval.fecha,
-                  'hipertension_arterial': init_eval.hipertension_arterial,
-                  'hiperlipidemias': init_eval.hiperlipidemias,
-                  'cardiopatia_isquemica': init_eval.cardiopatia_isquemica,
-                  'historia_ulcera_pies': init_eval.historia_ulcera_pies,
-                  'historia_amputacion': init_eval.historia_amputacion,
-                  'amputacion_mayor': init_eval.amputacion_mayor,
-                  'amputacion_menor': init_eval.amputacion_menor,
-                  'tipo_diabetes': init_eval.tipo_diabetes,
-                  'tiempo_evolucion': init_eval.tiempo_evolucion,
-                  'habito_fumar': init_eval.habito_fumar,
-                  'alcoholismo': init_eval.alcoholismo,
-                  'miembro_afectado': init_eval.miembro_afectado,
-                  'dedos': init_eval.dedos,
-                  'dorso_pie': init_eval.dorso_pie,
-                  'planta': init_eval.planta,
-                  'calcaneo': init_eval.calcaneo,
-                  'lateral_interno': init_eval.lateral_interno,
-                  'lateral_externo': init_eval.lateral_externo,
-                  'transmetatarsiano': init_eval.transmetatarsiano,
-                  'clasificacion_idsa': init_eval.clasificacion_idsa,
-                  'cultivo_microbiologico': init_eval.cultivo_microbiologico,
-                  'tratamiento_concomitante': init_eval.tratamiento_concomitante
-                  }
-        form = forms.EvaluacionInicialForm(initial=i_data)
+                          {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'form6': form6,
+                           'result': result, 'inc': no_inc, 'paciente': paciente,
+                           'otras_mani': otras_manifestaciones})
     else:
-        form = forms.EvaluacionInicialForm()
+        if exist:
+            i_data = {'fecha': init_eval.fecha,
+                      'hipertension_arterial': init_eval.hipertension_arterial,
+                      'hiperlipidemias': init_eval.hiperlipidemias,
+                      'cardiopatia_isquemica': init_eval.cardiopatia_isquemica,
+                      'historia_ulcera_pies': init_eval.historia_ulcera_pies,
+                      'historia_amputacion': init_eval.historia_amputacion,
+                      'amputacion_mayor': init_eval.amputacion_mayor,
+                      'amputacion_menor': init_eval.amputacion_menor,
+                      'tipo_diabetes': init_eval.tipo_diabetes,
+                      'tiempo_evolucion': init_eval.tiempo_evolucion,
+                      'habito_fumar': init_eval.habito_fumar,
+                      'alcoholismo': init_eval.alcoholismo,
+                      'miembro_afectado': init_eval.miembro_afectado,
+                      'dedos': init_eval.dedos,
+                      'dorso_pie': init_eval.dorso_pie,
+                      'planta': init_eval.planta,
+                      'calcaneo': init_eval.calcaneo,
+                      'lateral_interno': init_eval.lateral_interno,
+                      'lateral_externo': init_eval.lateral_externo,
+                      'transmetatarsiano': init_eval.transmetatarsiano,
+                      'clasificacion_idsa': init_eval.clasificacion_idsa,
+                      'cultivo_microbiologico': init_eval.cultivo_microbiologico,
+                      'tratamiento_concomitante': init_eval.tratamiento_concomitante
+                      }
+            form = forms.EvaluacionInicialForm(initial=i_data)
+        else:
+            form = forms.EvaluacionInicialForm()
 
-    if examen_fisico.exists():
-        examen_fisico = examen_fisico[0]
+        if examen_fisico.exists():
+            examen_fisico = examen_fisico[0]
 
-        i_data = {'peso': examen_fisico.peso,
-                  'cv': examen_fisico.cv,
-                  'cv_desc': examen_fisico.cv_desc,
-                  'respiratorio': examen_fisico.respiratorio,
-                  'respiratorio_desc': examen_fisico.respiratorio_desc,
-                  'abdominal': examen_fisico.abdominal,
-                  'abdominal_desc': examen_fisico.abdominal_desc,
-                  'extremidades': examen_fisico.extremidades,
-                  'extremidades_desc': examen_fisico.extremidades_desc,
-                  'piel': examen_fisico.piel,
-                  'piel_desc': examen_fisico.piel_desc,
-                  'neurologico': examen_fisico.neurologico,
-                  'neurologico_desc': examen_fisico.neurologico_desc
-                  }
+            i_data = {'peso': examen_fisico.peso,
+                      'cv': examen_fisico.cv,
+                      'cv_desc': examen_fisico.cv_desc,
+                      'respiratorio': examen_fisico.respiratorio,
+                      'respiratorio_desc': examen_fisico.respiratorio_desc,
+                      'abdominal': examen_fisico.abdominal,
+                      'abdominal_desc': examen_fisico.abdominal_desc,
+                      'extremidades': examen_fisico.extremidades,
+                      'extremidades_desc': examen_fisico.extremidades_desc,
+                      'piel': examen_fisico.piel,
+                      'piel_desc': examen_fisico.piel_desc,
+                      'neurologico': examen_fisico.neurologico,
+                      'neurologico_desc': examen_fisico.neurologico_desc
+                      }
 
-        form2 = forms.ExamenFisicoForm(initial=i_data)
-    else:
-        form2 = forms.ExamenFisicoForm()
+            form2 = forms.ExamenFisicoForm(initial=i_data)
+        else:
+            form2 = forms.ExamenFisicoForm()
 
-    if mani_clinicas.exists():
-        mani_clinicas = mani_clinicas[0]
+        if mani_clinicas.exists():
+            mani_clinicas = mani_clinicas[0]
 
-        i_data = {'induracion': mani_clinicas.induracion,
-                  'edema_local': mani_clinicas.edema_local,
-                  'eritema_diametro': mani_clinicas.eritema_diametro,
-                  'sensibilidad': mani_clinicas.sensibilidad,
-                  'dolor_local': mani_clinicas.dolor_local,
-                  'calor_local': mani_clinicas.calor_local,
-                  'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
-                  'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
+            i_data = {'induracion': mani_clinicas.induracion,
+                      'edema_local': mani_clinicas.edema_local,
+                      'eritema_diametro': mani_clinicas.eritema_diametro,
+                      'sensibilidad': mani_clinicas.sensibilidad,
+                      'dolor_local': mani_clinicas.dolor_local,
+                      'calor_local': mani_clinicas.calor_local,
+                      'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
+                      'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
 
-        form3 = forms.ManifestacionesClinicasForm(initial=i_data)
-    else:
-        form3 = forms.ManifestacionesClinicasForm()
+            form3 = forms.ManifestacionesClinicasForm(initial=i_data)
+        else:
+            form3 = forms.ManifestacionesClinicasForm()
 
-    if eval_micro.exists():
-        eval_micro = eval_micro[0]
+        if eval_micro.exists():
+            eval_micro = eval_micro[0]
 
-        i_data = {'fecha': eval_micro.fecha,
-                  'resultado': eval_micro.resultado}
+            i_data = {'fecha': eval_micro.fecha,
+                      'resultado': eval_micro.resultado}
 
-        form4 = forms.EvaluacionMicrobiologicaForm(initial=i_data)
-    else:
-        form4 = forms.EvaluacionMicrobiologicaForm()
+            form4 = forms.EvaluacionMicrobiologicaForm(initial=i_data)
+        else:
+            form4 = forms.EvaluacionMicrobiologicaForm()
 
-    if lab_clinico.exists():
-        lab_clinico = lab_clinico[0]
+        if lab_clinico.exists():
+            lab_clinico = lab_clinico[0]
 
-        i_data = {'fecha_hematologicos': lab_clinico.fecha_hematologicos,
-                  'hemoglobina': lab_clinico.hemoglobina,
-                  'hemoglobina_valor': lab_clinico.hemoglobina_valor,
-                  'ctl': lab_clinico.ctl,
-                  'ctl_valor': lab_clinico.ctl_valor,
-                  'neutrofilos': lab_clinico.neutrofilos,
-                  'neutrofilos_valor': lab_clinico.neutrofilos_valor,
-                  'linfocitos': lab_clinico.linfocitos,
-                  'linfocitos_valor': lab_clinico.linfocitos_valor,
-                  'monocitos': lab_clinico.monocitos,
-                  'monocitos_valor': lab_clinico.monocitos_valor,
-                  'eosinofilos': lab_clinico.eosinofilos,
-                  'eosinofilos_valor': lab_clinico.eosinofilos_valor,
-                  'basofilos': lab_clinico.basofilos,
-                  'basofilos_valor': lab_clinico.basofilos_valor,
-                  'c_plaquetas': lab_clinico.c_plaquetas,
-                  'c_plaquetas_valor': lab_clinico.c_plaquetas_valor,
-                  'eritro': lab_clinico.eritro,
-                  'eritro_valor': lab_clinico.eritro_valor,
-                  'fecha_quimica_sanguinea': lab_clinico.fecha_quimica_sanguinea,
-                  'creatinina': lab_clinico.creatinina,
-                  'creatinina_valor': lab_clinico.creatinina_valor,
-                  'tgo': lab_clinico.tgo,
-                  'tgo_valor': lab_clinico.tgo_valor,
-                  'tgp': lab_clinico.tgp,
-                  'tgp_valor': lab_clinico.tgp_valor,
-                  'glicemia': lab_clinico.glicemia,
-                  'glicemia_valor': lab_clinico.glicemia_valor
-                  }
+            i_data = {'fecha_hematologicos': lab_clinico.fecha_hematologicos,
+                      'hemoglobina': lab_clinico.hemoglobina,
+                      'hemoglobina_valor': lab_clinico.hemoglobina_valor,
+                      'ctl': lab_clinico.ctl,
+                      'ctl_valor': lab_clinico.ctl_valor,
+                      'neutrofilos': lab_clinico.neutrofilos,
+                      'neutrofilos_valor': lab_clinico.neutrofilos_valor,
+                      'linfocitos': lab_clinico.linfocitos,
+                      'linfocitos_valor': lab_clinico.linfocitos_valor,
+                      'monocitos': lab_clinico.monocitos,
+                      'monocitos_valor': lab_clinico.monocitos_valor,
+                      'eosinofilos': lab_clinico.eosinofilos,
+                      'eosinofilos_valor': lab_clinico.eosinofilos_valor,
+                      'basofilos': lab_clinico.basofilos,
+                      'basofilos_valor': lab_clinico.basofilos_valor,
+                      'c_plaquetas': lab_clinico.c_plaquetas,
+                      'c_plaquetas_valor': lab_clinico.c_plaquetas_valor,
+                      'eritro': lab_clinico.eritro,
+                      'eritro_valor': lab_clinico.eritro_valor,
+                      'fecha_quimica_sanguinea': lab_clinico.fecha_quimica_sanguinea,
+                      'creatinina': lab_clinico.creatinina,
+                      'creatinina_valor': lab_clinico.creatinina_valor,
+                      'tgo': lab_clinico.tgo,
+                      'tgo_valor': lab_clinico.tgo_valor,
+                      'tgp': lab_clinico.tgp,
+                      'tgp_valor': lab_clinico.tgp_valor,
+                      'glicemia': lab_clinico.glicemia,
+                      'glicemia_valor': lab_clinico.glicemia_valor
+                      }
 
-        form5 = forms.ExamenLabClinicoForm(initial=i_data)
-    else:
-        form5 = forms.ExamenLabClinicoForm()
+            form5 = forms.ExamenLabClinicoForm(initial=i_data)
+        else:
+            form5 = forms.ExamenLabClinicoForm()
+
+        form6 = forms.ManifestacionesClinicasOtrasForm()
 
     return render(request, "eval_inicial.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'result': result,
-                   'inc': no_inc, 'paciente': paciente})
+                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'form6': form6,
+                   'result': result,
+                   'inc': no_inc, 'paciente': paciente, 'otras_mani': otras_manifestaciones})
+
+
+def update_otras_manifestaciones_clinicas(form, paciente, dia, usuario_database):
+    otra1 = form.cleaned_data['otra1']
+    otra2 = form.cleaned_data['otra2']
+    otra3 = form.cleaned_data['otra3']
+
+    if otra1:
+        otra_mani = models.ManifestacionesClinicasOtras.objects.using(usuario_database).filter(nombre=otra1)
+        if otra_mani.exists():
+            relacion = models.RelacionPacManiClinOtras.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                              dia=dia,
+                                                                                              nombre=otra_mani[0])
+            relacion.save()
+        else:
+            otra_mani = models.ManifestacionesClinicasOtras.objects.using(usuario_database).create(nombre=otra1)
+            otra_mani.save()
+            relacion = models.RelacionPacManiClinOtras.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                              dia=dia,
+                                                                                              nombre=otra_mani)
+            relacion.save()
+
+    if otra2:
+        otra_mani = models.ManifestacionesClinicasOtras.objects.using(usuario_database).filter(nombre=otra2)
+        if otra_mani.exists():
+            relacion = models.RelacionPacManiClinOtras.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                              dia=dia,
+                                                                                              nombre=otra_mani[0])
+            relacion.save()
+        else:
+            otra_mani = models.ManifestacionesClinicasOtras.objects.using(usuario_database).create(nombre=otra2)
+            otra_mani.save()
+            relacion = models.RelacionPacManiClinOtras.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                              dia=dia,
+                                                                                              nombre=otra_mani)
+            relacion.save()
+
+    if otra3:
+        otra_mani = models.ManifestacionesClinicasOtras.objects.using(usuario_database).filter(nombre=otra3)
+        if otra_mani.exists():
+            relacion = models.RelacionPacManiClinOtras.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                              dia=dia,
+                                                                                              nombre=otra_mani[0])
+            relacion.save()
+        else:
+            otra_mani = models.ManifestacionesClinicasOtras.objects.using(usuario_database).create(nombre=otra3)
+            otra_mani.save()
+            relacion = models.RelacionPacManiClinOtras.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                              dia=dia,
+                                                                                              nombre=otra_mani)
+            relacion.save()
 
 
 def update_datos_generales_evaluacion_inicial(form, exist, init_eval, paciente, usuario_database):
@@ -709,65 +774,67 @@ def view_evaluacion_durante(request, no_inc, dia):
             return render(request, "eval_durante.html",
                           {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc, "dia": dia,
                            'paciente': paciente})
-    if exist:
-        i_data = {'fecha': durante_eval.fecha,
-                  'previo_diastolica': durante_eval.previo_diastolica,
-                  'previo_sistolica': durante_eval.previo_sistolica,
-                  'previo_fc': durante_eval.previo_fc,
-                  'previo_temperatura': durante_eval.previo_temperatura,
-                  'despues_diastolica': durante_eval.despues_diastolica,
-                  'despues_sistolica': durante_eval.despues_sistolica,
-                  'despues_fc': durante_eval.despues_fc,
-                  'despues_temperatura': durante_eval.despues_temperatura,
-                  'glicemia_valor': durante_eval.glicemia_valor,
-                  'glicemia': durante_eval.glicemia,
-                  'fecha_glicemia': durante_eval.fecha_glicemia,
-                  'manifestaciones_clinicas': durante_eval.manifestaciones_clinicas,
-                  'tratamiento_concomitante': durante_eval.tratamiento_concomitante,
-                  'eventos_adversos': durante_eval.eventos_adversos,
-                  'interrumpio_tratamiento': durante_eval.interrumpio_tratamiento
-                  }
-        form = forms.EvaluacionDuranteForm(initial=i_data)
+
     else:
-        form = forms.EvaluacionDuranteForm()
+        if exist:
+            i_data = {'fecha': durante_eval.fecha,
+                      'previo_diastolica': durante_eval.previo_diastolica,
+                      'previo_sistolica': durante_eval.previo_sistolica,
+                      'previo_fc': durante_eval.previo_fc,
+                      'previo_temperatura': durante_eval.previo_temperatura,
+                      'despues_diastolica': durante_eval.despues_diastolica,
+                      'despues_sistolica': durante_eval.despues_sistolica,
+                      'despues_fc': durante_eval.despues_fc,
+                      'despues_temperatura': durante_eval.despues_temperatura,
+                      'glicemia_valor': durante_eval.glicemia_valor,
+                      'glicemia': durante_eval.glicemia,
+                      'fecha_glicemia': durante_eval.fecha_glicemia,
+                      'manifestaciones_clinicas': durante_eval.manifestaciones_clinicas,
+                      'tratamiento_concomitante': durante_eval.tratamiento_concomitante,
+                      'eventos_adversos': durante_eval.eventos_adversos,
+                      'interrumpio_tratamiento': durante_eval.interrumpio_tratamiento
+                      }
+            form = forms.EvaluacionDuranteForm(initial=i_data)
+        else:
+            form = forms.EvaluacionDuranteForm()
 
-    if examen_fisico.exists():
-        examen_fisico = examen_fisico[0]
+        if examen_fisico.exists():
+            examen_fisico = examen_fisico[0]
 
-        i_data = {'peso': examen_fisico.peso,
-                  'cv': examen_fisico.cv,
-                  'cv_desc': examen_fisico.cv_desc,
-                  'respiratorio': examen_fisico.respiratorio,
-                  'respiratorio_desc': examen_fisico.respiratorio_desc,
-                  'abdominal': examen_fisico.abdominal,
-                  'abdominal_desc': examen_fisico.abdominal_desc,
-                  'extremidades': examen_fisico.extremidades,
-                  'extremidades_desc': examen_fisico.extremidades_desc,
-                  'piel': examen_fisico.piel,
-                  'piel_desc': examen_fisico.piel_desc,
-                  'neurologico': examen_fisico.neurologico,
-                  'neurologico_desc': examen_fisico.neurologico_desc
-                  }
+            i_data = {'peso': examen_fisico.peso,
+                      'cv': examen_fisico.cv,
+                      'cv_desc': examen_fisico.cv_desc,
+                      'respiratorio': examen_fisico.respiratorio,
+                      'respiratorio_desc': examen_fisico.respiratorio_desc,
+                      'abdominal': examen_fisico.abdominal,
+                      'abdominal_desc': examen_fisico.abdominal_desc,
+                      'extremidades': examen_fisico.extremidades,
+                      'extremidades_desc': examen_fisico.extremidades_desc,
+                      'piel': examen_fisico.piel,
+                      'piel_desc': examen_fisico.piel_desc,
+                      'neurologico': examen_fisico.neurologico,
+                      'neurologico_desc': examen_fisico.neurologico_desc
+                      }
 
-        form2 = forms.ExamenFisicoForm(initial=i_data)
-    else:
-        form2 = forms.ExamenFisicoForm()
+            form2 = forms.ExamenFisicoForm(initial=i_data)
+        else:
+            form2 = forms.ExamenFisicoForm()
 
-    if mani_clinicas.exists():
-        mani_clinicas = mani_clinicas[0]
+        if mani_clinicas.exists():
+            mani_clinicas = mani_clinicas[0]
 
-        i_data = {'induracion': mani_clinicas.induracion,
-                  'edema_local': mani_clinicas.edema_local,
-                  'eritema_diametro': mani_clinicas.eritema_diametro,
-                  'sensibilidad': mani_clinicas.sensibilidad,
-                  'dolor_local': mani_clinicas.dolor_local,
-                  'calor_local': mani_clinicas.calor_local,
-                  'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
-                  'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
+            i_data = {'induracion': mani_clinicas.induracion,
+                      'edema_local': mani_clinicas.edema_local,
+                      'eritema_diametro': mani_clinicas.eritema_diametro,
+                      'sensibilidad': mani_clinicas.sensibilidad,
+                      'dolor_local': mani_clinicas.dolor_local,
+                      'calor_local': mani_clinicas.calor_local,
+                      'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
+                      'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
 
-        form3 = forms.ManifestacionesClinicasForm(initial=i_data)
-    else:
-        form3 = forms.ManifestacionesClinicasForm()
+            form3 = forms.ManifestacionesClinicasForm(initial=i_data)
+        else:
+            form3 = forms.ManifestacionesClinicasForm()
 
     return render(request, "eval_durante.html",
                   {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc, "dia": dia,
@@ -890,100 +957,102 @@ def view_evaluacion_final(request, no_inc):
             return render(request, "eval_final.html",
                           {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
                            'result': result, 'inc': no_inc, 'paciente': paciente})
-    if exist:
-        i_data = {'fecha': final_eval.fecha,
-                  'manifestaciones_clinicas': final_eval.manifestaciones_clinicas,
-                  'cultivo_microbiologico': final_eval.cultivo_microbiologico,
-                  'clasificacion_idsa': final_eval.clasificacion_idsa,
-                  }
-        form = forms.EvaluacionFinalForm(initial=i_data)
+
     else:
-        form = forms.EvaluacionFinalForm()
+        if exist:
+            i_data = {'fecha': final_eval.fecha,
+                      'manifestaciones_clinicas': final_eval.manifestaciones_clinicas,
+                      'cultivo_microbiologico': final_eval.cultivo_microbiologico,
+                      'clasificacion_idsa': final_eval.clasificacion_idsa,
+                      }
+            form = forms.EvaluacionFinalForm(initial=i_data)
+        else:
+            form = forms.EvaluacionFinalForm()
 
-    if examen_fisico.exists():
-        examen_fisico = examen_fisico[0]
+        if examen_fisico.exists():
+            examen_fisico = examen_fisico[0]
 
-        i_data = {'peso': examen_fisico.peso,
-                  'cv': examen_fisico.cv,
-                  'cv_desc': examen_fisico.cv_desc,
-                  'respiratorio': examen_fisico.respiratorio,
-                  'respiratorio_desc': examen_fisico.respiratorio_desc,
-                  'abdominal': examen_fisico.abdominal,
-                  'abdominal_desc': examen_fisico.abdominal_desc,
-                  'extremidades': examen_fisico.extremidades,
-                  'extremidades_desc': examen_fisico.extremidades_desc,
-                  'piel': examen_fisico.piel,
-                  'piel_desc': examen_fisico.piel_desc,
-                  'neurologico': examen_fisico.neurologico,
-                  'neurologico_desc': examen_fisico.neurologico_desc
-                  }
+            i_data = {'peso': examen_fisico.peso,
+                      'cv': examen_fisico.cv,
+                      'cv_desc': examen_fisico.cv_desc,
+                      'respiratorio': examen_fisico.respiratorio,
+                      'respiratorio_desc': examen_fisico.respiratorio_desc,
+                      'abdominal': examen_fisico.abdominal,
+                      'abdominal_desc': examen_fisico.abdominal_desc,
+                      'extremidades': examen_fisico.extremidades,
+                      'extremidades_desc': examen_fisico.extremidades_desc,
+                      'piel': examen_fisico.piel,
+                      'piel_desc': examen_fisico.piel_desc,
+                      'neurologico': examen_fisico.neurologico,
+                      'neurologico_desc': examen_fisico.neurologico_desc
+                      }
 
-        form2 = forms.ExamenFisicoForm(initial=i_data)
-    else:
-        form2 = forms.ExamenFisicoForm()
+            form2 = forms.ExamenFisicoForm(initial=i_data)
+        else:
+            form2 = forms.ExamenFisicoForm()
 
-    if mani_clinicas.exists():
-        mani_clinicas = mani_clinicas[0]
+        if mani_clinicas.exists():
+            mani_clinicas = mani_clinicas[0]
 
-        i_data = {'induracion': mani_clinicas.induracion,
-                  'edema_local': mani_clinicas.edema_local,
-                  'eritema_diametro': mani_clinicas.eritema_diametro,
-                  'sensibilidad': mani_clinicas.sensibilidad,
-                  'dolor_local': mani_clinicas.dolor_local,
-                  'calor_local': mani_clinicas.calor_local,
-                  'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
-                  'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
+            i_data = {'induracion': mani_clinicas.induracion,
+                      'edema_local': mani_clinicas.edema_local,
+                      'eritema_diametro': mani_clinicas.eritema_diametro,
+                      'sensibilidad': mani_clinicas.sensibilidad,
+                      'dolor_local': mani_clinicas.dolor_local,
+                      'calor_local': mani_clinicas.calor_local,
+                      'secrecion_purulenta': mani_clinicas.secrecion_purulenta,
+                      'secrecion_no_purulenta': mani_clinicas.secrecion_no_purulenta}
 
-        form3 = forms.ManifestacionesClinicasForm(initial=i_data)
-    else:
-        form3 = forms.ManifestacionesClinicasForm()
+            form3 = forms.ManifestacionesClinicasForm(initial=i_data)
+        else:
+            form3 = forms.ManifestacionesClinicasForm()
 
-    if eval_micro.exists():
-        eval_micro = eval_micro[0]
+        if eval_micro.exists():
+            eval_micro = eval_micro[0]
 
-        i_data = {'fecha': eval_micro.fecha,
-                  'resultado': eval_micro.resultado}
+            i_data = {'fecha': eval_micro.fecha,
+                      'resultado': eval_micro.resultado}
 
-        form4 = forms.EvaluacionMicrobiologicaForm(initial=i_data)
-    else:
-        form4 = forms.EvaluacionMicrobiologicaForm()
+            form4 = forms.EvaluacionMicrobiologicaForm(initial=i_data)
+        else:
+            form4 = forms.EvaluacionMicrobiologicaForm()
 
-    if lab_clinico.exists():
-        lab_clinico = lab_clinico[0]
+        if lab_clinico.exists():
+            lab_clinico = lab_clinico[0]
 
-        i_data = {'fecha_hematologicos': lab_clinico.fecha_hematologicos,
-                  'hemoglobina': lab_clinico.hemoglobina,
-                  'hemoglobina_valor': lab_clinico.hemoglobina_valor,
-                  'ctl': lab_clinico.ctl,
-                  'ctl_valor': lab_clinico.ctl_valor,
-                  'neutrofilos': lab_clinico.neutrofilos,
-                  'neutrofilos_valor': lab_clinico.neutrofilos_valor,
-                  'linfocitos': lab_clinico.linfocitos,
-                  'linfocitos_valor': lab_clinico.linfocitos_valor,
-                  'monocitos': lab_clinico.monocitos,
-                  'monocitos_valor': lab_clinico.monocitos_valor,
-                  'eosinofilos': lab_clinico.eosinofilos,
-                  'eosinofilos_valor': lab_clinico.eosinofilos_valor,
-                  'basofilos': lab_clinico.basofilos,
-                  'basofilos_valor': lab_clinico.basofilos_valor,
-                  'c_plaquetas': lab_clinico.c_plaquetas,
-                  'c_plaquetas_valor': lab_clinico.c_plaquetas_valor,
-                  'eritro': lab_clinico.eritro,
-                  'eritro_valor': lab_clinico.eritro_valor,
-                  'fecha_quimica_sanguinea': lab_clinico.fecha_quimica_sanguinea,
-                  'creatinina': lab_clinico.creatinina,
-                  'creatinina_valor': lab_clinico.creatinina_valor,
-                  'tgo': lab_clinico.tgo,
-                  'tgo_valor': lab_clinico.tgo_valor,
-                  'tgp': lab_clinico.tgp,
-                  'tgp_valor': lab_clinico.tgp_valor,
-                  'glicemia': lab_clinico.glicemia,
-                  'glicemia_valor': lab_clinico.glicemia_valor
-                  }
+            i_data = {'fecha_hematologicos': lab_clinico.fecha_hematologicos,
+                      'hemoglobina': lab_clinico.hemoglobina,
+                      'hemoglobina_valor': lab_clinico.hemoglobina_valor,
+                      'ctl': lab_clinico.ctl,
+                      'ctl_valor': lab_clinico.ctl_valor,
+                      'neutrofilos': lab_clinico.neutrofilos,
+                      'neutrofilos_valor': lab_clinico.neutrofilos_valor,
+                      'linfocitos': lab_clinico.linfocitos,
+                      'linfocitos_valor': lab_clinico.linfocitos_valor,
+                      'monocitos': lab_clinico.monocitos,
+                      'monocitos_valor': lab_clinico.monocitos_valor,
+                      'eosinofilos': lab_clinico.eosinofilos,
+                      'eosinofilos_valor': lab_clinico.eosinofilos_valor,
+                      'basofilos': lab_clinico.basofilos,
+                      'basofilos_valor': lab_clinico.basofilos_valor,
+                      'c_plaquetas': lab_clinico.c_plaquetas,
+                      'c_plaquetas_valor': lab_clinico.c_plaquetas_valor,
+                      'eritro': lab_clinico.eritro,
+                      'eritro_valor': lab_clinico.eritro_valor,
+                      'fecha_quimica_sanguinea': lab_clinico.fecha_quimica_sanguinea,
+                      'creatinina': lab_clinico.creatinina,
+                      'creatinina_valor': lab_clinico.creatinina_valor,
+                      'tgo': lab_clinico.tgo,
+                      'tgo_valor': lab_clinico.tgo_valor,
+                      'tgp': lab_clinico.tgp,
+                      'tgp_valor': lab_clinico.tgp_valor,
+                      'glicemia': lab_clinico.glicemia,
+                      'glicemia_valor': lab_clinico.glicemia_valor
+                      }
 
-        form5 = forms.ExamenLabClinicoForm(initial=i_data)
-    else:
-        form5 = forms.ExamenLabClinicoForm()
+            form5 = forms.ExamenLabClinicoForm(initial=i_data)
+        else:
+            form5 = forms.ExamenLabClinicoForm()
 
     return render(request, "eval_final.html",
                   {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'result': result,
@@ -1153,24 +1222,26 @@ def view_interrupcion_tratamiento(request, no_inc):
                 return render(request, "interrup_trata.html",
                               {'form': form, 'form2': form2, 'result': result, 'inc': no_inclusion.no_inclusion,
                                'paciente': paciente})
-    if exist:
-        i_data = {'fecha': interrup_trata.fecha,
-                  'dosis_recibidas': interrup_trata.dosis_recibidas,
-                  'abandono_voluntario': interrup_trata.abandono_voluntario,
-                  'criterios_exclusion': interrup_trata.criterios_exclusion,
-                  'eventos_adversos': interrup_trata.eventos_adversos,
-                  'aparicion_agravamiento': interrup_trata.aparicion_agravamiento,
-                  'fallecimiento': interrup_trata.fallecimiento,
-                  }
-        form = forms.InterrupcionTratamientoForm(initial=i_data)
-    else:
-        form = forms.InterrupcionTratamientoForm()
 
-    relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).filter(no_inclusion=no_inc)
-    if relacion.exists():
-        form2 = forms.CausasInterrupcionOtrasForm(initial={'nombre': relacion[0].nombre.nombre})
     else:
-        form2 = forms.CausasInterrupcionOtrasForm()
+        if exist:
+            i_data = {'fecha': interrup_trata.fecha,
+                      'dosis_recibidas': interrup_trata.dosis_recibidas,
+                      'abandono_voluntario': interrup_trata.abandono_voluntario,
+                      'criterios_exclusion': interrup_trata.criterios_exclusion,
+                      'eventos_adversos': interrup_trata.eventos_adversos,
+                      'aparicion_agravamiento': interrup_trata.aparicion_agravamiento,
+                      'fallecimiento': interrup_trata.fallecimiento,
+                      }
+            form = forms.InterrupcionTratamientoForm(initial=i_data)
+        else:
+            form = forms.InterrupcionTratamientoForm()
+
+        relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).filter(no_inclusion=no_inc)
+        if relacion.exists():
+            form2 = forms.CausasInterrupcionOtrasForm(initial={'nombre': relacion[0].nombre.nombre})
+        else:
+            form2 = forms.CausasInterrupcionOtrasForm()
 
     return render(request, "interrup_trata.html",
                   {'form': form, 'form2': form2, 'result': result, 'inc': no_inc, 'paciente': paciente})
@@ -1203,6 +1274,8 @@ def view_eventos_adversos(request, no_inc):
             form2 = forms.EventoAdversoForm(request.POST)
 
             form2.no_inclusion = no_inc
+            form2.user = request.user.username
+
             print "Enter post"
             if form.is_valid() and form2.is_valid():
                 no_inclusion = paciente
@@ -1237,77 +1310,20 @@ def view_eventos_adversos(request, no_inc):
                     resultado=resultado,
                     relacion_causalidad=relacion_causalidad,
                     lote_dermofural=lote_dermofural
-                    )
+                )
                 evento_adverso.save()
 
                 result = "Datos agregados satisfactriamente al paciente " + paciente.iniciales
                 return HttpResponseRedirect(reverse("Eventos_adversos", args=(no_inc,)))
 
                 # eventos_adversos=models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
-
-    form = forms.EventosAdversosPacienteForm()
-    form2 = forms.EventoAdversoForm()
+    else:
+        form = forms.EventosAdversosPacienteForm()
+        form2 = forms.EventoAdversoForm()
 
     return render(request, "eventos_adversos.html",
                   {'eventos_adversos': eventos_adversos, 'inc': no_inc, 'form': form, 'form2': form2,
                    'paciente': paciente})
-
-
-"""def view_evento_adverso(request, no_inc):
-    paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
-    result = "Nuevo evento adverso"
-
-    if request.POST:
-        form = forms.EventosAdversosPacienteForm(request.POST)
-        form2 = forms.EventoAdversoForm(request.POST)
-
-        form2.no_inclusion = no_inc
-        print "Enter post"
-        if form.is_valid() and form2.is_valid():
-            no_inclusion = paciente
-            fecha_inicio = form.cleaned_data['fecha_inicio']
-            fecha_fin = form.cleaned_data['fecha_fin']
-            duracion_24_horas = form.cleaned_data['duracion_24_horas']
-            grado_intensidad = form.cleaned_data['grado_intensidad']
-            actitud_farmaco = form.cleaned_data['actitud_farmaco']
-            resultado = form.cleaned_data['resultado']
-            relacion_causalidad = form.cleaned_data['relacion_causalidad']
-            lote_dermofural = form.cleaned_data['lote_dermofural']
-
-            nombre = form2.cleaned_data['nombre']
-
-            nombre_evento = models.EventoAdverso.objects.using(usuario_database).filter(nombre=nombre)
-            if nombre_evento.exists():
-                nombre_evento = nombre_evento[0]
-            else:
-                nombre_evento = models.EventoAdverso.objects.using(usuario_database).create(nombre=nombre)
-                nombre_evento.save()
-
-            print "created"
-            evento_adverso = models.EventosAdversosPaciente.objects.using(usuario_database).create(nombre=nombre_evento,
-                                                                                               no_inclusion=no_inclusion,
-                                                                                               fecha_inicio=fecha_inicio,
-                                                                                               fecha_fin=fecha_fin,
-                                                                                               duracion_24_horas=duracion_24_horas,
-                                                                                               grado_intensidad=grado_intensidad,
-                                                                                               gravedad=0,
-                                                                                               actitud_farmaco=actitud_farmaco,
-                                                                                               resultado=resultado,
-                                                                                               relacion_causalidad=relacion_causalidad,
-                                                                                               lote_dermofural=lote_dermofural
-                                                                                               )
-            evento_adverso.save()
-
-            result = "Datos agregados satisfactriamente al paciente " + paciente.iniciales
-            # eventos_adversos=models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
-            return render(request, "evento_adverso.html",
-                          {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})
-
-    form = forms.EventosAdversosPacienteForm()
-    form2 = forms.EventoAdversoForm()
-    form2.no_inclusion = no_inc
-
-    return render(request, "evento_adverso.html", {'form': form, 'form2': form2, 'result': result, 'inc': no_inc})"""
 
 
 @login_required
@@ -1350,17 +1366,18 @@ def view_mod_evento_adverso(request, no_inc, evento):
             # eventos_adversos=models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
             return HttpResponseRedirect(reverse("Eventos_adversos", args=(no_inc,)))
 
-    i_data = {'fecha_inicio': evento_adverso.fecha_inicio,
-              'fecha_fin': evento_adverso.fecha_fin,
-              'duracio_24_horas': evento_adverso.duracion_24_horas,
-              'grado_intensidad': evento_adverso.grado_intensidad,
-              'actitud_farmaco': evento_adverso.actitud_farmaco,
-              'resultado': evento_adverso.resultado,
-              'relacion_causalidad': evento_adverso.relacion_causalidad,
-              'evento_adverso': evento_adverso.lote_dermofural,
-              'lote_dermofural': evento_adverso.lote_dermofural,
-              }
-    form = forms.EventosAdversosPacienteForm(initial=i_data)
+    else:
+        i_data = {'fecha_inicio': evento_adverso.fecha_inicio,
+                  'fecha_fin': evento_adverso.fecha_fin,
+                  'duracio_24_horas': evento_adverso.duracion_24_horas,
+                  'grado_intensidad': evento_adverso.grado_intensidad,
+                  'actitud_farmaco': evento_adverso.actitud_farmaco,
+                  'resultado': evento_adverso.resultado,
+                  'relacion_causalidad': evento_adverso.relacion_causalidad,
+                  'evento_adverso': evento_adverso.lote_dermofural,
+                  'lote_dermofural': evento_adverso.lote_dermofural,
+                  }
+        form = forms.EventosAdversosPacienteForm(initial=i_data)
 
     return render(request, "evento_adverso_mod.html",
                   {'form': form, 'result': result, 'inc': no_inc, 'paciente': paciente})
@@ -1396,6 +1413,8 @@ def view_tratamientos_concomitantes(request, no_inc):
             form4 = forms.FrecuenciaForm(request.POST)
 
             form2.no_inclusion = no_inc
+            form2.user = request.user.username
+
             print "Enter post"
             if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid():
                 no_inclusion = paciente
@@ -1446,90 +1465,15 @@ def view_tratamientos_concomitantes(request, no_inc):
 
                 return HttpResponseRedirect(reverse("Tratamientos_concomitantes", args=(no_inc,)))
 
-    form = forms.TratamientoConcomitanteForm()
-    form2 = forms.MedicamentoForm()
-    form3 = forms.UnidadForm()
-    form4 = forms.FrecuenciaForm()
+    else:
+        form = forms.TratamientoConcomitanteForm()
+        form2 = forms.MedicamentoForm()
+        form3 = forms.UnidadForm()
+        form4 = forms.FrecuenciaForm()
 
     return render(request, "tratamientos_con.html",
                   {'tratamientos_concomitantes': tratamientos_concomitantes,
                    'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'inc': no_inc, 'paciente': paciente})
-
-
-"""def view_tratamiento_concomitante(request, no_inc):
-    paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
-    result = "Agregue un tratamiento concomitante al paciente " + paciente.iniciales
-
-    if request.POST:
-        form = forms.TratamientoConcomitanteForm(request.POST)
-        form2 = forms.MedicamentoForm(request.POST)
-        form3 = forms.UnidadForm(request.POST)
-        form4 = forms.FrecuenciaForm(request.POST)
-
-        form2.no_inclusion = no_inc
-        print "Enter post"
-        if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid():
-            no_inclusion = paciente
-            fecha_inicio = form.cleaned_data['fecha_inicio']
-            fecha_fin = form.cleaned_data['fecha_fin']
-            duracion_24_horas = form.cleaned_data['duracion_24_horas']
-            tratar_eventos_adversos = form.cleaned_data['tratar_eventos_adversos']
-            dosis = form.cleaned_data['dosis']
-
-            nombre = form2.cleaned_data['nombre']
-            medida = form3.cleaned_data['medida']
-            tipo = form4.cleaned_data['tipo']
-
-            nombre_medicamento = models.Medicamento.objects.using(usuario_database).filter(nombre=nombre)
-            if nombre_medicamento.exists():
-                nombre_medicamento = nombre_medicamento[0]
-            else:
-                nombre_medicamento = models.Medicamento.objects.using(usuario_database).create(nombre=nombre)
-                nombre_medicamento.save()
-
-            unidad_med = models.Unidad.objects.using(usuario_database).filter(medida=medida)
-            if unidad_med.exists():
-                unidad_med = unidad_med[0]
-            else:
-                unidad_med = models.Unidad.objects.using(usuario_database).create(medida=medida)
-                unidad_med.save()
-
-            tipo_frec = models.Frecuencia.objects.using(usuario_database).filter(tipo=tipo)
-            if tipo_frec.exists():
-                tipo_frec = tipo_frec[0]
-            else:
-                tipo_frec = models.Frecuencia.objects.using(usuario_database).create(tipo=tipo)
-                tipo_frec.save()
-
-            print "created"
-            tratamiento_concomitante = models.TratamientoConcomitante.objects.using(usuario_database).create(
-                nombre=nombre_medicamento,
-                no_inclusion=no_inclusion,
-                fecha_inicio=fecha_inicio,
-                fecha_fin=fecha_fin,
-                duracion_24_horas=duracion_24_horas,
-                dosis=dosis,
-                tratar_eventos_adversos=tratar_eventos_adversos,
-                medida=unidad_med,
-                tipo=tipo_frec
-            )
-            tratamiento_concomitante.save()
-
-            result = "Datos agregados satisfactriamente al paciente " + paciente.iniciales
-            # eventos_adversos=models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
-            return render(request, "tratamiento_con.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result,
-                           'inc': no_inc})
-
-    form = forms.TratamientoConcomitanteForm()
-    form2 = forms.MedicamentoForm()
-    form2.no_inclusion = no_inc
-
-    form3 = forms.UnidadForm()
-    form4 = forms.FrecuenciaForm()
-
-    return render(request, "tratamiento_con.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc})"""
 
 
 @login_required
@@ -1583,20 +1527,53 @@ def view_mod_tratamiento_concomitante(request, no_inc, trata):
             trata_con.tipo = tipo_frec
             trata_con.save()
 
-            result = "Datos agregados satisfactoriamente al paciente " + paciente.iniciales
+            # result = "Datos agregados satisfactoriamente al paciente " + paciente.iniciales
             # eventos_adversos=models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
             return HttpResponseRedirect(reverse("Tratamientos_concomitantes", args=(no_inc,)))
 
-    i_data = {'fecha_inicio': trata_con.fecha_inicio,
-              'fecha_fin': trata_con.fecha_fin,
-              'duracio_24_horas': trata_con.duracion_24_horas,
-              'tratar_eventos_adversos': trata_con.tratar_eventos_adversos,
-              'dosis': trata_con.dosis,
-              }
-    form = forms.TratamientoConcomitanteForm(initial=i_data)
-    # faltan valores iniciales
-    form3 = forms.UnidadForm(initial={'medida': trata_con.medida.medida})
-    form4 = forms.FrecuenciaForm(initial={'tipo': trata_con.tipo.tipo})
+    else:
+        i_data = {'fecha_inicio': trata_con.fecha_inicio,
+                  'fecha_fin': trata_con.fecha_fin,
+                  'duracio_24_horas': trata_con.duracion_24_horas,
+                  'tratar_eventos_adversos': trata_con.tratar_eventos_adversos,
+                  'dosis': trata_con.dosis,
+                  }
+        form = forms.TratamientoConcomitanteForm(initial=i_data)
+
+        form3 = forms.UnidadForm(initial={'medida': trata_con.medida.medida})
+        form4 = forms.FrecuenciaForm(initial={'tipo': trata_con.tipo.tipo})
 
     return render(request, "tratamiento_con_mod.html",
                   {'form': form, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc, 'paciente': paciente})
+
+
+def view_save_csv_report(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    user = request.user.username
+    usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="report-' + usuario_database + '.csv"'
+
+    writer = csv.writer(response)
+    columns_name = generate_columns_name()
+    writer.writerow(columns_name)
+    writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
+
+    return response
+
+
+def generate_columns_name():
+    # Paciente
+    result = ['no_inclusion', 'fecha_inc', 'edad', 'sexo', 'raza', 'iniciales']
+    # Evaluacion inicial
+    result += ['fecha_ini', 'hipertension_arterial', 'hiperlipidemias', 'cardiopatia_isquemica',
+               ' historia_ulcera_pies',
+               'historia_amputacion', 'amputacion_mayor', 'amputacion_menor', 'tipo_diabetes', 'tiempo_evolucion',
+               'habito_fumar', 'alcoholismo', 'miembro_afectado', 'dedos', 'dorso_pie', 'planta', 'calcaneo',
+               'lateral_interno', 'lateral_externo', 'transmetatarsiano', 'clasificacion_idsa',
+               'cultivo_microbiologico',
+               'tratamiento_concomitante']
+    # Examen fisico
+    # columns_exa_fisico=[]
+
+    return result

@@ -27,5 +27,6 @@ urlpatterns = [
     #url(r'^(?P<no_inc>[0-9]{1,2})tratamiento_concomitante/', views.view_tratamiento_concomitante,name="Tratamiento_concomitante"),
     url(r'^(?P<no_inc>[0-9]{1,2})/(?P<trata>[\w\s]+)mod_tratamiento_concomitante/', views.view_mod_tratamiento_concomitante,name="Tratamiento_concomitante_mod"),
     url(r'^ensayo_clinico/', login_required(views.view_index),name="Index"),
+    url(r'^report/', views.view_save_csv_report,name="Report"),
     url(r'^tests/', views.view_tests,name="Tests"),
 ]
