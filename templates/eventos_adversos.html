@@ -5,10 +5,7 @@
         Paciente # {{ paciente.no_inclusion }}: {{ paciente.iniciales }}</a>
 {% endblock %}
 {% block list_pacientes %}
-    <a class="btn btn-default" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span>
-        Listado
-        de
-        pacientes</a>
+    <a class="btn btn-default" href="{% url "Index" %}"><span class="glyphicon glyphicon-list"></span> Pacientes</a>
 {% endblock %}
 
 {% block content %}
