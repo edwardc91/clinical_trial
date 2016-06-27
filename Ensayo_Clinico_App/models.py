@@ -198,12 +198,12 @@ class Frecuencia(models.Model):
 
 
 class Germen(models.Model):
-    dia = models.SmallIntegerField()
-    nombre = models.CharField(max_length=30)
+    #dia = models.SmallIntegerField()
+    nombre = models.CharField(max_length=30, primary_key=True)
 
     class Meta:
         db_table = 'Germen'
-        unique_together = (('dia', 'nombre'),)
+        #unique_together = (('dia', 'nombre'),)
 
 
 class InterrupcionTratamiento(models.Model):
@@ -297,8 +297,8 @@ class RelacionPacManiClinOtras(models.Model):
 
 class RelacionPacienteGermen(models.Model):
     no_inclusion = models.ForeignKey(Paciente, db_column='no_inclusion')
-    dia = models.ForeignKey(Germen, db_column='dia')
-    nombre = models.CharField(max_length=30)
+    dia = models.SmallIntegerField()
+    nombre = models.ForeignKey(Germen,db_column='nombre')
 
     class Meta:
         db_table = 'Relacion_paciente_germen'

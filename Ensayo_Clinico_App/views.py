@@ -227,6 +227,8 @@ def view_evaluacion_inicial(request, no_inc):
         dia=0
     )
 
+    germenes = models.RelacionPacienteGermen.objects.using(usuario_database).filter(no_inclusion=no_inc, dia=0)
+
     if request.POST:
 
         form = forms.EvaluacionInicialForm(request.POST)
@@ -235,31 +237,65 @@ def view_evaluacion_inicial(request, no_inc):
         form4 = forms.EvaluacionMicrobiologicaForm(request.POST)
         form5 = forms.ExamenLabClinicoForm(request.POST)
         form6 = forms.ManifestacionesClinicasOtrasForm(request.POST)
+        form7 = forms.GermenForm(request.POST)
 
         form6.no_inc = no_inc
         form6.dia = 0
         form6.user = user
 
-        if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid() and form6.is_valid():
-            update_datos_generales_evaluacion_inicial(form=form, exist=exist, init_eval=init_eval,
-                                                      paciente=paciente, usuario_database=usuario_database)
-            update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=0,
-                                 usuario_database=usuario_database)
+        form7.no_inc = no_inc
+        form7.dia = 0
+        form7.user = user
 
-            update_manifestaciones_clinicas(form=form3, mani_clinicas=mani_clinicas, paciente=paciente, dia=0,
-                                            usuario_database=usuario_database)
-            update_evaluacion_microbiologica(form=form4, eval_micro=eval_micro, paciente=paciente, dia=0,
-                                             usuario_database=usuario_database)
-            update_examen_lab_clinico(form=form5, lab_clinico=lab_clinico, paciente=paciente, dia=0,
-                                      usuario_database=usuario_database)
+        if "nombre_mani" in request.POST:
+            nombre = request.POST['nombre_mani']
+            try:
+                mani = models.RelacionPacManiClinOtras.objects.using(usuario_database).get(no_inclusion=no_inc, dia=0,
+                                                                                           nombre=nombre)
+                mani.delete()
+                context = {'status': 'True', 'nombre': nombre}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
+            except:
+                context = {'status': 'False'}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
 
-            update_otras_manifestaciones_clinicas(form=form6,paciente=paciente,dia=0,usuario_database=usuario_database)
-            # result = "Modificados los datos de la evaluacion inicial de paciente " + paciente.iniciales + " satisfactoriamente"
+        else:
+            if "nombre_ger" in request.POST:
+                nombre = request.POST['nombre_ger']
+                try:
+                    germen = models.RelacionPacienteGermen.objects.using(usuario_database).get(no_inclusion=no_inc,
+                                                                                               dia=0,
+                                                                                               nombre=nombre)
+                    germen.delete()
+                    context = {'status': 'True', 'nombre': nombre}
+                    return HttpResponse(simplejson.dumps(context), content_type="application/json")
+                except:
+                    context = {'status': 'False'}
+                    return HttpResponse(simplejson.dumps(context), content_type="application/json")
+            else:
+                if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid() and form6.is_valid() and form7.is_valid():
+                    update_datos_generales_evaluacion_inicial(form=form, exist=exist, init_eval=init_eval,
+                                                              paciente=paciente, usuario_database=usuario_database)
+                    update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=0,
+                                         usuario_database=usuario_database)
 
-            return render(request, "eval_inicial.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'form6': form6,
-                           'result': result, 'inc': no_inc, 'paciente': paciente,
-                           'otras_mani': otras_manifestaciones})
+                    update_manifestaciones_clinicas(form=form3, mani_clinicas=mani_clinicas, paciente=paciente, dia=0,
+                                                    usuario_database=usuario_database)
+                    update_evaluacion_microbiologica(form=form4, eval_micro=eval_micro, paciente=paciente, dia=0,
+                                                     usuario_database=usuario_database)
+                    update_examen_lab_clinico(form=form5, lab_clinico=lab_clinico, paciente=paciente, dia=0,
+                                              usuario_database=usuario_database)
+
+                    update_otras_manifestaciones_clinicas(form=form6, paciente=paciente, dia=0,
+                                                          usuario_database=usuario_database)
+                    update_germenes(form=form7, paciente=paciente, dia=0, usuario_database=usuario_database)
+                    # result = "Modificados los datos de la evaluacion inicial de paciente " + paciente.iniciales + " satisfactoriamente"
+
+                    return render(request, "eval_inicial.html",
+                                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
+                                   'form6': form6,
+                                   'form7': form7, 'result': result, 'inc': no_inc, 'paciente': paciente,
+                                   'otras_mani': otras_manifestaciones, 'germenes': germenes})
     else:
         if exist:
             i_data = {'fecha': init_eval.fecha,
@@ -376,11 +412,31 @@ def view_evaluacion_inicial(request, no_inc):
             form5 = forms.ExamenLabClinicoForm()
 
         form6 = forms.ManifestacionesClinicasOtrasForm()
+        form7 = forms.GermenForm()
 
     return render(request, "eval_inicial.html",
                   {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'form6': form6,
-                   'result': result,
-                   'inc': no_inc, 'paciente': paciente, 'otras_mani': otras_manifestaciones})
+                   'form7': form7, 'result': result,
+                   'inc': no_inc, 'paciente': paciente, 'otras_mani': otras_manifestaciones, 'germenes': germenes})
+
+
+def update_germenes(form, paciente, dia, usuario_database):
+    nombre = form.cleaned_data['nombre']
+
+    if nombre:
+        germen = models.Germen.objects.using(usuario_database).filter(nombre=nombre)
+        if germen.exists():
+            relacion = models.RelacionPacienteGermen.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                            dia=dia,
+                                                                                            nombre=germen[0])
+            relacion.save()
+        else:
+            germen = models.Germen.objects.using(usuario_database).create(nombre=nombre)
+            germen.save()
+            relacion = models.RelacionPacienteGermen.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                            dia=dia,
+                                                                                            nombre=germen)
+            relacion.save()
 
 
 def update_otras_manifestaciones_clinicas(form, paciente, dia, usuario_database):
@@ -619,7 +675,7 @@ def update_evaluacion_microbiologica(form, eval_micro, paciente, dia, usuario_da
     resultado = form.cleaned_data['resultado']
 
     if eval_micro.exists():
-        print "updated"
+        # print "updated"
         eval_micro = eval_micro[0]
 
         eval_micro.no_inclusion = paciente
@@ -628,7 +684,7 @@ def update_evaluacion_microbiologica(form, eval_micro, paciente, dia, usuario_da
 
         eval_micro.save()
     else:
-        print "created"
+        # print "created"
         eval_micro = models.EvaluacionMicrobiologica.objects.using(usuario_database).create(no_inclusion=paciente,
                                                                                             dia=dia,
                                                                                             fecha=fecha,
@@ -935,28 +991,75 @@ def view_evaluacion_final(request, no_inc):
         dia=8
     )
 
+    germenes = models.RelacionPacienteGermen.objects.using(usuario_database).filter(no_inclusion=no_inc, dia=8)
+
     if request.POST:
         form = forms.EvaluacionFinalForm(request.POST)
         form2 = forms.ExamenFisicoForm(request.POST)
         form3 = forms.ManifestacionesClinicasForm(request.POST)
         form4 = forms.EvaluacionMicrobiologicaForm(request.POST)
         form5 = forms.ExamenLabClinicoForm(request.POST)
+        form6 = forms.ManifestacionesClinicasOtrasForm(request.POST)
+        form7 = forms.GermenForm(request.POST)
 
-        if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid():
-            update_datos_generales_evaluacion_final(form=form, exist=exist, final_eval=final_eval, paciente=paciente,
+        form6.no_inc = no_inc
+        form6.dia = 8
+        form6.user = user
+
+        form7.no_inc = no_inc
+        form7.dia = 8
+        form7.user = user
+
+        if "nombre_mani_fin" in request.POST:
+            nombre = request.POST['nombre_mani_fin']
+            try:
+                mani = models.RelacionPacManiClinOtras.objects.using(usuario_database).get(no_inclusion=no_inc, dia=8,
+                                                                                           nombre=nombre)
+                mani.delete()
+                context = {'status': 'True', 'nombre': nombre}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
+            except:
+                context = {'status': 'False'}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
+
+        else:
+            if "nombre_ger_fin" in request.POST:
+                nombre = request.POST['nombre_ger_fin']
+                try:
+                    germen = models.RelacionPacienteGermen.objects.using(usuario_database).get(no_inclusion=no_inc,
+                                                                                               dia=8,
+                                                                                               nombre=nombre)
+                    germen.delete()
+                    context = {'status': 'True', 'nombre': nombre}
+                    return HttpResponse(simplejson.dumps(context), content_type="application/json")
+                except:
+                    context = {'status': 'False'}
+                    return HttpResponse(simplejson.dumps(context), content_type="application/json")
+            else:
+                if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid() and form6.is_valid() and form7.is_valid():
+                    update_datos_generales_evaluacion_final(form=form, exist=exist, final_eval=final_eval,
+                                                            paciente=paciente,
+                                                            usuario_database=usuario_database)
+                    update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=8,
+                                         usuario_database=usuario_database)
+                    update_manifestaciones_clinicas(form=form3, mani_clinicas=mani_clinicas, paciente=paciente, dia=8,
                                                     usuario_database=usuario_database)
-            update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=8,
-                                 usuario_database=usuario_database)
 
-            update_evaluacion_microbiologica(form=form4, eval_micro=eval_micro, paciente=paciente, dia=8,
-                                             usuario_database=usuario_database)
-            update_examen_lab_clinico(form=form5, lab_clinico=lab_clinico, paciente=paciente, dia=8,
-                                      usuario_database=usuario_database)
+                    update_evaluacion_microbiologica(form=form4, eval_micro=eval_micro, paciente=paciente, dia=8,
+                                                     usuario_database=usuario_database)
+                    update_examen_lab_clinico(form=form5, lab_clinico=lab_clinico, paciente=paciente, dia=8,
+                                              usuario_database=usuario_database)
 
-            result = "Introducidos los datos del paciente " + paciente.iniciales + " exitosamente"
-            return render(request, "eval_final.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
-                           'result': result, 'inc': no_inc, 'paciente': paciente})
+                    update_otras_manifestaciones_clinicas(form=form6, paciente=paciente, dia=8,
+                                                          usuario_database=usuario_database)
+                    update_germenes(form=form7, paciente=paciente, dia=8, usuario_database=usuario_database)
+
+                    result = "Introducidos los datos del paciente " + paciente.iniciales + " exitosamente"
+                    return render(request, "eval_final.html",
+                                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
+                                   'form6': form6, 'form7': form7, 'result': result, 'inc': no_inc,
+                                   'otras_mani': otras_manifestaciones, 'paciente': paciente,
+                                   'germenes': germenes})
 
     else:
         if exist:
@@ -1054,9 +1157,14 @@ def view_evaluacion_final(request, no_inc):
         else:
             form5 = forms.ExamenLabClinicoForm()
 
+        form6 = forms.ManifestacionesClinicasOtrasForm()
+        form7 = forms.GermenForm()
+
     return render(request, "eval_final.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'result': result,
-                   'otras_mani': otras_manifestaciones, 'inc': no_inc, 'paciente': paciente})
+                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5, 'form6': form6,
+                   'form7': form7, 'result': result, 'inc': no_inc,
+                   'otras_mani': otras_manifestaciones, 'paciente': paciente,
+                   'germenes': germenes})
 
 
 def update_datos_generales_evaluacion_final(form, exist, final_eval, paciente, usuario_database):
