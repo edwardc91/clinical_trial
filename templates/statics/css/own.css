@@ -58,3 +58,33 @@
 
 }
 
+#maniOtrasModalFin.modal::before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  margin-right: 28%;
+  vertical-align: middle;
+}
+
+#maniOtrasModalFin .modal-dialog {
+     display: inline-block;
+     text-align: left;
+     vertical-align: middle;
+
+}
+
+#germenesModalFin.modal::before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  margin-right: 28%;
+  vertical-align: middle;
+}
+
+#germenesModalFin .modal-dialog {
+     display: inline-block;
+     text-align: left;
+     vertical-align: middle;
+
+}
+

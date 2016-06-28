@@ -204,7 +204,7 @@ def view_evaluacion_inicial(request, no_inc):
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     exist = True
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
-    result = "Evaluacion inicial del paciente " + paciente.iniciales
+    result = 0
 
     try:
         init_eval = models.EvaluacionInicial.objects.using(usuario_database).get(no_inclusion=no_inc)
@@ -291,11 +291,14 @@ def view_evaluacion_inicial(request, no_inc):
                     update_germenes(form=form7, paciente=paciente, dia=0, usuario_database=usuario_database)
                     # result = "Modificados los datos de la evaluacion inicial de paciente " + paciente.iniciales + " satisfactoriamente"
 
+                    result = 1
                     return render(request, "eval_inicial.html",
                                   {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
                                    'form6': form6,
                                    'form7': form7, 'result': result, 'inc': no_inc, 'paciente': paciente,
                                    'otras_mani': otras_manifestaciones, 'germenes': germenes})
+                else:
+                    result = 2
     else:
         if exist:
             i_data = {'fecha': init_eval.fecha,
@@ -798,7 +801,7 @@ def view_evaluacion_durante(request, no_inc, dia):
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     exist = True
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
-    result = "Evaluacion durante del dia " + dia + " del paciente " + paciente.iniciales
+    result = 0
 
     try:
         durante_eval = models.EvaluacionDurante.objects.using(usuario_database).get(no_inclusion=no_inc, dia=dia)
@@ -827,9 +830,12 @@ def view_evaluacion_durante(request, no_inc, dia):
 
             update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=dia,
                                  usuario_database=usuario_database)
+            result = 1
             return render(request, "eval_durante.html",
                           {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc, "dia": dia,
                            'paciente': paciente})
+        else:
+            result = 2
 
     else:
         if exist:
@@ -968,7 +974,7 @@ def view_evaluacion_final(request, no_inc):
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     exist = True
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
-    result = "Modifique los datos de la evaluacion final del paciente " + paciente.iniciales
+    result = 0
 
     try:
         final_eval = models.EvaluacionFinal.objects.using(usuario_database).get(no_inclusion__no_inclusion=no_inc)
@@ -1054,12 +1060,14 @@ def view_evaluacion_final(request, no_inc):
                                                           usuario_database=usuario_database)
                     update_germenes(form=form7, paciente=paciente, dia=8, usuario_database=usuario_database)
 
-                    result = "Introducidos los datos del paciente " + paciente.iniciales + " exitosamente"
+                    result = 1
                     return render(request, "eval_final.html",
                                   {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'form5': form5,
                                    'form6': form6, 'form7': form7, 'result': result, 'inc': no_inc,
                                    'otras_mani': otras_manifestaciones, 'paciente': paciente,
                                    'germenes': germenes})
+                else:
+                    result = 2
 
     else:
         if exist:
@@ -1357,6 +1365,7 @@ def view_interrupcion_tratamiento(request, no_inc):
 
 @login_required
 def view_eventos_adversos(request, no_inc):
+    result = 0
     user = request.user.username
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     eventos_adversos = models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
@@ -1423,15 +1432,18 @@ def view_eventos_adversos(request, no_inc):
 
                 result = "Datos agregados satisfactriamente al paciente " + paciente.iniciales
                 return HttpResponseRedirect(reverse("Eventos_adversos", args=(no_inc,)))
+            else:
+                result = 2
 
                 # eventos_adversos=models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
     else:
         form = forms.EventosAdversosPacienteForm()
         form2 = forms.EventoAdversoForm()
+        form2.user = request.user.username
 
     return render(request, "eventos_adversos.html",
                   {'eventos_adversos': eventos_adversos, 'inc': no_inc, 'form': form, 'form2': form2,
-                   'paciente': paciente})
+                   'paciente': paciente, 'result': result})
 
 
 @login_required
@@ -1493,6 +1505,7 @@ def view_mod_evento_adverso(request, no_inc, evento):
 
 @login_required
 def view_tratamientos_concomitantes(request, no_inc):
+    result = 0
     user = request.user.username
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
@@ -1572,6 +1585,8 @@ def view_tratamientos_concomitantes(request, no_inc):
                 tratamiento_concomitante.save()
 
                 return HttpResponseRedirect(reverse("Tratamientos_concomitantes", args=(no_inc,)))
+            else:
+                result = 2
 
     else:
         form = forms.TratamientoConcomitanteForm()
@@ -1580,7 +1595,7 @@ def view_tratamientos_concomitantes(request, no_inc):
         form4 = forms.FrecuenciaForm()
 
     return render(request, "tratamientos_con.html",
-                  {'tratamientos_concomitantes': tratamientos_concomitantes,
+                  {'tratamientos_concomitantes': tratamientos_concomitantes, 'result': result,
                    'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'inc': no_inc, 'paciente': paciente})
 
 

@@ -53,12 +53,25 @@
                     <a class="btn btn-primary" href="{% url "Tratamientos_concomitantes" inc %}">
                         <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
                     </a>
+                    {% ifequal result 2 %}
+                        <div class="alert-danger">
+                            <h4><span class="glyphicon glyphicon-alert"></span> Error: Los datos que se intentan
+                                introducir no son validos</h4>
+                        </div>
+                    {% endifequal %}
+
+                    {% ifequal result 1 %}
+                        <div class="alert-success">
+                            <h4><span class="glyphicon glyphicon-saved"></span> Los datos se han guardado de manera
+                                satisfactoria</h4>
+                        </div>
+                    {% endifequal %}
                 </div>
             </div>
         </div>
     </div>
 
-    <div style="margin-top: 105px">
+    <div style="margin-top: 130px">
         <div class="panel-body">
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="headingOne">
