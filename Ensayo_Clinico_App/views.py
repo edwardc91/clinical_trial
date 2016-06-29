@@ -157,7 +157,7 @@ def view_mod_paciente(request, no_inc):
     user = request.user.username
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
-    result = "Modificar datos del paciente " + paciente.iniciales
+    result = 0
 
     if request.POST:
         form = forms.PacienteForm(request.POST)
@@ -181,9 +181,11 @@ def view_mod_paciente(request, no_inc):
                 paciente_old=Paciente.objects.using(usuario_database).filter(no_inclusion=no_inc)
                 paciente_old.delete()"""
 
-            result = "Actualizados datos del paciente " + paciente.iniciales + " exitosamente"
+            result = 1
             return render(request, 'paciente_mod.html',
                           {'paciente_form': form, 'inc': no_inclusion, 'result': result, 'paciente': paciente})
+        else:
+            result = 2
 
     else:
         paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
@@ -1205,12 +1207,16 @@ def update_datos_generales_evaluacion_final(form, exist, final_eval, paciente, u
 
 @login_required
 def view_interrupcion_tratamiento(request, no_inc):
+    result = 0
     user = request.user.username
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     exist = True
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
-    result = "Modifique los datos de interrupcion del tratamiento del paciente " + paciente.iniciales
+    # result = "Modifique los datos de interrupcion del tratamiento del paciente " + paciente.iniciales
     causas_otras = [(c.nombre) for c in models.CausasInterrupcionOtras.objects.using(usuario_database).all()]
+    muerte = models.Fallecimiento.objects.using(usuario_database).filter(no_inclusion=no_inc)
+    necrosias = models.Necrosia.objects.using(usuario_database).filter(no_inclusion=no_inc)
+
     try:
         interrup_trata = models.InterrupcionTratamiento.objects.using(usuario_database).get(no_inclusion=no_inc)
     except ObjectDoesNotExist:
@@ -1218,106 +1224,128 @@ def view_interrupcion_tratamiento(request, no_inc):
         result = "Introduzca los datos de interrupcion del tratamiento del paciente " + paciente.iniciales
 
     if request.POST:
-        form = forms.InterrupcionTratamientoForm(request.POST)
-        form2 = forms.CausasInterrupcionOtrasForm(request.POST)
-        print "Enter post"
-        if form.is_valid() and form2.is_valid():
-            no_inclusion = paciente
-            fecha = form.cleaned_data['fecha']
-            dosis_recibidas = form.cleaned_data['dosis_recibidas']
-            abandono_voluntario = form.cleaned_data['abandono_voluntario']
-            criterios_exclusion = form.cleaned_data['criterios_exclusion']
-            eventos_adversos = form.cleaned_data['eventos_adversos']
-            aparicion_agravamiento = form.cleaned_data['aparicion_agravamiento']
-            fallecimiento = form.cleaned_data['fallecimiento']
+        if "nombre_necro" in request.POST:
+            nombre = request.POST['nombre_necro']
+            try:
+                hallazgo = models.Necrosia.objects.using(usuario_database).get(no_inclusion=no_inc, hallazgo=nombre)
+                hallazgo.delete()
+                context = {'status': 'True', 'nombre': nombre}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
+            except:
+                context = {'status': 'False'}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
+        else:
+            form = forms.InterrupcionTratamientoForm(request.POST)
+            form2 = forms.CausasInterrupcionOtrasForm(request.POST)
+            form3 = forms.FallecimientoForm(request.POST)
+            form4 = forms.NecrosiaForm(request.POST)
 
-            nombre = form2.cleaned_data['nombre']
+            form4.no_inc = no_inc
+            form4.user = request.user.username
 
-            print "Leido formularios"
-            if exist:
-                print "updated"
-                interrup_trata.no_inclusion = no_inclusion
-                interrup_trata.fecha = fecha
-                interrup_trata.dosis_recibidas = dosis_recibidas
-                interrup_trata.abandono_voluntario = abandono_voluntario
-                interrup_trata.criterios_exclusion = criterios_exclusion
-                interrup_trata.eventos_adversos = eventos_adversos
-                interrup_trata.aparicion_agravamiento = aparicion_agravamiento
-                interrup_trata.fallecimiento = fallecimiento
+            print "Enter post"
+            if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid():
+                no_inclusion = paciente
+                fecha = form.cleaned_data['fecha']
+                dosis_recibidas = form.cleaned_data['dosis_recibidas']
+                abandono_voluntario = form.cleaned_data['abandono_voluntario']
+                criterios_exclusion = form.cleaned_data['criterios_exclusion']
+                eventos_adversos = form.cleaned_data['eventos_adversos']
+                aparicion_agravamiento = form.cleaned_data['aparicion_agravamiento']
+                fallecimiento = form.cleaned_data['fallecimiento']
 
-                interrup_trata.save()
-                exist_rel = True
-                if nombre:
-                    if nombre not in causas_otras:
-                        otra_causa = models.CausasInterrupcionOtras.objects.using(usuario_database).create(
-                            nombre=nombre)
-                        otra_causa.save()
-                        try:
-                            relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).get(
-                                no_inclusion=no_inc)
-                        except ObjectDoesNotExist:
-                            relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).create(
-                                no_inclusion=paciente,
-                                nombre=otra_causa
-                            )
-                            relacion.save()
-                            exist_rel = False
+                nombre = form2.cleaned_data['nombre']
 
-                        if exist_rel:
-                            relacion.no_inclusion = no_inclusion
-                            relacion.nombre = otra_causa
-                            relacion.save()
+                fecha_muerte = form3.cleaned_data['fecha']
+                causa_clinica = form3.cleaned_data['causa_clinica']
+                realizo_necrosia = form3.cleaned_data['realizo_necrosia']
 
+                print "Leido formularios"
+                if exist:
+                    print "updated"
+                    interrup_trata.no_inclusion = no_inclusion
+                    interrup_trata.fecha = fecha
+                    interrup_trata.dosis_recibidas = dosis_recibidas
+                    interrup_trata.abandono_voluntario = abandono_voluntario
+                    interrup_trata.criterios_exclusion = criterios_exclusion
+                    interrup_trata.eventos_adversos = eventos_adversos
+                    interrup_trata.aparicion_agravamiento = aparicion_agravamiento
+                    interrup_trata.fallecimiento = fallecimiento
+
+                    interrup_trata.save()
+                    exist_rel = True
+                    if nombre:
+                        if nombre not in causas_otras:
+                            otra_causa = models.CausasInterrupcionOtras.objects.using(usuario_database).create(
+                                nombre=nombre)
+                            otra_causa.save()
+                            try:
+                                relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).get(
+                                    no_inclusion=no_inc)
+                            except ObjectDoesNotExist:
+                                relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).create(
+                                    no_inclusion=paciente,
+                                    nombre=otra_causa
+                                )
+                                relacion.save()
+                                exist_rel = False
+
+                            if exist_rel:
+                                relacion.no_inclusion = no_inclusion
+                                relacion.nombre = otra_causa
+                                relacion.save()
+
+
+                        else:
+                            otra_causa = models.CausasInterrupcionOtras.objects.using(usuario_database).get(
+                                nombre=nombre)
+                            try:
+                                relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).get(
+                                    no_inclusion=no_inc)
+                            except ObjectDoesNotExist:
+                                relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).create(
+                                    no_inclusion=paciente,
+                                    nombre=otra_causa
+                                )
+                                relacion.save()
+                                exist_rel = False
+
+                            if exist_rel:
+                                relacion.no_inclusion = no_inclusion
+                                relacion.nombre = otra_causa
+                                relacion.save()
 
                     else:
-                        otra_causa = models.CausasInterrupcionOtras.objects.using(usuario_database).get(nombre=nombre)
                         try:
                             relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).get(
                                 no_inclusion=no_inc)
                         except ObjectDoesNotExist:
-                            relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).create(
-                                no_inclusion=paciente,
-                                nombre=otra_causa
-                            )
-                            relacion.save()
                             exist_rel = False
 
                         if exist_rel:
-                            relacion.no_inclusion = no_inclusion
-                            relacion.nombre = otra_causa
-                            relacion.save()
+                            relacion.delete()
 
+                            # result = 1
                 else:
-                    try:
-                        relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).get(
-                            no_inclusion=no_inc)
-                    except ObjectDoesNotExist:
-                        exist_rel = False
+                    # print "created"
+                    interrup_trata = models.InterrupcionTratamiento.objects.using(usuario_database).create(
+                        no_inclusion=no_inclusion,
+                        fecha=fecha,
+                        dosis_recibidas=dosis_recibidas,
+                        abandono_voluntario=abandono_voluntario,
+                        criterios_exclusion=criterios_exclusion,
+                        eventos_adversos=eventos_adversos,
+                        aparicion_agravamiento=aparicion_agravamiento,
+                        fallecimiento=fallecimiento
+                    )
+                    interrup_trata.save()
 
-                    if exist_rel:
-                        relacion.delete()
-
-                result = "Actualizados datos del paciente " + paciente.iniciales + " exitosamente"
-            else:
-                print "created"
-                interrup_trata = models.InterrupcionTratamiento.objects.using(usuario_database).create(
-                    no_inclusion=no_inclusion,
-                    fecha=fecha,
-                    dosis_recibidas=dosis_recibidas,
-                    abandono_voluntario=abandono_voluntario,
-                    criterios_exclusion=criterios_exclusion,
-                    eventos_adversos=eventos_adversos,
-                    aparicion_agravamiento=aparicion_agravamiento,
-                    fallecimiento=fallecimiento
-                )
-                interrup_trata.save()
-
-                if nombre:
-                    print "Enter en create nombre exist"
-                    if nombre not in causas_otras:
-                        otra_causa = models.CausasInterrupcionOtras.objects.using(usuario_database).create(
-                            nombre=nombre)
-                        otra_causa.save()
+                    if nombre:
+                        print "Enter en create nombre exist"
+                        if nombre not in causas_otras:
+                            otra_causa = models.CausasInterrupcionOtras.objects.using(usuario_database).create(
+                                nombre=nombre)
+                            otra_causa.save()
 
                         relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).create(
                             no_inclusion=paciente,
@@ -1327,17 +1355,36 @@ def view_interrupcion_tratamiento(request, no_inc):
                         relacion.save()
                     else:
                         otra_causa = models.CausasInterrupcionOtras.objects.using(usuario_database).get(nombre=nombre)
-                        relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).create(
-                            no_inclusion=paciente,
-                            nombre=otra_causa
-                        )
+                    relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).create(
+                        no_inclusion=paciente,
+                        nombre=otra_causa
+                    )
 
-                        relacion.save()
+                    relacion.save()
 
-                result = "Introducidos los datos del paciente " + paciente.iniciales + " exitosamente"
+                if causa_clinica:
+                    if muerte.exists():
+                        muerte = muerte[0]
+                        muerte.fecha = fecha_muerte
+                        muerte.causa_clinica = causa_clinica
+                        muerte.realizo_necrosia = realizo_necrosia
+                        muerte.save()
+                    else:
+                        muerte = models.Fallecimiento.objects.using(usuario_database).create(no_inclusion=paciente,
+                                                                                             fecha=fecha_muerte,
+                                                                                             causa_clinica=causa_clinica,
+                                                                                             realizo_necrosia=realizo_necrosia)
+                        muerte.save()
+
+                update_necrosia(form=form4, paciente=paciente, usuario_datbase=usuario_database)
+
+                result = 1
                 return render(request, "interrup_trata.html",
-                              {'form': form, 'form2': form2, 'result': result, 'inc': no_inclusion.no_inclusion,
-                               'paciente': paciente})
+                              {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result,
+                               'inc': no_inclusion.no_inclusion,
+                               'paciente': paciente, 'necrosias': necrosias})
+            else:
+                result = 2
 
     else:
         if exist:
@@ -1350,17 +1397,50 @@ def view_interrupcion_tratamiento(request, no_inc):
                       'fallecimiento': interrup_trata.fallecimiento,
                       }
             form = forms.InterrupcionTratamientoForm(initial=i_data)
+
         else:
             form = forms.InterrupcionTratamientoForm()
 
         relacion = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).filter(no_inclusion=no_inc)
+
         if relacion.exists():
             form2 = forms.CausasInterrupcionOtrasForm(initial={'nombre': relacion[0].nombre.nombre})
         else:
             form2 = forms.CausasInterrupcionOtrasForm()
 
+        if muerte.exists():
+            muerte = muerte[0]
+            i_data = {'fecha': muerte.fecha,
+                      'causa_clinica': muerte.causa_clinica,
+                      'realizo_necrosia': muerte.realizo_necrosia}
+
+            form3 = forms.FallecimientoForm(initial=i_data)
+        else:
+            form3 = forms.FallecimientoForm()
+
+        form4 = forms.NecrosiaForm()
+
     return render(request, "interrup_trata.html",
-                  {'form': form, 'form2': form2, 'result': result, 'inc': no_inc, 'paciente': paciente})
+                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc,
+                   'paciente': paciente, 'necrosias': necrosias})
+
+
+def update_necrosia(form, paciente, usuario_datbase):
+    hallazgo1 = form.cleaned_data['hallazgo1']
+    hallazgo2 = form.cleaned_data['hallazgo2']
+    hallazgo3 = form.cleaned_data['hallazgo3']
+
+    if hallazgo1:
+        necrosia = models.Necrosia.objects.using(usuario_datbase).create(no_inclusion=paciente, hallazgo=hallazgo1)
+        necrosia.save()
+
+    if hallazgo2:
+        necrosia = models.Necrosia.objects.using(usuario_datbase).create(no_inclusion=paciente, hallazgo=hallazgo2)
+        necrosia.save()
+
+    if hallazgo3:
+        necrosia = models.Necrosia.objects.using(usuario_datbase).create(no_inclusion=paciente, hallazgo=hallazgo3)
+        necrosia.save()
 
 
 @login_required

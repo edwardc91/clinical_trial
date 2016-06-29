@@ -254,13 +254,14 @@ class Medicamento(models.Model):
 
 
 class Necrosia(models.Model):
-    no_inclusion = models.ForeignKey('Paciente', db_column='no_inclusion', primary_key=True)
-    hallazgo1 = models.CharField(max_length=50, blank=True, null=True)
-    hallazgo2 = models.CharField(max_length=50, blank=True, null=True)
-    hallazgo3 = models.CharField(max_length=50, blank=True, null=True)
+    no_inclusion = models.ForeignKey('Paciente', db_column='no_inclusion')
+    hallazgo = models.CharField(max_length=50, blank=True, null=True)
+    #hallazgo2 = models.CharField(max_length=50, blank=True, null=True)
+    #hallazgo3 = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         db_table = 'Necrosia'
+        unique_together = (('no_inclusion', 'hallazgo'),)
 
 
 class Paciente(models.Model):

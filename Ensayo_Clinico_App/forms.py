@@ -8,7 +8,7 @@ __author__ = 'eduardo'
 from django.forms import ModelForm
 from django import forms
 from models import Paciente, Unidad, Frecuencia, CausasInterrupcionOtras, EventosAdversosPaciente, EventoAdverso, \
-    TratamientoConcomitante, RelacionPacManiClinOtras, RelacionPacienteGermen
+    TratamientoConcomitante, RelacionPacManiClinOtras, RelacionPacienteGermen, Necrosia
 
 from django.contrib.auth import authenticate
 from Users_App.models import UserInfo
@@ -285,10 +285,52 @@ class TratamientoConcomitanteForm(forms.Form):
                                         input_formats=valid_time_formats, required=False)
 
 
-class NecrociaForm(forms.Form):
-    hallazgo1 = forms.CharField(label="Hallazgo 1", max_length=26)
-    hallazgo2 = forms.CharField(label="Hallazgo 2", max_length=26)
-    hallazgo3 = forms.CharField(label="Hallazgo 3", max_length=26)
+class NecrosiaForm(forms.Form):
+    hallazgo1 = forms.CharField(label="Hallazgo 1", max_length=26, required=False)
+    hallazgo2 = forms.CharField(label="Hallazgo 2", max_length=26, required=False)
+    hallazgo3 = forms.CharField(label="Hallazgo 3", max_length=26, required=False)
+
+    no_inc = None
+    user = None
+
+    def clean(self):
+        cleaned_data = super(NecrosiaForm, self).clean()
+        hallazgo1 = self.cleaned_data.get('hallazgo1')
+        hallazgo2 = self.cleaned_data.get('hallazgo2')
+        hallazgo3 = self.cleaned_data.get('hallazgo3')
+
+        usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=self.user).database
+        cant_form = 0
+
+        cant_form = check_necrosia(hallazgo1, cant_form, self.no_inc, usuario_database)
+        cant_form = check_necrosia(hallazgo2, cant_form, self.no_inc, usuario_database)
+        cant_form = check_necrosia(hallazgo3, cant_form, self.no_inc, usuario_database)
+
+        cant_hallazgos = Necrosia.objects.using(usuario_database).filter(no_inclusion=self.no_inc).count()
+
+        if cant_hallazgos == 3 and cant_form > 0:
+            raise forms.ValidationError("El paciente ya tiene otras tres hallazgos en su necrosia")
+
+        if cant_hallazgos + cant_form > 3:
+            raise forms.ValidationError(
+                "Se sobrepasa los tres hallazgos que pude tener el paciente en su necrosia")
+
+        return self.cleaned_data
+
+
+def check_necrosia(hallazgo, cant, no_inc, usuario_database):
+    cant_form = cant
+
+    if hallazgo:
+        cant_form += 1
+        necrosia = Necrosia.objects.using(usuario_database).filter(
+            no_inclusion=no_inc,
+            hallazgo=hallazgo)
+        if necrosia.exists():
+            raise forms.ValidationError(
+                "El paciente ya tiene un hallazgo " + hallazgo + " en su necrosia ")
+
+    return cant_form
 
 
 class InterrupcionTratamientoForm(forms.Form):
@@ -305,21 +347,21 @@ class InterrupcionTratamientoForm(forms.Form):
     fallecimiento = forms.ChoiceField(label="Fallecimiento", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
 
 
-
-
-
 def generate_string_list_items(user):
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     data_list = [(e.nombre) for e in EventoAdverso.objects.using(usuario_database).all()]
 
-    result = "['" + data_list[0] + "'"
+    if len(data_list) != 0:
+        result = "['" + data_list[0] + "'"
 
-    count = 1
-    while count < len(data_list):
-        result += ",'" + data_list[count] + "'"
-        count += 1
+        count = 1
+        while count < len(data_list):
+            result += ",'" + data_list[count] + "'"
+            count += 1
 
-    result += "]"
+        result += "]"
+    else:
+        result = ""
 
     return result
 
@@ -432,9 +474,20 @@ class ExamenLabClinicoForm(forms.Form):
 # cometario eduardo
 class FallecimientoForm(forms.Form):
     fecha = forms.DateField(label="Fecha Hematologicos", widget=SelectDateWidget(years=range(2016, 2016)))
-    causa_clinica = forms.CharField(label="Causa Clinica", max_length=23)
+    causa_clinica = forms.CharField(label="Causa Clinica", max_length=23, required=False)
     realizo_necrosia = forms.ChoiceField(label="Realizo necrocia", choices={(1, "Si"), (2, "No")},
-                                         widget=forms.RadioSelect)
+                                         widget=forms.RadioSelect, required=False)
+
+    def clean(self):
+        cleaned_data = super(FallecimientoForm, self).clean()
+        causa_clinica = self.cleaned_data.get('causa_clinica')
+        realizo_necrosia = self.cleaned_data.get('realizo_necrosia')
+
+        if causa_clinica and not realizo_necrosia:
+            raise forms.ValidationError("Introduzca todos los datos")
+
+        if not causa_clinica and realizo_necrosia:
+            raise forms.ValidationError("Introduzca todos los datos")
 
 
 class MedicamentoForm(forms.Form):

@@ -9,7 +9,38 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Modal hallazgos necrosias-->
+    <div class="modal fade" id="necrosiaModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h3 class="modal-title" id="myModalLabel">Eliminar hallazgo de la necrosia</h3>
+                </div>
+                <div class="modal-body">
+                    <p>¿Realmente deseas eliminar el hallazgo <span id="modal_name_necro"
+                                                                    style="color: #ff0712"></span>?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" id="form_del_necro">
+                        {% csrf_token %}
+                        <input type="hidden" id="modal_necro_nombre" name="nombre_necro">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-trash"></span>
+                            Eliminar
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <form method="post" action="">
+        {% csrf_token %}
         <div class="row" style="margin-top: -13px">
             <div class="col-md-8" style="position: fixed">
                 <div class="navbar navbar-default">
@@ -25,12 +56,25 @@
                         <a class="btn btn-primary" href="{% url "Eventos_adversos" inc %}">
                             <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
                         </a>
+                        {% ifequal result 2 %}
+                            <div class="alert-danger">
+                                <h4><span class="glyphicon glyphicon-alert"></span> Error: Los datos que se intentan
+                                    introducir no son validos</h4>
+                            </div>
+                        {% endifequal %}
+
+                        {% ifequal result 1 %}
+                            <div class="alert-success">
+                                <h4><span class="glyphicon glyphicon-saved"></span> Los datos se han guardado de manera
+                                    satisfactoria</h4>
+                            </div>
+                        {% endifequal %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div style="margin-top: 105px">
+        <div style="margin-top: 130px">
             <div class="panel-body">
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingOne">
@@ -40,12 +84,10 @@
                         <form method="post" action="">
                             <table class="table table-striped table-hover">
                                 {{ form.as_table }}
+                                {{ form2.as_table }}
                             </table>
 
                             <div class="panel-body">
-                                <table class="table table-striped table-hover">
-                                    {{ form4.as_table }}
-                                </table>
                                 <div class="panel panel-default">
                                     <div class="panel-heading" role="tab" id="headingGerm">
                                         <a class="btn btn-primary" role="button" data-toggle="collapse"
@@ -58,9 +100,9 @@
                                     <div id="collapseGerm" class="panel-collapse collapse" role="tabpanel"
                                          aria-labelledby="headingGerm">
                                         <div class="panel-body">
-                                            debemos poner la fecha
-                                            causa clinica
-                                            y si se realizo necropsia
+                                            <table class="table table-striped table-hover">
+                                                {{ form3.as_table }}
+                                            </table>
                                             <div class="panel panel-default">
                                                 <div class="panel-heading" role="tab" id="headingGerm">
                                                     <a class="btn btn-primary" role="button" data-toggle="collapse"
@@ -73,7 +115,35 @@
                                                 <div id="collapseGerm1" class="panel-collapse collapse" role="tabpanel"
                                                      aria-labelledby="headingGerm1">
                                                     <div class="panel-body">
-                                                        poner las tres causas
+                                                        <table id="table_necro" class="table table-striped table-hover">
+                                                            {% if necrosias %}
+                                                                {% for necro in necrosias %}
+                                                                    <tr id="tr_necro_{{ necro.hallazgo }}">
+                                                                        <th>
+                                                                            <a href="">{{ necro.hallazgo }}</a>
+                                                                        </th>
+                                                                        <td>
+                                                                            <button type="button"
+                                                                                    class="btn btn-danger delete-necro"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#necrosiaModal"
+                                                                                    id="{{ necro.hallazgo }}"
+                                                                                    data-name="{{ necro.hallazgo }}"
+                                                                                    aria-label="Left Align">
+                                                                <span class="glyphicon glyphicon-trash"
+                                                                      aria-hidden="true"></span> Eliminar
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                No existen hallazgos en la necrosia del
+                                                                paciente
+                                                            {% endif %}
+                                                        </table>
+                                                        <table class="table table-striped table-hover">
+                                                            {{ form4.as_table }}
+                                                        </table>
                                                     </div>
                                                 </div>
                                             </div>
@@ -81,8 +151,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            {% csrf_token %}
                         </form>
                     </div>
                 </div>

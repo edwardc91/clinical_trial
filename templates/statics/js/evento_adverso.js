@@ -17,7 +17,7 @@ var nombre_formulario_modal_pac = "#form_del_pac"; //id
 var nombre_ventana_modal_pac = "#pacModal"; // id
 
 //configuraciones manifestaciones clinicas otras inicial
-var nombre_tabla_mani = "#tabla_mani"; // id
+var nombre_tabla_mani = "#table_mani"; // id
 var nombre_boton_eliminar_mani = ".delete-mani"; // Clase
 var nombre_formulario_modal_mani = "#form_del_mani"; //id
 var nombre_ventana_modal_mani = "#maniOtrasModal"; // id
@@ -39,6 +39,12 @@ var nombre_tabla_ger_fin = "#table_germenes_fin"; // id
 var nombre_boton_eliminar_ger_fin = ".delete-germen-fin"; // Clase
 var nombre_formulario_modal_ger_fin = "#form_del_ger_fin"; //id
 var nombre_ventana_modal_ger_fin = "#germenesModalFin"; // id
+
+//configuraciones necrosia
+var nombre_tabla_necro = "#table_necro"; // id
+var nombre_boton_eliminar_necro = ".delete-necro"; // Clase
+var nombre_formulario_modal_necro = "#form_del_necro"; //id
+var nombre_ventana_modal_necro = "#necrosiaModal"; // id
 // Fin de configuraciones
 
 
@@ -109,6 +115,15 @@ $(document).on('ready', function () {
         $('#header_modal_ger_fin').text("germen")
         $('#pregunta_modal_ger_fin').text("el germen")
         $('#modal_name_ger_fin').text(name);
+    });
+    $(nombre_boton_eliminar_necro).on('click', function (e) {
+        e.preventDefault();
+        //console.log("Estoy aqui pac")
+        //var inc = $(this).attr('id');
+        //console.log("no inc " + inc)
+        var name = $(this).data('name');
+        $('#modal_necro_nombre').val(name);
+        $('#modal_name_necro').text(name);
     });
 
     var options_evento = {
@@ -257,6 +272,27 @@ $(document).on('ready', function () {
         }
     };
 
+    var options_necro = {
+        success: function (response) {
+            console.log("success");
+            if (response.status == "True") {
+                //alert("Eliminado!");
+                var nombre = response.nombre;
+                var elementos = $(nombre_tabla_necro + ' >tbody >tr').length;
+                if (elementos == 1) {
+                    location.reload();
+                } else {
+                    $('#tr_necro_' + nombre).remove();
+                    $(nombre_ventana_modal_necro).modal('hide');
+                }
+
+            } else {
+                alert("Hubo un error al eliminar!");
+                $(nombre_ventana_modal_necro).modal('hide');
+            }
+        }
+    };
+
 
     $(nombre_formulario_modal).ajaxForm(options_evento);
     $(nombre_formulario_modal_trata).ajaxForm(options_trata);
@@ -265,4 +301,5 @@ $(document).on('ready', function () {
     $(nombre_formulario_modal_ger).ajaxForm(options_ger);
     $(nombre_formulario_modal_mani_fin).ajaxForm(options_mani_fin);
     $(nombre_formulario_modal_ger_fin).ajaxForm(options_ger_fin);
+    $(nombre_formulario_modal_necro).ajaxForm(options_necro);
 });
