@@ -19,6 +19,11 @@
 
                     <div style="margin-left: 15px; margin-bottom: 15px">
                         <a class="btn btn-primary" href="
+
+
+
+
+
                                 {% ifnotequal dia "1" %}{% url "Evaluacion_durante" inc dia|add:"-1" %}{% else %}{% url "Evaluacion_inicial" inc %}{% endifnotequal %}">
                             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                         </a>
@@ -26,6 +31,11 @@
                             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
                         </button>
                         <a class="btn btn-primary" href="
+
+
+
+
+
                                 {% ifnotequal dia "7" %}{% url "Evaluacion_durante" inc dia|add:"1" %}{% else %}{% url "Evaluacion_final" inc %}{% endifnotequal %}">
                             <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
                         </a>
@@ -84,54 +94,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading" role="tab" id="headingGerm1">
-                                        <a class="btn btn-primary" role="button" data-toggle="collapse"
-                                           data-parent="#collapseGerm1"
-                                           href="#collapseGerm2" aria-expanded="false"
-                                           aria-controls="collapseGerm2">
-                                            En caso de recibir tratamiento concomitante
-                                        </a>
-                                    </div>
-                                    <div id="collapseGerm2" class="panel-collapse collapse" role="tabpanel"
-                                         aria-labelledby="headingGerm2">
-                                        <div class="panel-body">
-                                            formulario de tratamiento concomitante
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading" role="tab" id="headingGerm2">
-                                        <a class="btn btn-primary" role="button" data-toggle="collapse"
-                                           data-parent="#collapseGerm2"
-                                           href="#collapseGerm3" aria-expanded="false"
-                                           aria-controls="collapseGerm3">
-                                            En caso de presentar Eventos adversos
-                                        </a>
-                                    </div>
-                                    <div id="collapseGerm3" class="panel-collapse collapse" role="tabpanel"
-                                         aria-labelledby="headingGerm3">
-                                        <div class="panel-body">
-                                            formulario de Eventos adversos
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading" role="tab" id="headingGerm3">
-                                        <a class="btn btn-primary" role="button" data-toggle="collapse"
-                                           data-parent="#collapseGerm3"
-                                           href="#collapseGerm4" aria-expanded="false"
-                                           aria-controls="collapseGerm4">
-                                            En caso de Interrumpcion del tratamiento
-                                        </a>
-                                    </div>
-                                    <div id="collapseGerm4" class="panel-collapse collapse" role="tabpanel"
-                                         aria-labelledby="headingGerm4">
-                                        <div class="panel-body">
-                                            formulario de Interrumpcion del tratamiento
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -154,6 +116,15 @@
                         </div>
                     </div>
                 </div>
+                <a class="btn btn-link" href="{% url "Tratamientos_concomitantes" inc %}">En caso de recibir
+                    tratamiento concomitante</a>
+                <br>
+                <a class="btn btn-link" href="{% url "Eventos_adversos" inc %}">En caso de presentar Eventos
+                    adversos</a>
+                <br>
+                <a class="btn btn-link" href="{% url "Interrupcion_tratamiento" inc %}">En caso de Interrumpcion del
+                    tratamiento</a>
+
             </div>
         </div>
     </form>
