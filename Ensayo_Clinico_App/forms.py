@@ -174,7 +174,7 @@ class ExamenFisicoForm(forms.Form):
     abdominal = forms.ChoiceField(label="Abdominal",
                                   choices={(1, "No examinado"), (2, "Normal"), (3, "CS"), (4, "NCS")},
                                   widget=forms.RadioSelect)
-    abdominal_desc = forms.CharField(label="Descripcion CV", max_length=14)
+    abdominal_desc = forms.CharField(label="Descripcion Abdominal", max_length=14)
     extremidades = forms.ChoiceField(label="Extremidades",
                                      choices={(1, "No examinado"), (2, "Normal"), (3, "CS"), (4, "NCS")},
                                      widget=forms.RadioSelect)
