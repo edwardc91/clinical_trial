@@ -372,7 +372,7 @@ class EventoAdversoForm(forms.Form):
         'invalid': 'Ya existe ese evento adverso para este paciente.'
     }
 
-    user = 'emiguel'
+    user = 'cdfigueredo'
     lista_items = generate_string_list_items(user)
     nombre = forms.CharField(label="Nombre", max_length=50, error_messages=error_nombre,
                              widget=forms.TextInput(attrs={'class': 'span3', 'data-provide': "typeahead",

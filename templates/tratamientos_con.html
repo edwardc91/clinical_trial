@@ -50,14 +50,19 @@
                         <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
                     </button>
                     {% ifequal result 2 %}
-                        <div class="alert-danger">
-                            <h4><span class="glyphicon glyphicon-alert"></span> Error: Los datos que se intentan introducir no son validos</h4>
+                        <div class="alert alert-danger"
+                             style="margin-right: 15px; margin-bottom: -2px; margin-top: 15px">
+                            <span class="glyphicon glyphicon-alert"></span>
+                            <strong>Error!</strong>
+                            Los datos que intenta introducir no son validos.
                         </div>
                     {% endifequal %}
-
                     {% ifequal result 1 %}
-                        <div class="alert-success">
-                            <h4><span class="glyphicon glyphicon-saved"></span> Los datos se han guardado de manera satisfactoria</h4>
+                        <div class="alert alert-success"
+                             style="margin-right: 15px; margin-bottom: -2px; margin-top: 15px">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            Los datos se han guardado de manera
+                            satisfactoria
                         </div>
                     {% endifequal %}
                 </div>
