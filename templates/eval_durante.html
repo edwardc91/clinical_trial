@@ -24,6 +24,8 @@
 
 
 
+
+
                                 {% ifnotequal dia "1" %}{% url "Evaluacion_durante" inc dia|add:"-1" %}{% else %}{% url "Evaluacion_inicial" inc %}{% endifnotequal %}">
                             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                         </a>
@@ -31,6 +33,8 @@
                             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Guardar
                         </button>
                         <a class="btn btn-primary" href="
+
+
 
 
 
@@ -91,6 +95,61 @@
                                          aria-labelledby="headingGerm1">
                                         <div class="panel-body">
                                             formulario de manif clinicas
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading" role="tab" id="headingOne">
+                                                    <h4 class="panel-title">Otras manifestaciones clinicas</h4>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <table id="table_mani" class="table">
+                                                        {% if otras_mani %}
+                                                            {% for otra in otras_mani %}
+                                                                <tr id="tr_mani_{{ otra.nombre.nombre }}">
+                                                                    <th>
+                                                                        <a href="">{{ otra.nombre.nombre }}</a>
+                                                                    </th>
+                                                                    <td>
+                                                                        <button type="button"
+                                                                                class="btn btn-danger delete-mani"
+                                                                                data-toggle="modal"
+                                                                                data-target="#maniOtrasModal"
+                                                                                id="{{ otra.nombre.nombre }}"
+                                                                                data-name="{{ otra.nombre.nombre }}"
+                                                                                aria-label="Left Align">
+                                                                <span class="glyphicon glyphicon-trash"
+                                                                      aria-hidden="true"></span> Eliminar
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No existen otras manifestaciones clinicas para el paciente
+                                                        {% endif %}
+                                                    </table>
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-heading" role="tab" id="headingGer">
+                                                            <a class="btn btn-primary" role="button"
+                                                               data-toggle="collapse"
+                                                               data-parent="#collapse4"
+                                                               href="#collapseGer" aria-expanded="false"
+                                                               aria-controls="collapseGer"><i
+                                                                    class="glyphicon glyphicon-plus"
+                                                                    aria-hidden="true"></i>
+                                                                Agregar otra manifestacion clinica
+                                                            </a>
+                                                        </div>
+                                                        <div id="collapseGer" class="panel-collapse collapse"
+                                                             role="tabpanel"
+                                                             aria-labelledby="headingGer">
+                                                            <div class="panel-body">
+                                                                formulario para agregar otra manif clinica
+                                                                <button type="submit" class="btn btn-primary"><span
+                                                                        class="glyphicon glyphicon-plus"></span> Agregar
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
