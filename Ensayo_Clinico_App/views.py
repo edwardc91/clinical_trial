@@ -800,6 +800,7 @@ def update_examen_lab_clinico(form, lab_clinico, paciente, dia, usuario_database
 @login_required
 def view_evaluacion_durante(request, no_inc, dia):
     user = request.user.username
+    durante_eval = None
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     exist = True
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
@@ -809,8 +810,8 @@ def view_evaluacion_durante(request, no_inc, dia):
         durante_eval = models.EvaluacionDurante.objects.using(usuario_database).get(no_inclusion=no_inc, dia=dia)
     except ObjectDoesNotExist:
         exist = False
-        result = "Evaluacion durante del dia " + dia + " del paciente " + paciente.iniciales
-        print "Error"
+        # result = "Evaluacion durante del dia " + dia + " del paciente " + paciente.iniciales
+        # print "Error"
 
     examen_fisico = models.ExamenFisico.objects.using(usuario_database).filter(no_inclusion=no_inc, dia=dia)
 
@@ -826,18 +827,41 @@ def view_evaluacion_durante(request, no_inc, dia):
         form = forms.EvaluacionDuranteForm(request.POST)
         form2 = forms.ExamenFisicoForm(request.POST)
         form3 = forms.ManifestacionesClinicasForm(request.POST)
-        if form.is_valid() and form2.is_valid() and form3.is_valid():
-            update_datos_generales_evaluacion_durante(form=form, exist=exist, durante_eval=durante_eval,
-                                                      paciente=paciente, dia=dia, usuario_database=usuario_database)
+        form4 = forms.ManifestacionesClinicasOtrasForm(request.POST)
 
-            update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=dia,
-                                 usuario_database=usuario_database)
-            result = 1
-            return render(request, "eval_durante.html",
-                          {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc, "dia": dia,
-                           'paciente': paciente})
+        form4.no_inc = no_inc
+        form4.user = request.user.username
+        form4.dia = dia
+
+        if "nombre_mani_dur" in request.POST:
+            nombre = request.POST['nombre_mani_dur']
+            try:
+                mani = models.RelacionPacManiClinOtras.objects.using(usuario_database).get(no_inclusion=no_inc, dia=dia,
+                                                                                           nombre=nombre)
+                mani.delete()
+                context = {'status': 'True', 'nombre': nombre}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
+            except:
+                context = {'status': 'False'}
+                return HttpResponse(simplejson.dumps(context), content_type="application/json")
         else:
-            result = 2
+            if form.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid():
+                update_datos_generales_evaluacion_durante(form=form, exist=exist, durante_eval=durante_eval,
+                                                          paciente=paciente, dia=dia, usuario_database=usuario_database)
+
+                update_examen_fisico(form=form2, examen_fisico=examen_fisico, paciente=paciente, dia=dia,
+                                     usuario_database=usuario_database)
+
+                update_manifestaciones_clinicas(form3, mani_clinicas, paciente, dia, usuario_database)
+                update_otras_manifestaciones_clinicas(form4, paciente, dia, usuario_database)
+
+                result = 1
+                return render(request, "eval_durante.html",
+                              {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result,
+                               'inc': no_inc, "dia": dia,
+                               'paciente': paciente, 'otras_mani': otras_manifestaciones})
+            else:
+                result = 2
 
     else:
         if exist:
@@ -900,9 +924,12 @@ def view_evaluacion_durante(request, no_inc, dia):
         else:
             form3 = forms.ManifestacionesClinicasForm()
 
+        form4 = forms.ManifestacionesClinicasOtrasForm()
+
     return render(request, "eval_durante.html",
-                  {'form': form, 'form2': form2, 'form3': form3, 'result': result, 'inc': no_inc, "dia": dia,
-                   'paciente': paciente})
+                  {'form': form, 'form2': form2, 'form3': form3, 'form4': form4, 'result': result, 'inc': no_inc,
+                   "dia": dia,
+                   'paciente': paciente, 'otras_mani': otras_manifestaciones})
 
 
 def update_datos_generales_evaluacion_durante(form, exist, durante_eval, paciente, dia, usuario_database):
@@ -925,7 +952,7 @@ def update_datos_generales_evaluacion_durante(form, exist, durante_eval, pacient
     interrumpio_tratamiento = form.cleaned_data['interrumpio_tratamiento']
 
     if exist:
-        print "updated"
+        # print "updated"
         durante_eval.no_inclusion = no_inclusion
         durante_eval.dia = dia
         durante_eval.fecha = fecha
@@ -947,7 +974,7 @@ def update_datos_generales_evaluacion_durante(form, exist, durante_eval, pacient
 
         durante_eval.save()
     else:
-        print "created"
+        # print "created"
         durante_eval = models.EvaluacionDurante.objects.using(usuario_database).create(no_inclusion=no_inclusion,
                                                                                        dia=dia,
                                                                                        fecha=fecha,

@@ -45,6 +45,12 @@ var nombre_tabla_necro = "#table_necro"; // id
 var nombre_boton_eliminar_necro = ".delete-necro"; // Clase
 var nombre_formulario_modal_necro = "#form_del_necro"; //id
 var nombre_ventana_modal_necro = "#necrosiaModal"; // id
+
+//configuraciones manifestaciones clinicas otras durante
+var nombre_tabla_mani_dur = "#table_mani_dur"; // id
+var nombre_boton_eliminar_mani_dur = ".delete-mani-dur"; // Clase
+var nombre_formulario_modal_mani_dur = "#form_del_mani_dur"; //id
+var nombre_ventana_modal_mani_dur = "#maniOtrasModalDur"; // id
 // Fin de configuraciones
 
 
@@ -124,6 +130,15 @@ $(document).on('ready', function () {
         var name = $(this).data('name');
         $('#modal_necro_nombre').val(name);
         $('#modal_name_necro').text(name);
+    });
+    $(nombre_boton_eliminar_mani_dur).on('click', function (e) {
+        e.preventDefault();
+        //console.log("Estoy aqui pac")
+        //var inc = $(this).attr('id');
+        //console.log("no inc "+inc)
+        var name = $(this).data('name');
+        $('#modal_mani_nombre_dur').val(name);
+        $('#modal_name_mani_dur').text(name);
     });
 
     var options_evento = {
@@ -293,6 +308,27 @@ $(document).on('ready', function () {
         }
     };
 
+    var options_mani_dur = {
+        success: function (response) {
+            console.log("success");
+            if (response.status == "True") {
+                //alert("Eliminado!");
+                var nombre = response.nombre;
+                var elementos = $(nombre_tabla_mani_dur + ' >tbody >tr').length;
+                if (elementos == 1) {
+                    location.reload();
+                } else {
+                    $('#tr_mani_dur_' + nombre).remove();
+                    $(nombre_ventana_modal_mani_dur).modal('hide');
+                }
+
+            } else {
+                alert("Hubo un error al eliminar!");
+                $(nombre_ventana_modal_mani_dur).modal('hide');
+            }
+        }
+    };
+
 
     $(nombre_formulario_modal).ajaxForm(options_evento);
     $(nombre_formulario_modal_trata).ajaxForm(options_trata);
@@ -302,4 +338,5 @@ $(document).on('ready', function () {
     $(nombre_formulario_modal_mani_fin).ajaxForm(options_mani_fin);
     $(nombre_formulario_modal_ger_fin).ajaxForm(options_ger_fin);
     $(nombre_formulario_modal_necro).ajaxForm(options_necro);
+    $(nombre_formulario_modal_mani_dur).ajaxForm(options_mani_dur);
 });
