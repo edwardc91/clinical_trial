@@ -1785,14 +1785,14 @@ def view_save_csv_report(request):
     response['Content-Disposition'] = 'attachment; filename="report-' + usuario_database + '.csv"'
 
     writer = csv.writer(response)
-    columns_name = generate_columns_name()
+    columns_name = generate_columns_name(usuario_database)
     writer.writerow(columns_name)
     writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
 
     return response
 
 
-def generate_columns_name():
+def generate_columns_name(usuario_database):
     # Paciente
     result = ['no_inclusion', 'fecha_inc', 'edad', 'sexo', 'raza', 'iniciales']
     # Evaluacion inicial
@@ -1803,7 +1803,11 @@ def generate_columns_name():
                'lateral_interno', 'lateral_externo', 'transmetatarsiano', 'clasificacion_idsa',
                'cultivo_microbiologico',
                'tratamiento_concomitante']
+
     # Examen fisico
+
+    result += ['dia', 'peso', 'cv', 'cv_desc', 'respiratorio', 'respiratorio_desc', 'abdominal', 'abdominal_desc',
+                   'extremidades', 'extremidades_desc', 'piel', 'piel_desc', 'neurologico', 'neurologico_desc']
     # columns_exa_fisico=[]
 
     return result

@@ -347,7 +347,7 @@ class InterrupcionTratamientoForm(forms.Form):
     fallecimiento = forms.ChoiceField(label="Fallecimiento", choices={(1, "Si"), (2, "No")}, widget=forms.RadioSelect)
 
 
-def generate_string_list_items(user):
+"""def generate_string_list_items(user):
     usuario_database = UserInfo.objects.using('default').get(user_auth__username__iexact=user).database
     data_list = [(e.nombre) for e in EventoAdverso.objects.using(usuario_database).all()]
 
@@ -363,7 +363,7 @@ def generate_string_list_items(user):
     else:
         result = ""
 
-    return result
+    return result"""
 
 
 class EventoAdversoForm(forms.Form):
@@ -373,11 +373,11 @@ class EventoAdversoForm(forms.Form):
     }
 
     user = 'emiguel'
-    lista_items = generate_string_list_items(user)
+    #lista_items = generate_string_list_items(user)
     nombre = forms.CharField(label="Nombre", max_length=50, error_messages=error_nombre,
                              widget=forms.TextInput(attrs={'class': 'span3', 'data-provide': "typeahead",
-                                                           'data-items': str(len(lista_items)),
-                                                           'data-source': lista_items
+                                                           'data-items': '0'"""str(len(lista_items))""",
+                                                           'data-source': '[]'"""lista_items"""
                                                            }))
     no_inclusion = None
 
