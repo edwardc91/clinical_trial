@@ -196,6 +196,81 @@
                             </div>
                         </div>
                     </div>
+                <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingThree">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                                   href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Manifestaciones clinicas
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseThree" class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="headingThree">
+                            <div class="panel-body">
+                                <table class="table">
+                                    {{ form3.as_table }}
+                                </table>
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingOne">
+                                        <h4 class="panel-title">Otras manifestaciones clinicas</h4>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table id="table_mani_fin" class="table">
+                                            {% if otras_mani %}
+                                                {% for otra in otras_mani %}
+                                                    <tr id="tr_mani_fin_{{ otra.nombre.nombre }}">
+                                                        <th>
+                                                            <a href="">{{ otra.nombre.nombre }}</a>
+                                                        </th>
+                                                        <td>
+                                                            <button type="button" class="btn btn-danger delete-mani-fin"
+                                                                    data-toggle="modal"
+                                                                    data-target="#maniOtrasModalFin"
+                                                                    id="{{ otra.nombre.nombre }}"
+                                                                    data-name="{{ otra.nombre.nombre }}"
+                                                                    aria-label="Left Align">
+                                                                <span class="glyphicon glyphicon-trash"
+                                                                      aria-hidden="true"></span> Eliminar
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                No existen datos de otras manifestaciones clinicas para el paciente
+                                            {% endif %}
+                                        </table>
+                                        <div class="panel panel-default">
+	<div class="panel-heading" role="tab" id="headingOtras">
+		<a class="btn btn-primary" role="button" data-toggle="collapse"
+		   data-parent="#collapse4"
+		   href="#collapseOtras" aria-expanded="false"
+		   aria-controls="collapseOtras"><i
+				class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+			Agregar otra manifestacion clinica
+		</a>
+	</div>
+	<div id="collapseOtras" class="panel-collapse collapse" role="tabpanel"
+		 aria-labelledby="headingOtras">
+		<div class="panel-body">
+			<!--<table class="table">
+				<form id="form_add_mani method="post">-->
+
+			<table class="table table-hover table-striped">
+				{{ form6.as_table }}
+			</table>
+
+            <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Agregar</button>
+		</div>
+	</div>
+</div>
+                                        {% csrf_token %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <a class="btn btn-link" href="{% url "Tratamientos_concomitantes" inc %}">En caso de recibir
                     tratamiento concomitante</a>
