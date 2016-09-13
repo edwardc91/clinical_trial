@@ -1785,17 +1785,50 @@ def view_save_csv_report(request):
     response['Content-Disposition'] = 'attachment; filename="report-' + usuario_database + '.csv"'
 
     writer = csv.writer(response)
-    columns_name = generate_columns_name(usuario_database)
+    max_eventos = max_number_eventos_adversos(usuario_database)
+    max_tratas = max_number_tratamientos_concomitantes(usuario_database)
+
+    columns_name = generate_columns_name(usuario_database, max_eventos, max_tratas)
     writer.writerow(columns_name)
-    writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
+    writer.writerow([str(max_number_eventos_adversos(usuario_database)), str(max_number_tratamientos_concomitantes(usuario_database)),'B', 'C', '"Testing"', "Here's a quote"])
 
     return response
 
 
-def generate_columns_name(usuario_database):
+def max_number_eventos_adversos(usuario_database):
+    pacientes = models.Paciente.objects.using(usuario_database).all()
+
+    max = 0
+    for paciente in pacientes:
+        cant_eventos_adversos = models.EventosAdversosPaciente.objects.using(usuario_database).filter(
+            no_inclusion=paciente).count()
+        if cant_eventos_adversos >= max:
+            max = cant_eventos_adversos
+
+    return max
+
+
+def max_number_tratamientos_concomitantes(usuario_database):
+    pacientes = models.Paciente.objects.using(usuario_database).all()
+
+    max = 0
+    for paciente in pacientes:
+        cant_tratamientos_concomitantes = models.TratamientoConcomitante.objects.using(usuario_database).filter(
+            no_inclusion=paciente).count()
+        if cant_tratamientos_concomitantes >= max:
+            max = cant_tratamientos_concomitantes
+
+    return max
+
+
+def generate_columns_name(usuario_database,max_eventos, max_tratas):
     # Paciente
     result = ['no_inclusion', 'fecha_inc', 'edad', 'sexo', 'raza', 'iniciales']
-    # Evaluacion inicial
+
+    #
+    #       EVALUACION INICIAL
+    #
+
     result += ['fecha_ini', 'hipertension_arterial', 'hiperlipidemias', 'cardiopatia_isquemica',
                ' historia_ulcera_pies',
                'historia_amputacion', 'amputacion_mayor', 'amputacion_menor', 'tipo_diabetes', 'tiempo_evolucion',
@@ -1806,8 +1839,174 @@ def generate_columns_name(usuario_database):
 
     # Examen fisico
 
-    result += ['dia', 'peso', 'cv', 'cv_desc', 'respiratorio', 'respiratorio_desc', 'abdominal', 'abdominal_desc',
-                   'extremidades', 'extremidades_desc', 'piel', 'piel_desc', 'neurologico', 'neurologico_desc']
+    result += generate_columns_name_examen_fisico('0')
+
     # columns_exa_fisico=[]
 
+    # manifestaciones clinicas
+    col_man_clinicas = generate_columns_name_mani_clinicas('0')
+    col_otras_mani_cli = generate_columns_name_otras_mani('0')
+
+    result += col_man_clinicas
+    result += col_otras_mani_cli
+
+    # eval microbiologica
+    col_eval_micro = generate_columns_name_eval_micro('0')
+    col_otros_germenes = generate_columns_name_otros_ger('0')
+
+    result += col_eval_micro
+    result += col_otros_germenes
+
+    # examen lab clinico
+    col_exa_lab_clin = generate_columns_exa_lab_clin('0')
+    result += col_exa_lab_clin
+
+    #
+    #       EVALUACION DURANTE
+    #
+
+    result += generate_columns_name_eval_durante()
+
+    #
+    #       EVALUACION FINAL
+    #
+
+    result += generate_columns_eval_final()
+
+    #
+    #       INTERRUPCION TRATAMIENTO
+    #
+
+    result += generate_columns_name_interrup()
+
+    #
+    #       EVENTOS ADVERSOS Y TRATAS
+    #
+
+    count = 0
+    while count < max_eventos:
+        result += generate_columns_name_eventos_adversos(str(count + 1))
+        count += 1
+
+    count = 0
+    while count < max_tratas:
+        result += generate_columns_name_tratas_concomitantes(str(count + 1))
+        count += 1
+
     return result
+
+
+def generate_columns_name_examen_fisico(dia):
+    columns_exa_fisico = ['peso' + dia, 'cv' + dia, 'cv_desc' + dia, 'respiratorio' + dia, 'respiratorio_desc' + dia,
+                          'abdominal' + dia,
+                          'abdominal_desc' + dia,
+                          'extremidades' + dia, 'extremidades_desc' + dia, 'piel' + dia, 'piel_desc' + dia,
+                          'neurologico' + dia, 'neurologico_desc' + dia]
+
+    return columns_exa_fisico
+
+
+def generate_columns_name_mani_clinicas(dia):
+    col_man_clinicas = ['induracion' + dia, 'edema_local' + dia, 'eritema_diametro' + dia,
+                        'sensibilidad' + dia, 'dolor_local' + dia,
+                        'calor_local' + dia, 'secrecion_purulenta' + dia, 'secrecion_no_purulenta' + dia]
+    return col_man_clinicas
+
+
+def generate_columns_name_otras_mani(dia):
+    col_otras_mani_cli = ['otra' + dia + '_1', 'otra' + dia + '_2', 'otra' + dia + '_3']
+    return col_otras_mani_cli
+
+
+def generate_columns_name_eval_micro(dia):
+    col_eval_micro = ['fecha' + dia, 'resultado' + dia]
+    return col_eval_micro
+
+
+def generate_columns_name_otros_ger(dia):
+    col_otros_germenes = []
+    count = 0
+    while count < 6:
+        col_otros_germenes += ['germen' + dia + '_' + str(count + 1)]
+        count += 1
+
+    return col_otros_germenes
+
+
+def generate_columns_exa_lab_clin(dia):
+    col_exa_lab_clin = ['fecha_hematologicos' + dia, 'hemoglobina' + dia, 'hemoglobina_valor' + dia, 'ctl' + dia,
+                        'ctl_valor' + dia, 'neutrofilos' + dia,
+                        'neutrofilos_valor' + dia, 'linfocitos' + dia, 'linfocitos_valor' + dia, 'monocitos' + dia,
+                        'monocitos_valor' + dia,
+                        'eosinofilos' + dia,
+                        'eosinofilos_valor' + dia, 'basofilos' + dia, 'basofilos_valor' + dia, 'c_plaquetas' + dia,
+                        'c_plaquetas_valor' + dia,
+                        'eritro', 'eritro_valor' + dia, 'fecha_quimica_sanguinea' + dia, 'creatinina' + dia,
+                        'creatinina_valor' + dia, 'tgo' + dia,
+                        'tgo_valor' + dia,
+                        'tgp' + dia, 'tgp_valor' + dia, 'glicemia' + dia, 'glicemia_valor' + dia]
+    return col_exa_lab_clin
+
+
+def generate_columns_name_eval_durante():
+    columns_eval_dur = []
+    count = 0
+
+    while count < 7:
+        num_str = str(count)
+        columns_eval_dur += ['fecha_dur' + num_str, 'previo_diastolica' + num_str, 'previo_sistolica' + num_str,
+                             'previo_fc' + num_str,
+                             'previo_temperatura' + num_str, 'despues_diastolica' + num_str,
+                             'despues_sistolica' + num_str, 'despues_fc' + num_str,
+                             'despues_temperatura' + num_str, 'glicemia_valor' + num_str, 'glicemia' + num_str,
+                             'fecha_glicemia' + num_str,
+                             'manifestaciones_clinicas' + num_str, 'tratamiento_concomitante' + num_str,
+                             'eventos_adversos' + num_str,
+                             'interrumpio_tratamiento' + num_str]
+
+        num_str_plus = str(count + 1)
+
+        columns_eval_dur += generate_columns_name_examen_fisico(num_str_plus)
+        columns_eval_dur += generate_columns_name_mani_clinicas(num_str_plus)
+        columns_eval_dur += generate_columns_name_otras_mani(num_str_plus)
+
+        count += 1
+
+    return columns_eval_dur
+
+
+def generate_columns_eval_final():
+    columns_eval_final = ['fecha_fin', 'manifestaciones_clinicas8', 'cultivo_microbiologico8', 'clasificacion_idsa8']
+    columns_eval_final += generate_columns_name_examen_fisico('8')
+    columns_eval_final += generate_columns_name_mani_clinicas('8')
+    columns_eval_final += generate_columns_name_otras_mani('8')
+    columns_eval_final += generate_columns_name_eval_micro('8')
+    columns_eval_final += generate_columns_name_otros_ger('8')
+    columns_eval_final += generate_columns_exa_lab_clin('8')
+
+    return columns_eval_final
+
+
+def generate_columns_name_interrup():
+    columns_interr_tra = ['fecha_inter', 'dosis_recibidas', 'abandono_voluntario', 'criterios_exclusion',
+                          'eventos_adversos', 'aparicion_agravamiento', 'fallecimiento', 'otras_causa_inter']
+    columns_interr_tra += ['fecha_fallecimiento', 'causa_clinica', 'realizo_necrosia']
+    columns_interr_tra += ['necro_hallazgo1', 'necro_hallazgo2', 'necro_hallazgo3']
+
+    return columns_interr_tra
+
+
+def generate_columns_name_eventos_adversos(number):
+    columns_even_adv = ['fecha_inicio_eve' + number, 'fecha_fin_eve' + number, 'duracion_24_horas_eve' + number,
+                        'grado_intensidad' + number, 'actitud_farmaco' + number, 'resultado' + number,
+                        'relacion_causalidad' + number, 'lote_dermofural' + number]
+
+    return columns_even_adv
+
+
+def generate_columns_name_tratas_concomitantes(number):
+    columns_tratas_con = ['fecha_inicio_trata' + number, 'fecha_fin_trata' + number, 'duracion_24_horas_trata' + number,
+                          'tratar_eventos_adversos' + number, 'dosis_trata' + number, 'medida' + number,
+                          'tipo' + number]
+
+    return columns_tratas_con
