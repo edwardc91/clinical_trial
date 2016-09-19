@@ -207,6 +207,7 @@ def view_evaluacion_inicial(request, no_inc):
     exist = True
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
     result = 0
+    init_eval = None
 
     try:
         init_eval = models.EvaluacionInicial.objects.using(usuario_database).get(no_inclusion=no_inc)
@@ -1004,6 +1005,7 @@ def view_evaluacion_final(request, no_inc):
     exist = True
     paciente = models.Paciente.objects.using(usuario_database).get(no_inclusion=no_inc)
     result = 0
+    final_eval = None
 
     try:
         final_eval = models.EvaluacionFinal.objects.using(usuario_database).get(no_inclusion__no_inclusion=no_inc)
@@ -1785,22 +1787,275 @@ def view_save_csv_report(request):
     response['Content-Disposition'] = 'attachment; filename="report-' + usuario_database + '.csv"'
 
     writer = csv.writer(response)
-    max_eventos = max_number_eventos_adversos(usuario_database)
-    max_tratas = max_number_tratamientos_concomitantes(usuario_database)
+    max_eventos = max_number_eventos_trata(usuario_database, models.EventosAdversosPaciente)
+    max_tratas = max_number_eventos_trata(usuario_database, models.TratamientoConcomitante)
 
-    columns_name = generate_columns_name(usuario_database, max_eventos, max_tratas)
+    columns_name = generate_columns_name(max_eventos, max_tratas)
+
+    pacientes = models.Paciente.objects.using(usuario_database).all().order_by('no_inclusion')
+
     writer.writerow(columns_name)
-    writer.writerow([str(max_number_eventos_adversos(usuario_database)), str(max_number_tratamientos_concomitantes(usuario_database)),'B', 'C', '"Testing"', "Here's a quote"])
+
+    for paciente in pacientes:
+        writer.writerow(generate_data_paciente_row(usuario_database, paciente, max_eventos, max_tratas))
 
     return response
 
 
-def max_number_eventos_adversos(usuario_database):
+def generate_data_paciente_row(usuario_database, paciente, max_eve, max_tratas):
+    result = []
+    # datos del paciente
+    result += [paciente.no_inclusion, paciente.fecha_inclusion, paciente.edad, paciente.sexo, paciente.raza,
+               paciente.iniciales]
+
+    # datos de la evaluacion inicial
+    try:
+        eval_ini = models.EvaluacionInicial.objects.using(usuario_database).get(no_inclusion=paciente)
+        result += [eval_ini.fecha, eval_ini.hipertension_arterial, eval_ini.hiperlipidemias,
+                   eval_ini.cardiopatia_isquemica, eval_ini.historia_ulcera_pies, eval_ini.historia_amputacion,
+                   eval_ini.amputacion_mayor, eval_ini.amputacion_menor, eval_ini.tipo_diabetes,
+                   eval_ini.tiempo_evolucion, eval_ini.habito_fumar, eval_ini.alcoholismo,
+                   eval_ini.miembro_afectado,
+                   eval_ini.dedos, eval_ini.dorso_pie, eval_ini.planta, eval_ini.calcaneo, eval_ini.lateral_interno,
+                   eval_ini.lateral_externo, eval_ini.transmetatarsiano, eval_ini.clasificacion_idsa,
+                   eval_ini.cultivo_microbiologico, eval_ini.tratamiento_concomitante]
+    except ObjectDoesNotExist:
+        result += fill_x_none(23)
+
+    result += generate_examen_fisico_data(usuario_database, paciente, 0)
+    result += generate_manif_clin_data(usuario_database, paciente, 0)
+    result += generate_eval_micro_data(usuario_database, paciente, 0)
+    result += generate_exa_lab_cli_data(usuario_database, paciente, 0)
+
+    # datos de la evaluacion durante
+    result += generate_eval_durante_data(usuario_database, paciente)
+
+    # datos de la evaluacion final
+    result += generate_eval_final_data(usuario_database, paciente)
+
+    # datos interrupcion tratamiento
+    result += generate_interrup_trata_data(usuario_database, paciente)
+
+    # datos eventos adversos
+    result += generate_eve_adv_data(usuario_database, paciente, max_eve)
+
+    # datos trata concomitantes
+    result += generate_trata_con_data(usuario_database,paciente,max_tratas)
+
+    return result
+
+
+def generate_examen_fisico_data(usuario_database, paciente, dia):
+    result = []
+    try:
+        fisi = models.ExamenFisico.objects.using(usuario_database).get(no_inclusion=paciente, dia=dia)
+        result += [fisi.peso, fisi.cv, fisi.cv_desc, fisi.respiratorio, fisi.respiratorio_desc, fisi.abdominal,
+                   fisi.abdominal_desc, fisi.extremidades, fisi.extremidades_desc, fisi.piel, fisi.piel_desc,
+                   fisi.neurologico, fisi.neurologico_desc]
+    except ObjectDoesNotExist:
+        result += fill_x_none(13)
+
+    return result
+
+
+def generate_manif_clin_data(usuario_database, paciente, dia):
+    result = []
+    try:
+        mani = models.ManifestacionesClinicas.objects.using(usuario_database).get(no_inclusion=paciente, dia=dia)
+        result += [mani.induracion, mani.edema_local, mani.eritema_diametro, mani.sensibilidad, mani.dolor_local,
+                   mani.calor_local, mani.secrecion_purulenta, mani.secrecion_no_purulenta]
+
+    except ObjectDoesNotExist:
+        result += fill_x_none(8)
+
+    otras_mani = models.RelacionPacManiClinOtras.objects.using(usuario_database).filter(no_inclusion=paciente, dia=dia)
+    if otras_mani.exists():
+        cant = otras_mani.count()
+        if cant == 3:
+            result += [otras_mani[0].nombre.nombre, otras_mani[1].nombre.nombre, otras_mani[2].nombre.nombre]
+        elif cant == 2:
+            result += [otras_mani[0].nombre.nombre, otras_mani[1].nombre.nombre, 'none']
+        else:
+            result += [otras_mani[0].nombre.nombre, 'none', 'none']
+    else:
+        result += fill_x_none(3)
+
+    return result
+
+
+def generate_eval_micro_data(usuario_database, paciente, dia):
+    result = []
+    try:
+        micro = models.EvaluacionMicrobiologica.objects.using(usuario_database).get(no_inclusion=paciente, dia=dia)
+        result += [micro.fecha, micro.resultado]
+
+    except ObjectDoesNotExist:
+        result += fill_x_none(2)
+
+    otros_ger = models.RelacionPacienteGermen.objects.using(usuario_database).filter(no_inclusion=paciente, dia=dia)
+    if otros_ger.exists():
+        result += otros_germenes_data(otros_ger)
+    else:
+        result += fill_x_none(6)
+
+    return result
+
+
+def otros_germenes_data(otros_germenes):
+    cant = otros_germenes.count()
+    result = []
+
+    for otro in otros_germenes:
+        result += [otro.nombre.nombre]
+
+    result += fill_x_none(6 - cant)
+
+    return result
+
+
+def generate_exa_lab_cli_data(usuario_database, paciente, dia):
+    result = []
+    try:
+        lab_cli = models.ExamenLabClinico.objects.using(usuario_database).get(no_inclusion=paciente, dia=dia)
+        result += [lab_cli.fecha_hematologicos, lab_cli.hemoglobina, lab_cli.hemoglobina_valor, lab_cli.ctl,
+                   lab_cli.ctl_valor, lab_cli.neutrofilos, lab_cli.neutrofilos_valor, lab_cli.linfocitos,
+                   lab_cli.linfocitos_valor, lab_cli.monocitos, lab_cli.monocitos_valor, lab_cli.eosinofilos,
+                   lab_cli.eosinofilos_valor, lab_cli.basofilos, lab_cli.basofilos_valor, lab_cli.c_plaquetas,
+                   lab_cli.c_plaquetas_valor, lab_cli.eritro, lab_cli.eritro_valor, lab_cli.fecha_quimica_sanguinea,
+                   lab_cli.creatinina, lab_cli.creatinina_valor, lab_cli.tgo, lab_cli.tgo_valor, lab_cli.tgp,
+                   lab_cli.tgp_valor, lab_cli.glicemia, lab_cli.glicemia_valor]
+    except ObjectDoesNotExist:
+        result += fill_x_none(28)
+
+    return result
+
+
+def generate_eval_durante_data(usuario_database, paciente):
+    result = []
+    count = 1
+    while count <= 7:
+        try:
+            eval_dur = models.EvaluacionDurante.objects.using(usuario_database).get(no_inclusion=paciente, dia=count)
+            result += [eval_dur.fecha, eval_dur.previo_diastolica, eval_dur.previo_sistolica, eval_dur.previo_fc,
+                       eval_dur.previo_temperatura, eval_dur.despues_diastolica, eval_dur.despues_sistolica,
+                       eval_dur.despues_fc, eval_dur.despues_temperatura, eval_dur.glicemia_valor, eval_dur.glicemia,
+                       eval_dur.fecha_glicemia, eval_dur.manifestaciones_clinicas, eval_dur.tratamiento_concomitante,
+                       eval_dur.eventos_adversos, eval_dur.interrumpio_tratamiento]
+
+        except ObjectDoesNotExist:
+            result += fill_x_none(16)
+
+        result += generate_examen_fisico_data(usuario_database, paciente, count)
+        result += generate_manif_clin_data(usuario_database, paciente, count)
+
+        count += 1
+
+    return result
+
+
+def generate_eval_final_data(usuario_database, paciente):
+    result = []
+    try:
+        eval_fin = models.EvaluacionFinal.objects.using(usuario_database).get(no_inclusion=paciente)
+        result += [eval_fin.fecha, eval_fin.manifestaciones_clinicas, eval_fin.cultivo_microbiologico,
+                   eval_fin.clasificacion_idsa]
+    except ObjectDoesNotExist:
+        result += fill_x_none(4)
+
+    result += generate_examen_fisico_data(usuario_database, paciente, 8)
+    result += generate_manif_clin_data(usuario_database, paciente, 8)
+    result += generate_eval_micro_data(usuario_database, paciente, 8)
+    result += generate_exa_lab_cli_data(usuario_database, paciente, 8)
+
+    return result
+
+
+def generate_interrup_trata_data(usuario_database, paciente):
+    result = []
+    try:
+        inter = models.InterrupcionTratamiento.objects.using(usuario_database).get(no_inclusion=paciente)
+        result += [inter.fecha, inter.dosis_recibidas, inter.abandono_voluntario, inter.criterios_exclusion,
+                   inter.eventos_adversos, inter.aparicion_agravamiento, inter.fallecimiento]
+
+    except ObjectDoesNotExist:
+        result += fill_x_none(7)
+
+    try:
+        otra = models.RelacionPacCausasInterrupOtras.objects.using(usuario_database).get(no_inclusion=paciente)
+        result += [otra.nombre.nombre]
+    except ObjectDoesNotExist:
+        result += fill_x_none(1)
+
+    try:
+        fall = models.Fallecimiento.objects.using(usuario_database).get(no_inclusion=paciente)
+        result += [fall.fecha, fall.causa_clinica, fall.realizo_necrosia]
+    except ObjectDoesNotExist:
+        result += fill_x_none(3)
+
+    necro = models.Necrosia.objects.using(usuario_database).filter(no_inclusion=paciente)
+    if necro.exists():
+        cant = necro.count()
+        if cant == 3:
+            result += [necro[0].hallazgo, necro[1].hallazgo, necro[2].hallazgo]
+        elif cant == 2:
+            result += [necro[0].hallazgo, necro[1].hallazgo, 'none']
+        else:
+            result += [necro[0].hallazgo, 'none', 'none']
+    else:
+        result += fill_x_none(3)
+
+    return result
+
+
+def generate_eve_adv_data(usuario_database, paciente, max_eve):
+    result = []
+    eves = models.EventosAdversosPaciente.objects.using(usuario_database).filter(no_inclusion=paciente)
+    cant = eves.count()
+    for eve in eves:
+        result += [eve.nombre.nombre, eve.fecha_inicio, eve.fecha_fin, eve.duracion_24_horas, eve.grado_intensidad,
+                   eve.gravedad, eve.actitud_farmaco, eve.resultado, eve.relacion_causalidad, eve.lote_dermofural]
+
+    count = 0
+    while count < max_eve - cant:
+        result += fill_x_none(10)
+        count += 1
+
+    return result
+
+
+def generate_trata_con_data(usuario_database, paciente, max_trata):
+    result = []
+    tratas = models.TratamientoConcomitante.objects.using(usuario_database).filter(no_inclusion=paciente)
+    cant = tratas.count()
+
+    for trata in tratas:
+        result += [trata.nombre.nombre, trata.fecha_inicio, trata.fecha_fin, trata.duracion_24_horas,
+                   trata.tratar_eventos_adversos, trata.dosis, trata.medida.medida, trata.tipo.tipo]
+
+    count = 0
+    while count < max_trata - cant:
+        result += fill_x_none(8)
+        count += 1
+
+    return result
+
+
+def fill_x_none(x):
+    result = []
+    count = 0
+    while count < x:
+        result += ['none']
+        count += 1
+
+    return result
+
+
+def max_number_eventos_trata(usuario_database, model):
     pacientes = models.Paciente.objects.using(usuario_database).all()
 
     max = 0
     for paciente in pacientes:
-        cant_eventos_adversos = models.EventosAdversosPaciente.objects.using(usuario_database).filter(
+        cant_eventos_adversos = model.objects.using(usuario_database).filter(
             no_inclusion=paciente).count()
         if cant_eventos_adversos >= max:
             max = cant_eventos_adversos
@@ -1808,20 +2063,7 @@ def max_number_eventos_adversos(usuario_database):
     return max
 
 
-def max_number_tratamientos_concomitantes(usuario_database):
-    pacientes = models.Paciente.objects.using(usuario_database).all()
-
-    max = 0
-    for paciente in pacientes:
-        cant_tratamientos_concomitantes = models.TratamientoConcomitante.objects.using(usuario_database).filter(
-            no_inclusion=paciente).count()
-        if cant_tratamientos_concomitantes >= max:
-            max = cant_tratamientos_concomitantes
-
-    return max
-
-
-def generate_columns_name(usuario_database,max_eventos, max_tratas):
+def generate_columns_name(max_eventos, max_tratas):
     # Paciente
     result = ['no_inclusion', 'fecha_inc', 'edad', 'sexo', 'raza', 'iniciales']
 
@@ -1919,7 +2161,7 @@ def generate_columns_name_otras_mani(dia):
 
 
 def generate_columns_name_eval_micro(dia):
-    col_eval_micro = ['fecha' + dia, 'resultado' + dia]
+    col_eval_micro = ['fecha_micro' + dia, 'resultado' + dia]
     return col_eval_micro
 
 
@@ -1953,18 +2195,18 @@ def generate_columns_name_eval_durante():
     count = 0
 
     while count < 7:
-        num_str = str(count)
-        columns_eval_dur += ['fecha_dur' + num_str, 'previo_diastolica' + num_str, 'previo_sistolica' + num_str,
-                             'previo_fc' + num_str,
-                             'previo_temperatura' + num_str, 'despues_diastolica' + num_str,
-                             'despues_sistolica' + num_str, 'despues_fc' + num_str,
-                             'despues_temperatura' + num_str, 'glicemia_valor' + num_str, 'glicemia' + num_str,
-                             'fecha_glicemia' + num_str,
-                             'manifestaciones_clinicas' + num_str, 'tratamiento_concomitante' + num_str,
-                             'eventos_adversos' + num_str,
-                             'interrumpio_tratamiento' + num_str]
-
         num_str_plus = str(count + 1)
+        columns_eval_dur += ['fecha_dur' + num_str_plus, 'previo_diastolica' + num_str_plus,
+                             'previo_sistolica' + num_str_plus,
+                             'previo_fc' + num_str_plus,
+                             'previo_temperatura' + num_str_plus, 'despues_diastolica' + num_str_plus,
+                             'despues_sistolica' + num_str_plus, 'despues_fc' + num_str_plus,
+                             'despues_temperatura' + num_str_plus, 'glicemia_valor' + num_str_plus,
+                             'glicemia' + num_str_plus,
+                             'fecha_glicemia' + num_str_plus,
+                             'manifestaciones_clinicas' + num_str_plus, 'tratamiento_concomitante' + num_str_plus,
+                             'eventos_adversos' + num_str_plus,
+                             'interrumpio_tratamiento' + num_str_plus]
 
         columns_eval_dur += generate_columns_name_examen_fisico(num_str_plus)
         columns_eval_dur += generate_columns_name_mani_clinicas(num_str_plus)
@@ -1997,16 +2239,19 @@ def generate_columns_name_interrup():
 
 
 def generate_columns_name_eventos_adversos(number):
-    columns_even_adv = ['fecha_inicio_eve' + number, 'fecha_fin_eve' + number, 'duracion_24_horas_eve' + number,
-                        'grado_intensidad' + number, 'actitud_farmaco' + number, 'resultado' + number,
+    columns_even_adv = ['nombre' + number, 'fecha_inicio_eve' + number, 'fecha_fin_eve' + number,
+                        'duracion_24_horas_eve' + number,
+                        'grado_intensidad' + number, 'gravedad' + number, 'actitud_farmaco' + number,
+                        'resultado' + number,
                         'relacion_causalidad' + number, 'lote_dermofural' + number]
 
     return columns_even_adv
 
 
 def generate_columns_name_tratas_concomitantes(number):
-    columns_tratas_con = ['fecha_inicio_trata' + number, 'fecha_fin_trata' + number, 'duracion_24_horas_trata' + number,
+    columns_tratas_con = ['nombre' + number, 'fecha_inicio_trata' + number, 'fecha_fin_trata' + number,
+                          'duracion_24_horas_trata' + number,
                           'tratar_eventos_adversos' + number, 'dosis_trata' + number, 'medida' + number,
-                          'tipo' + number]
+                          'frecuencia' + number]
 
     return columns_tratas_con
